@@ -55,7 +55,6 @@
     ".ruff_cache/",
     ".venv/",
     "apktool-out/",
-    "artifacts/",
     "data/",
     "jadx-out/",
     "node_modules/",
