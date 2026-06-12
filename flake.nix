@@ -21,11 +21,9 @@
           runtimeInputs = with pkgs; [
             findutils
             nixfmt
-            ruff
           ];
           text = ''
             find . -name '*.nix' -not -path './.git/*' -print0 | xargs -0 --no-run-if-empty nixfmt
-            ruff format .
           '';
         };
       in
@@ -44,16 +42,9 @@
             markdownlint-cli2
             nixfmt
             python3
-            python3Packages.mypy
-            python3Packages.pytest
             ripgrep
-            ruff
             unzip
           ];
-
-          shellHook = ''
-            export PYTHONPATH="$PWD/src''${PYTHONPATH:+:$PYTHONPATH}"
-          '';
         };
 
         inherit formatter;

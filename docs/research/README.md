@@ -1,13 +1,10 @@
 # Research Notes
 
-Source-specific findings, commands, candidate official APIs, and next steps for Poker Fate player-data collection.
-
-Organized by topic. When a workflow decision becomes stable, move it to [`docs/design/`](../design/).
+Current endpoint contract, artifact provenance, and fetched player-stat snapshot.
 
 ## Current Threads
 
-| Document                                            | Description                                                           |
-| --------------------------------------------------- | --------------------------------------------------------------------- |
-| [API Inventory](api-inventory.md)                   | Official API candidates, verification state, and schemas              |
-| [Official Surface](official-surface.md)             | Official website, downloadable clients, public links, visible surface |
-| [Android APK](android-apk.md)                       | Android APK source, hash, and static-analysis checkpoints             |
+| Document                            | Description                                                                 |
+| ----------------------------------- | --------------------------------------------------------------------------- |
+| [API Inventory](api-inventory.md)   | Guest auth, player lookup, profile-stat schema, and the `Hakula` snapshot   |
+| [Android APK](android-apk.md)       | APK source metadata and decoded-client evidence                             |

@@ -1,11 +1,9 @@
 # Documentation
 
-Durable notes for Poker Fate API discovery, schema collection, and tooling.
+Durable notes for the current Poker Fate API result.
 
 ## Contents
 
-| Directory / File             | Description                                                        |
-| ---------------------------- | ------------------------------------------------------------------ |
-| [`design/`](design/)         | Research workflow, evidence conventions, and tooling scope         |
-| [`research/`](research/)     | Official surface findings, API inventory, commands, and next steps |
-| [`glossary.md`](glossary.md) | Poker-stat terminology and Chinese search terms                    |
+| Directory / File         | Description                                          |
+| ------------------------ | ---------------------------------------------------- |
+| [`research/`](research/) | API contract, current player-stat result, APK source |
