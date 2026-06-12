@@ -156,6 +156,7 @@ Fetched on 2026-06-12 for UID `10410931` with a dedicated guest account:
 | `POST /player/sngRecord`             | SNG trend data for a target UID.                                                                                                                           |
 | WebSocket `pb.GetOtherDetailInfoREQ` | Profile detail by UID, including brief profile, bio, achievements, collections, and certification metadata.                                                |
 | `POST /activity/rankingList`         | Authenticated leaderboard pages; useful for discovering public UIDs before enriching them with profile stats. See [Player Discovery](player-discovery.md). |
+| WebSocket tournament rank requests   | Decoded lead for discovering tournament player UIDs from rank lists. Needs live verification before collector use.                                         |
 
 ## Error Codes
 

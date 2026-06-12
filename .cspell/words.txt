@@ -9,6 +9,7 @@ Hakula
 HOLDEM
 IL2CPP
 imei
+isort
 jadx
 libil
 mult
@@ -22,6 +23,8 @@ pkproject
 pkproto
 pokerfate
 pycache
+pyproject
+pypi
 pytest
 rdkey
 statix

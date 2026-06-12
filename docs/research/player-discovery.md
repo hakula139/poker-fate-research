@@ -59,16 +59,55 @@ Live verification on 2026-06-12 using the reusable research guest:
 | ---------------- | ------------ | -------------- | ------------------------------------- |
 | Winnings         | Current week | `0`            | `0`                                   |
 | Winnings         | Last week    | `0`            | `0`                                   |
-| Throne Points    | Current week | `12711`        | `100`                                 |
+| Throne Points    | Current week | `12788`        | `100`                                 |
 | Throne Points    | Last week    | `16893`        | `100`                                 |
-| Honor Points     | Current week | `4991`         | `100`                                 |
+| Honor Points     | Current week | `5019`         | `100`                                 |
 | Honor Points     | Last week    | `6728`         | `100`                                 |
-| Classic Winnings | Current week | `12729`        | `100`                                 |
+| Classic Winnings | Current week | `12807`        | `100`                                 |
 | Classic Winnings | Last week    | `16893`        | `100`                                 |
-| Casual Winnings  | Current week | `8174`         | `100`                                 |
+| Casual Winnings  | Current week | `8222`         | `100`                                 |
 | Casual Winnings  | Last week    | `11251`        | `100`                                 |
 
-The sampled top-100 pages across active current and previous-week leaderboards contained `428` unique UIDs. The local ignored snapshot is `data/research-snapshots/leaderboard-and-profile-sample-2026-06-12.json`.
+The 2026-06-12 leaderboard snapshot fetched `800` rows from `26` leaderboard pages and discovered `431` unique UIDs. The local ignored snapshot files are under `data/player-snapshots/` with timestamp `20260612T085028Z`.
+
+## Discovery Limits and Other Sources
+
+There is no confirmed all-player listing endpoint. The current high-confidence discovery surfaces are:
+
+| Source                         | Status                       | Use                                                                                                  |
+| ------------------------------ | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `POST /friend/searchList`      | Confirmed for known targets  | Resolves known nicknames or UIDs, such as `Hakula` / `10410931`, but does not provide enumeration.   |
+| `POST /activity/rankingList`   | Confirmed and currently used | Discovers leaderboard-visible UIDs, capped at the client-visible top 100 rows per leaderboard week.  |
+| Tournament WebSocket rank data | Decoded client lead          | `TourRankItem` contains `UserBrief`, which includes `uid`; this may expose SNG / MTT entrant ranks.  |
+| Account social lists           | Confirmed account-scoped     | Friend, blocked, and friend-game lists are tied to the research account and empty for a fresh guest. |
+| Card history / replay lists    | Confirmed account-scoped     | Recent and collected card lists are tied to the research account and empty for a fresh guest.        |
+
+Fresh-guest probes on 2026-06-12 returned empty results for `friend/list`, `friend/gameList`, `friend/applyList`, `friend/blockedList`, `collCard/recentlyCardList`, and `collCard/list`. These endpoints can reveal UIDs only when the research account already has friends, recent games, or collected hands, so they are not broad public discovery sources.
+
+The most promising expansion path is the tournament WebSocket API. The decoded protobuf schema contains `TourListREQ`, `TourHistoryListREQ`, `TourDetailInfoREQ`, `TourRoomDetailREQ`, and `MttRankREQ`. Their responses reference `TourRankItem`, and `TourRankItem` carries `UserBrief brief`. This still needs live WebSocket verification with the reusable research guest before it should be treated as a confirmed collector source.
+
+## Leaderboard Snapshot Collector
+
+Use `uv run poker-fate players` to create reproducible local JSONL snapshots under ignored `data/player-snapshots/`. The collector requires `POKER_FATE_RESEARCH_DEVICE_TOKEN` from an ignored local environment file and does not write guest authorization, `rdkey`, or raw login responses to output.
+
+```bash
+set -a
+source .envrc.local
+set +a
+uv run poker-fate players
+```
+
+Output files:
+
+| File pattern                                      | Contents                                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `poker-fate-leaderboards-*.jsonl`                 | One `leaderboard_page` record per fetched `/activity/rankingList` page.                    |
+| `poker-fate-players-*.jsonl`                      | One `player_snapshot` record per discovered UID, enriched with profile stats and SNG data. |
+| `poker-fate-snapshot-*.metadata.json`             | Snapshot paths, leaderboard summaries, fetched row counts, and guest UID.                  |
+
+For a low-volume protocol check, use `--max-players 2`. That still fetches leaderboard pages but only enriches the first two discovered UIDs.
+
+Reusable API client, model, and collection helpers live under `src/poker_fate_research/`. Run the collector through the uv-managed console script so imports and tool versions stay consistent.
 
 ## Stats Enrichment
 

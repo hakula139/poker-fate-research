@@ -26,6 +26,7 @@
           src = ./.;
           hooks = {
             check-added-large-files.enable = true;
+            check-python.enable = true;
             cspell = {
               enable = true;
               args = [
@@ -58,6 +59,8 @@
               };
             };
             nixfmt.enable = true;
+            ruff.enable = true;
+            ruff-format.enable = true;
             statix.enable = true;
             trim-trailing-whitespace = {
               enable = true;
@@ -86,7 +89,9 @@
               nixfmt
               python3
               ripgrep
+              ruff
               unzip
+              uv
               zsh
             ]);
 
