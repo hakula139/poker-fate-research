@@ -10,28 +10,15 @@ The Android client exposes a guest login path and authenticated read APIs for pl
 
 ## Documentation
 
-| Document                                        | Description                                |
-| ----------------------------------------------- | ------------------------------------------ |
-| [API Inventory](docs/research/api-inventory.md) | Endpoint contract and `Hakula` snapshot    |
-| [Android APK](docs/research/android-apk.md)     | APK provenance and decoded-client evidence |
-
-## Layout
-
-| Path           | Purpose                                                                            |
-| -------------- | ---------------------------------------------------------------------------------- |
-| `docs/`        | API contract, current findings, and artifact provenance.                           |
-| `artifacts/`   | Local binary artifacts such as APK / EXE downloads. Ignored except for its README. |
-| `work/`        | Temporary command output. Ignored.                                                 |
-| `data/`        | Raw API responses and normalized local datasets. Ignored.                          |
-| `apktool-out/` | Decoded Android resources. Ignored.                                                |
-| `jadx-out/`    | Java decompiler output. Ignored.                                                   |
+See [`docs/`](docs/) for the research index, endpoint contract, and APK evidence.
 
 ## Development
 
+`direnv` auto-activates the shell via `.envrc`.
+
 ```bash
-direnv allow          # Auto-activate the dev shell via .envrc
-nix develop -c zsh    # Manual interactive shell
-nix flake check       # Run repository validation
+nix develop -c zsh  # Manual interactive shell
+nix flake check     # Run repository validation
 ```
 
 The shell includes Android static-analysis tools, text search utilities, Python for scratch decoding, documentation linters, and pre-commit hooks.

@@ -19,6 +19,8 @@ This repository is a durable workspace for the official Poker Fate client APIs t
 
 ## Documentation
 
+- [`docs/README.md`](docs/README.md): top-level documentation index.
+- [`docs/research/README.md`](docs/research/README.md): research-note index.
 - [`docs/research/api-inventory.md`](docs/research/api-inventory.md): guest auth, player lookup, profile-stat schema, related APIs, error codes, and the latest `Hakula` snapshot.
 - [`docs/research/android-apk.md`](docs/research/android-apk.md): APK source metadata and decoded-client evidence.
 
