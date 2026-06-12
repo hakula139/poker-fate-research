@@ -67,28 +67,26 @@ Keep user-facing status in `README.md`. Keep durable evidence, schemas, request 
 
 ```bash
 nix develop -c zsh                                      # Manual interactive shell
-nix flake check                                         # Run pre-commit hooks
-nix develop -c sh -lc 'markdownlint-cli2 "**/*.md" && cspell --no-progress "**/*"'
-uv run ruff format --check .
-uv run ruff check .
-uv run python -m compileall -q src
+nix flake check                                         # Run repository validation
 ```
 
-Use the dev shell tools instead of requiring global installs. Python collector tooling is uv-managed through `pyproject.toml` and `uv.lock`. Keep the flake on the current NixOS stable branch unless a tool requires unstable.
+Use the dev shell tools instead of requiring global installs. Python collector tooling is uv-managed through `pyproject.toml` and `uv.lock`; repository validation runs through `nix flake check`. Keep the flake on the current NixOS stable branch unless a tool requires unstable.
 
 ### Pre-commit Hooks
 
-Hygiene (`check-added-large-files`, `end-of-file-fixer`, `trim-trailing-whitespace`), documentation (`markdownlint`), spelling (`cspell`), and Nix (`nixfmt`, `statix`, `deadnix`) run through `git-hooks.nix`.
+`nix flake check` runs these `git-hooks.nix` checks:
+
+- **Hygiene**: `check-added-large-files`, `end-of-file-fixer`, `trim-trailing-whitespace`
+- **Documentation**: `markdownlint`
+- **Spelling**: `cspell`
+- **Python**: `check-python`, `ruff`, `ruff-format`
+- **Nix**: `nixfmt`, `statix`, `deadnix`
 
 ## Verification
 
 Run after substantive changes and before review:
 
 ```bash
-nix develop -c sh -lc 'markdownlint-cli2 "**/*.md" && cspell --no-progress "**/*"'
-uv run ruff format --check .
-uv run ruff check .
-uv run python -m compileall -q src
 nix flake check
 ```
 
