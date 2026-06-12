@@ -12,14 +12,14 @@ See [`docs/research/api-inventory.md`](docs/research/api-inventory.md) for the e
 
 ## Layout
 
-| Path | Purpose |
-| ---- | ------- |
-| `docs/` | API contract, current findings, and artifact provenance. |
-| `artifacts/` | Local binary artifacts such as APK / EXE downloads. Ignored except for its README. |
-| `work/` | Temporary command output. Ignored. |
-| `data/` | Raw API responses and normalized local datasets. Ignored. |
-| `apktool-out/` | Decoded Android resources. Ignored. |
-| `jadx-out/` | Java decompiler output. Ignored. |
+| Path           | Purpose                                                                            |
+| -------------- | ---------------------------------------------------------------------------------- |
+| `docs/`        | API contract, current findings, and artifact provenance.                           |
+| `artifacts/`   | Local binary artifacts such as APK / EXE downloads. Ignored except for its README. |
+| `work/`        | Temporary command output. Ignored.                                                 |
+| `data/`        | Raw API responses and normalized local datasets. Ignored.                          |
+| `apktool-out/` | Decoded Android resources. Ignored.                                                |
+| `jadx-out/`    | Java decompiler output. Ignored.                                                   |
 
 ## Development Shell
 
