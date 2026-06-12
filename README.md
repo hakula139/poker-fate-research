@@ -17,10 +17,10 @@ See [`docs/`](docs/) for the research index, endpoint contract, and APK evidence
 `direnv` auto-activates the shell via `.envrc`.
 
 ```bash
-nix develop -c zsh     # Manual interactive shell
-nix flake check        # Run repository validation
+nix develop -c zsh                                      # Manual interactive shell
+nix flake check                                         # Run repository validation
 ```
 
 The shell includes Android static-analysis tools, text search utilities, uv-managed Python tooling, Ruff, documentation linters, and pre-commit hooks.
 
-Local leaderboard snapshots can be collected with `uv run poker-fate-collect-leaderboard-players`; see [`docs/research/player-discovery.md`](docs/research/player-discovery.md) for credential and output details.
+Local leaderboard snapshots can be collected with `uv run poker-fate players`; see [`docs/research/player-discovery.md`](docs/research/player-discovery.md) for credential and output details.

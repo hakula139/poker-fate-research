@@ -88,13 +88,13 @@ The most promising expansion path is the tournament WebSocket API. The decoded p
 
 ## Leaderboard Snapshot Collector
 
-Use `uv run poker-fate-collect-leaderboard-players` to create reproducible local JSONL snapshots under ignored `data/player-snapshots/`. The collector requires `POKER_FATE_RESEARCH_DEVICE_TOKEN` from an ignored local environment file and does not write guest authorization, `rdkey`, or raw login responses to output.
+Use `uv run poker-fate players` to create reproducible local JSONL snapshots under ignored `data/player-snapshots/`. The collector requires `POKER_FATE_RESEARCH_DEVICE_TOKEN` from an ignored local environment file and does not write guest authorization, `rdkey`, or raw login responses to output.
 
 ```bash
 set -a
 source .envrc.local
 set +a
-uv run poker-fate-collect-leaderboard-players
+uv run poker-fate players
 ```
 
 Output files:

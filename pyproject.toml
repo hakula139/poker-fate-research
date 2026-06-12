@@ -10,7 +10,7 @@ requires-python = ">=3.13"
 dependencies = []
 
 [project.scripts]
-poker-fate-collect-leaderboard-players = "poker_fate_research.cli:main"
+poker-fate = "poker_fate_research.cli:main"
 
 [dependency-groups]
 dev = ["ruff>=0.14.7"]
