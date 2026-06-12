@@ -5,6 +5,7 @@ aliyuncs
 androidx
 apktool
 arsc
+awss
 Bilibili
 blufffate
 cbet
@@ -13,11 +14,13 @@ findutils
 Hakula
 HOLDEM
 IL2CPP
+imei
 Ingame
 isort
 jadx
 javax
 libil
+mult
 mypy
 nixfmt
 nixos
@@ -32,6 +35,7 @@ pkproto
 pokerfate
 preflop
 pytest
+rdkey
 Reraise
 VPIP
 Weibo
