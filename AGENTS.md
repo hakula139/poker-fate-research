@@ -20,13 +20,15 @@ This repository is a durable workspace for the official Poker Fate client APIs t
 ## Documentation
 
 - [`docs/README.md`](docs/README.md): top-level documentation index.
-- [`docs/research/README.md`](docs/research/README.md): research-note index.
+- [`docs/research/README.md`](docs/research/README.md): research-note index for current evidence and API findings.
 - [`docs/research/api-inventory.md`](docs/research/api-inventory.md): guest auth, player lookup, profile-stat schema, related APIs, error codes, and the latest `Hakula` snapshot.
 - [`docs/research/android-apk.md`](docs/research/android-apk.md): APK source metadata and decoded-client evidence.
 
 ### Documentation Style
 
-- Follow the `oxide-code` docs convention: do not hard-wrap prose paragraphs. Markdown tables, lists, and code blocks can wrap naturally when the syntax needs it.
+- Keep `README.md` concise and user-facing. Put detailed evidence, schemas, and artifact notes under `docs/research/`.
+- Keep documentation indexes navigational. Do not repeat the same leaf-document table in multiple places.
+- Do not hard-wrap prose paragraphs. Markdown tables, lists, and code blocks can wrap naturally when syntax or readability needs it.
 - Prefer factual notes over speculation. If a finding is inferred, label it as an inference and keep the evidence nearby.
 - Prefer final contracts and current results over procedure logs. Keep failed leads out of tracked docs unless they directly prevent repeating expensive work.
 - Do not document planned work as if it already exists.
