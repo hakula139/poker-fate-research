@@ -20,6 +20,9 @@ __pycache__/
 .env
 .env.local
 
+# Pre-commit
+.pre-commit-config.yaml
+
 # Claude Code
 .claude/agent-memory-local/
 .claude/plans/

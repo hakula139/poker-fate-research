@@ -4,50 +4,95 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     flake-utils.url = "github:numtide/flake-utils";
+    git-hooks-nix = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     {
       nixpkgs,
       flake-utils,
+      git-hooks-nix,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        formatter = pkgs.writeShellApplication {
-          name = "poker-fate-research-fmt";
-          runtimeInputs = with pkgs; [
-            findutils
-            nixfmt
-          ];
-          text = ''
-            find . -name '*.nix' -not -path './.git/*' -print0 | xargs -0 --no-run-if-empty nixfmt
-          '';
+
+        preCommitCheck = git-hooks-nix.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            check-added-large-files.enable = true;
+            cspell = {
+              enable = true;
+              args = [
+                "--no-progress"
+                "--no-must-find-files"
+              ];
+            };
+            deadnix.enable = true;
+            end-of-file-fixer.enable = true;
+            markdownlint = {
+              enable = true;
+              args = [ "--fix" ];
+              settings.configuration = {
+                default = true;
+                MD003.style = "atx";
+                MD004.style = "dash";
+                MD007.indent = 2;
+                MD010.code_blocks = false;
+                MD013 = false;
+                MD024.siblings_only = true;
+                MD026.punctuation = ".,;:";
+                MD029.style = "ordered";
+                MD033 = false;
+                MD034 = false;
+                MD041 = false;
+                MD046.style = "fenced";
+                MD048.style = "backtick";
+                MD049.style = "underscore";
+                MD050.style = "asterisk";
+              };
+            };
+            nixfmt.enable = true;
+            statix.enable = true;
+            trim-trailing-whitespace = {
+              enable = true;
+              args = [ "--markdown-linebreak-ext=md" ];
+            };
+          };
         };
       in
       {
+        checks.pre-commit = preCommitCheck;
+
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            aapt
-            apktool
-            binutils
-            cspell
-            curl
-            file
-            git
-            jadx
-            jq
-            markdownlint-cli2
-            nixfmt
-            python3
-            ripgrep
-            unzip
-          ];
+          packages =
+            preCommitCheck.enabledPackages
+            ++ (with pkgs; [
+              aapt
+              apktool
+              binutils
+              cspell
+              curl
+              file
+              git
+              jadx
+              jq
+              markdownlint-cli2
+              nixfmt
+              python3
+              ripgrep
+              unzip
+            ]);
+
+          inherit (preCommitCheck) shellHook;
         };
 
-        inherit formatter;
+        formatter = pkgs.nixfmt;
       }
     );
 }

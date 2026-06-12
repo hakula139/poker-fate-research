@@ -1,6 +1,7 @@
 aapt
 apktool
 awss
+cachix
 findutils
 Hakula
 HOLDEM
@@ -18,7 +19,11 @@ pkgs
 pkproject
 pkproto
 pokerfate
+pycache
+pytest
 rdkey
+statix
+venv
 VPIP
 WTSD
 XXTEA
