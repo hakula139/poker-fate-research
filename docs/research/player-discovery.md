@@ -70,6 +70,22 @@ Live verification on 2026-06-12 using the reusable research guest:
 
 The sampled top-100 pages across active current and previous-week leaderboards contained `428` unique UIDs. The local ignored snapshot is `data/research-snapshots/leaderboard-and-profile-sample-2026-06-12.json`.
 
+## Discovery Limits and Other Sources
+
+There is no confirmed all-player listing endpoint. The current high-confidence discovery surfaces are:
+
+| Source                         | Status                       | Use                                                                                                  |
+| ------------------------------ | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `POST /friend/searchList`      | Confirmed for known targets  | Resolves known nicknames or UIDs, such as `Hakula` / `10410931`, but does not provide enumeration.   |
+| `POST /activity/rankingList`   | Confirmed and currently used | Discovers leaderboard-visible UIDs, capped at the client-visible top 100 rows per leaderboard week.  |
+| Tournament WebSocket rank data | Decoded client lead          | `TourRankItem` contains `UserBrief`, which includes `uid`; this may expose SNG / MTT entrant ranks.  |
+| Account social lists           | Confirmed account-scoped     | Friend, blocked, and friend-game lists are tied to the research account and empty for a fresh guest. |
+| Card history / replay lists    | Confirmed account-scoped     | Recent and collected card lists are tied to the research account and empty for a fresh guest.        |
+
+Fresh-guest probes on 2026-06-12 returned empty results for `friend/list`, `friend/gameList`, `friend/applyList`, `friend/blockedList`, `collCard/recentlyCardList`, and `collCard/list`. These endpoints can reveal UIDs only when the research account already has friends, recent games, or collected hands, so they are not broad public discovery sources.
+
+The most promising expansion path is the tournament WebSocket API. The decoded protobuf schema contains `TourListREQ`, `TourHistoryListREQ`, `TourDetailInfoREQ`, `TourRoomDetailREQ`, and `MttRankREQ`. Their responses reference `TourRankItem`, and `TourRankItem` carries `UserBrief brief`. This still needs live WebSocket verification with the reusable research guest before it should be treated as a confirmed collector source.
+
 ## Stats Enrichment
 
 Leaderboard `uid` values can be passed directly to `POST /player/gameData`, using the same profile-stat endpoint documented in `api-inventory.md`.
