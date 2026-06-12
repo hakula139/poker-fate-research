@@ -87,6 +87,7 @@
               python3
               ripgrep
               unzip
+              zsh
             ]);
 
           inherit (preCommitCheck) shellHook;

@@ -26,10 +26,12 @@ The Android client exposes a guest login path and authenticated read APIs for pl
 | `apktool-out/` | Decoded Android resources. Ignored.                                                |
 | `jadx-out/`    | Java decompiler output. Ignored.                                                   |
 
-## Development Shell
+## Development
 
 ```bash
-nix develop
+direnv allow          # Auto-activate the dev shell via .envrc
+nix develop -c zsh    # Manual interactive shell
+nix flake check       # Run repository validation
 ```
 
-The shell includes Android static-analysis tools, text search utilities, Python for scratch decoding, and documentation linters.
+The shell includes Android static-analysis tools, text search utilities, Python for scratch decoding, documentation linters, and pre-commit hooks.
