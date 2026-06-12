@@ -8,7 +8,12 @@ Tracked files keep the current API contract, artifact provenance, and fetched re
 
 The Android client exposes a guest login path and authenticated read APIs for player lookup and profile statistics. A dedicated guest account resolved `Hakula` to UID `10410931` and fetched VPIP / PFR / related profile rates.
 
-See [`docs/research/api-inventory.md`](docs/research/api-inventory.md) for the endpoint contract and [`docs/research/android-apk.md`](docs/research/android-apk.md) for APK provenance.
+## Documentation
+
+| Document                                        | Description                                |
+| ----------------------------------------------- | ------------------------------------------ |
+| [API Inventory](docs/research/api-inventory.md) | Endpoint contract and `Hakula` snapshot    |
+| [Android APK](docs/research/android-apk.md)     | APK provenance and decoded-client evidence |
 
 ## Layout
 
