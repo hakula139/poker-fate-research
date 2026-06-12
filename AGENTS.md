@@ -17,14 +17,7 @@ This repository is a durable workspace for the official Poker Fate client APIs t
 └── jadx-out/                              # Java decompiler output; ignored
 ```
 
-## Documentation
-
-- [`docs/README.md`](docs/README.md): top-level documentation index.
-- [`docs/research/README.md`](docs/research/README.md): research-note index for current evidence and API findings.
-- [`docs/research/api-inventory.md`](docs/research/api-inventory.md): guest auth, player lookup, profile-stat schema, related APIs, error codes, and the latest `Hakula` snapshot.
-- [`docs/research/android-apk.md`](docs/research/android-apk.md): APK source metadata and decoded-client evidence.
-
-### Documentation Style
+## Documentation Maintenance
 
 - Keep `README.md` concise and user-facing. Put detailed evidence, schemas, and artifact notes under `docs/research/`.
 - Keep documentation indexes navigational. Do not repeat the same leaf-document table in multiple places.
