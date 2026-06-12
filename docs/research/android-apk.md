@@ -47,6 +47,7 @@ Il2CppDumper identified the client decode paths and XXTEA keys:
 | `LoginModel.lua`         | Guest login sends `POST /login`; the response stores `authorization` for HTTP and `rdkey` for websocket login.                 |
 | `FriendModel.lua`        | Nickname / UID search calls `POST /friend/searchList`.                                                                         |
 | `InformationMainNew.lua` | Profile statistics call `POST /player/gameData`; SNG trend data calls `POST /player/sngRecord`.                                |
+| `RankingModel.lua`       | Leaderboard pages call `POST /activity/rankingList`; rows include public UIDs that open the same profile view.                 |
 | `CSGame.proto`           | `GetOtherDetailInfoREQ` / `GetOtherDetailInfoRSP` define websocket profile detail by UID.                                      |
 | `tpl_HttpCode.lua`       | `-2` is `HTTP_AUTHENTICATION_FAILED`, displayed as login authorization verification failure.                                   |
 | `tpl_mult_language.lua`  | Profile statistics are displayed as VPIP, PFR, 3-Bet, WTSD, AFq, and C-Bet, for the past 30 days and excluding practice modes. |
@@ -58,4 +59,4 @@ Release HTTP hosts from decoded constants:
 | Normal release channels              | `https://ga-foreign.poker-fate.com/`, `https://awsb-entry.poker-fate.com/`                                                            |
 | Simplified Chinese PC / APK channels | `http://8.163.49.33:8888/`, `http://121.196.174.32:8888/`, `https://ga-foreign.poker-fate.com/`, `https://awsb-entry.poker-fate.com/` |
 
-Raw decoded output and live API responses stay under ignored `work/` or `data/` paths. Session credentials from guest login are scratch data and must not be committed.
+Raw decoded output and live API responses stay under ignored `work/` or `data/` paths.

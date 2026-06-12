@@ -6,7 +6,7 @@ Tracked files keep the current API contract, artifact provenance, and fetched re
 
 ## Current Result
 
-The Android client exposes a guest login path and authenticated read APIs for player lookup and profile statistics. A dedicated guest account resolved `Hakula` to UID `10410931` and fetched VPIP / PFR / related profile rates.
+The Android client exposes a guest login path and authenticated read APIs for player lookup and profile statistics. A dedicated guest account resolved `Hakula` to UID `10410931` and fetched VPIP / PFR / related profile rates. The leaderboard API provides public UID discovery for top weekly leaderboard rows, which can be enriched through the same profile-stat endpoint and classified with a documented first-pass tagging model.
 
 ## Documentation
 

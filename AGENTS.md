@@ -58,7 +58,7 @@ Keep user-facing status in `README.md`. Keep durable evidence, schemas, request 
 - Keep raw command outputs in `work/` when they are bulky. Summarize the relevant finding in `docs/`.
 - Keep source URLs beside findings. For downloaded artifacts, include hash and observed HTTP metadata.
 - Do not commit guest `authorization`, `rdkey`, device tokens, raw login responses, or other live credentials.
-- Store reusable local guest-account identity only in ignored local env files such as `.envrc.local`.
+- Reuse a stable dedicated guest identity for live probes. Store only the reusable device token in ignored local env files such as `.envrc.local`, using `POKER_FATE_RESEARCH_DEVICE_TOKEN`; do not create throwaway guest accounts when that token is available.
 - Separate observed facts from hypotheses. Use short labels such as `Inference:` when the evidence does not directly prove the conclusion.
 
 ## Nix Development
