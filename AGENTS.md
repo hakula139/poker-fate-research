@@ -69,9 +69,12 @@ Keep user-facing status in `README.md`. Keep durable evidence, schemas, request 
 nix develop -c zsh                                      # Manual interactive shell
 nix flake check                                         # Run pre-commit hooks
 nix develop -c sh -lc 'markdownlint-cli2 "**/*.md" && cspell --no-progress "**/*"'
+uv run ruff format --check .
+uv run ruff check .
+uv run python -m compileall -q src
 ```
 
-Use the dev shell tools instead of requiring global installs. Keep the flake on the current NixOS stable branch unless a tool requires unstable.
+Use the dev shell tools instead of requiring global installs. Python collector tooling is uv-managed through `pyproject.toml` and `uv.lock`. Keep the flake on the current NixOS stable branch unless a tool requires unstable.
 
 ### Pre-commit Hooks
 
@@ -83,6 +86,9 @@ Run after substantive changes and before review:
 
 ```bash
 nix develop -c sh -lc 'markdownlint-cli2 "**/*.md" && cspell --no-progress "**/*"'
+uv run ruff format --check .
+uv run ruff check .
+uv run python -m compileall -q src
 nix flake check
 ```
 
