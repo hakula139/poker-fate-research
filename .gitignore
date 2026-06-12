@@ -17,8 +17,10 @@ __pycache__/
 .DS_Store
 
 # Environment
+.direnv/
 .env
 .env.local
+.envrc.local
 
 # Pre-commit
 .pre-commit-config.yaml

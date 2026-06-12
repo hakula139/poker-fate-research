@@ -2,6 +2,8 @@ aapt
 apktool
 awss
 cachix
+direnv
+envrc
 findutils
 Hakula
 HOLDEM
