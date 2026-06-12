@@ -47,3 +47,34 @@ unzip -p artifacts/PokerFate_Android.apk 'lib/arm64-v8a/libil2cpp.so' \
 The APK is a Unity / IL2CPP Android client with Java SDK integration in DEX files. Static strings exposed STOVE / GATE8 account and platform hosts in `classes3.dex`, plus Firebase project configuration. No concrete player list, player stats, VPIP, PFR, or hand-history API path has been verified from the first pass.
 
 Tracked candidate hosts and endpoints are in [`api-inventory.md`](api-inventory.md). Raw scan output stays under ignored `work/`.
+
+## Unity Asset Decode Pass
+
+The useful API evidence was inside Unity Addressables bundles under the APK `assets/aa/Android/` tree, not in top-level Java strings. The relevant local decode outputs are ignored:
+
+| Output | Contents |
+| ------ | -------- |
+| `work/il2cpp-dump/` | Il2CppDumper output from `libil2cpp.so` and `global-metadata.dat`. |
+| `work/unity-bundles/` | Selected Unity bundles copied out of the APK. |
+| `work/unity-extract/lua/` | Decoded Lua model, view, table, and network handler files. |
+| `work/unity-extract/proto/` | Decoded protobuf schema files. |
+| `work/unity-extract/tpl/` | Decoded localized text and configuration tables. |
+| `work/unity-extract/info/` | Decoded profile view files, including the profile record tab. |
+
+Il2CppDumper identified the Lua and proto asset decode paths. The relevant client string literals include these XXTEA keys:
+
+| Asset type | Key |
+| ---------- | --- |
+| Lua source | `bee#happy&pkproject` |
+| Proto schema | `bee#happy&pkproto` |
+
+The decoded Lua pass found `FriendModel.lua`, `InformationMainNew.lua`, `RankingModel.lua`, `LoginModel.lua`, `PlayerModel.lua`, and the HTTP code table. These files confirmed `POST /friend/searchList` for nickname / UID search and `POST /player/gameData` for profile statistics. The decoded proto pass found `CSGame.proto`, including `GetOtherDetailInfoREQ` / `GetOtherDetailInfoRSP` for profile detail over the socket protocol.
+
+The release HTTP hosts in the decoded constants are:
+
+| Channel branch | Hosts |
+| -------------- | ----- |
+| Normal release channels | `https://ga-foreign.poker-fate.com/`, `https://awsb-entry.poker-fate.com/` |
+| Simplified Chinese PC / APK channels | `http://8.163.49.33:8888/`, `http://121.196.174.32:8888/`, `https://ga-foreign.poker-fate.com/`, `https://awsb-entry.poker-fate.com/` |
+
+Live unauthenticated probes on 2026-06-12 showed that `open/checkServer` returns `{"code":0,"data":null}`, while `friend/searchList` and `player/gameData` return `{"code":-2}`. The decoded HTTP code table maps `-2` to login authorization verification failure, so further collection needs a normal authenticated session.

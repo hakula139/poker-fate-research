@@ -10,6 +10,8 @@ blufffate
 cbet
 CTDB
 findutils
+Hakula
+HOLDEM
 IL2CPP
 Ingame
 isort
@@ -25,6 +27,8 @@ okhttp
 onstove
 PFR
 pkgs
+pkproject
+pkproto
 pokerfate
 preflop
 pytest
@@ -33,3 +37,4 @@ VPIP
 Weibo
 WTSD
 WWSF
+XXTEA
