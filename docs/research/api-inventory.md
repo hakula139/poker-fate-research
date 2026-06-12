@@ -114,29 +114,29 @@ Profile game types:
 
 Response fields used by the profile UI:
 
-| Field                      | Meaning                                         |
-| -------------------------- | ----------------------------------------------- |
-| `game_type`                | Game type returned by the API.                  |
-| `fire_power`               | Hold'em / Omaha score shown on lobby-game tabs. |
-| `champion_points`          | SNG score shown on the SNG tab.                 |
-| `play_times`               | Hands played.                                   |
-| `win_play_times`           | Hands won.                                      |
-| `round`                    | Total rounds / sessions.                        |
-| `win_round`                | Winning rounds / sessions.                      |
-| `tour_round`               | SNGs played.                                    |
-| `tour_win_round`           | SNGs won.                                       |
-| `tour_max_profit`          | Biggest SNG win.                                |
-| `tour_profit`              | Total SNG winnings.                             |
-| `max_profit`               | Biggest pot.                                    |
-| `profit`                   | Total profit.                                   |
-| `pool_entry_rate`          | VPIP.                                           |
-| `add_before_flipping_rate` | PFR.                                            |
-| `three_bet_rate`           | 3-Bet.                                          |
-| `show_hand_rate`           | WTSD.                                           |
-| `active_rate`              | AFq.                                            |
-| `c_bete_rate`              | C-Bet.                                          |
-| `best_cards`               | Best hand display data.                         |
-| `max_profit_cards`         | Biggest-pot hand display data.                  |
+| Field                      | Meaning                                                            |
+| -------------------------- | ------------------------------------------------------------------ |
+| `game_type`                | Game type returned by the API                                      |
+| `fire_power`               | Hold'em / Omaha score shown on lobby-game tabs                     |
+| `champion_points`          | SNG score shown on the SNG tab                                     |
+| `play_times`               | Hands played                                                       |
+| `win_play_times`           | Hands won                                                          |
+| `round`                    | Total rounds / sessions                                            |
+| `win_round`                | Winning rounds / sessions                                          |
+| `tour_round`               | SNGs played                                                        |
+| `tour_win_round`           | SNGs won                                                           |
+| `tour_max_profit`          | Biggest SNG win                                                    |
+| `tour_profit`              | Total SNG winnings                                                 |
+| `max_profit`               | Biggest pot                                                        |
+| `profit`                   | Total profit                                                       |
+| `pool_entry_rate`          | VPIP (voluntarily put money in pot before the flop)                |
+| `add_before_flipping_rate` | PFR (preflop raise)                                                |
+| `three_bet_rate`           | 3-Bet (preflop re-raise after an opening raise)                    |
+| `show_hand_rate`           | WTSD (went to showdown)                                            |
+| `active_rate`              | AFq (aggression frequency)                                         |
+| `c_bete_rate`              | C-Bet (continuation bet after being the previous-street aggressor) |
+| `best_cards`               | Best hand display data                                             |
+| `max_profit_cards`         | Biggest-pot hand display data                                      |
 
 The client displays rate fields as `rate / 100`, so an API value of `2530` displays as `25.30%`. The same UI uses `rate / 10000` for circular progress fill. Decoded in-app text says these profile statistics cover the past 30 days and exclude practice modes.
 
