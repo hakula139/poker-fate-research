@@ -2,10 +2,6 @@
 
 This page records the currently useful official client APIs for fetching player profile statistics. The confirmed route is guest login, nickname lookup, then profile-stat reads.
 
-## Safety Boundary
-
-Use a dedicated guest account for research. Do not reuse a main player account for automation. Keep requests read-only and low-volume, and do not commit returned `authorization`, `rdkey`, raw account payloads, or device tokens.
-
 ## Base Hosts
 
 | Purpose             | Host                                   |
@@ -155,11 +151,11 @@ Fetched on 2026-06-12 for UID `10410931` with a dedicated guest account:
 
 ## Related APIs
 
-| API                                  | Use                                                                                                         |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `POST /player/sngRecord`             | SNG trend data for a target UID.                                                                            |
-| WebSocket `pb.GetOtherDetailInfoREQ` | Profile detail by UID, including brief profile, bio, achievements, collections, and certification metadata. |
-| `POST activity/rankingList`          | Authenticated leaderboard pages; useful for discovering public users, not for direct nickname lookup.       |
+| API                                  | Use                                                                                                                                                        |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /player/sngRecord`             | SNG trend data for a target UID.                                                                                                                           |
+| WebSocket `pb.GetOtherDetailInfoREQ` | Profile detail by UID, including brief profile, bio, achievements, collections, and certification metadata.                                                |
+| `POST /activity/rankingList`         | Authenticated leaderboard pages; useful for discovering public UIDs before enriching them with profile stats. See [Player Discovery](player-discovery.md). |
 
 ## Error Codes
 
