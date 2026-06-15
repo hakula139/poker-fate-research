@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SearchIcon } from 'lucide-react';
 
+import { LanguageControl } from '@/components/language-control';
 import { ThemeControl } from '@/components/theme-control';
 import { PlayerDetails } from '@/components/player-stats/player-details';
 import { PlayerTable, type SortKey, type SortState } from '@/components/player-stats/player-table';
@@ -17,6 +18,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { loadSnapshot, loadSnapshots } from '@/data';
 import { formatInteger } from '@/format';
+import { I18nProvider, useI18n } from '@/i18n';
 import { classifyPlayer } from '@/tagging';
 import { getInitialTheme, writeThemeMode, type ThemeMode } from '@/theme';
 import type {
@@ -30,12 +32,7 @@ import type {
 
 import './styles.css';
 
-const gameTypes: { id: GameTypeId; label: string }[] = [
-  { id: '10010101', label: "Hold'em" },
-  { id: '10020101', label: 'Omaha' },
-  { id: '10050301', label: 'SNG' },
-  { id: '20010103', label: 'Friend room' },
-];
+const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301', '20010103'];
 
 function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
   return player.games[gameType];
@@ -54,6 +51,15 @@ function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): st
 }
 
 export default function App() {
+  return (
+    <I18nProvider>
+      <PlayerStatsApp />
+    </I18nProvider>
+  );
+}
+
+function PlayerStatsApp() {
+  const { t } = useI18n();
   const [snapshotIndex, setSnapshotIndex] = useState<SnapshotIndex | null>(null);
   const [snapshot, setSnapshot] = useState<PlayerSnapshot | null>(null);
   const [snapshotId, setSnapshotId] = useState<string>('');
@@ -133,7 +139,7 @@ export default function App() {
   if (!snapshot || !snapshotIndex) {
     return (
       <main className="grid min-h-screen place-items-center bg-background text-muted-foreground">
-        Loading player stats
+        {t.app.loading}
       </main>
     );
   }
@@ -143,12 +149,13 @@ export default function App() {
       <div className="mx-auto w-[min(1500px,calc(100%-32px))] py-7 max-sm:w-[calc(100%-20px)] max-sm:py-4">
         <section className="grid items-end gap-4 lg:grid-cols-[1fr_auto]">
           <div>
-            <p className={`${labelClass} mb-1.5`}>Poker Fate research</p>
+            <p className={`${labelClass} mb-1.5`}>{t.app.eyebrow}</p>
             <h1 className="text-[clamp(32px,5vw,54px)] leading-none font-semibold tracking-normal">
-              Player stats
+              {t.app.title}
             </h1>
           </div>
-          <div className="grid gap-3 sm:grid-cols-[auto_minmax(280px,420px)] sm:items-end">
+          <div className="grid gap-3 sm:grid-cols-[auto_auto_minmax(280px,420px)] sm:items-end">
+            <LanguageControl labelClass={labelClass} />
             <ThemeControl
               labelClass={labelClass}
               themeMode={themeMode}
@@ -156,7 +163,7 @@ export default function App() {
             />
             <div className="grid gap-1.5">
               <label className={labelClass} htmlFor="snapshot">
-                Snapshot
+                {t.controls.snapshot}
               </label>
               <Select
                 value={snapshotId}
@@ -173,7 +180,7 @@ export default function App() {
                 <SelectContent>
                   {snapshotIndex.snapshots.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
-                      {item.label} · {item.playerCount} players
+                      {item.label} · {formatInteger(item.playerCount)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -185,7 +192,7 @@ export default function App() {
         <section className="mt-6 grid items-end gap-4 lg:grid-cols-[minmax(220px,360px)_1fr]">
           <div className="grid gap-1.5">
             <label className={labelClass} htmlFor="player-search">
-              Search
+              {t.controls.search}
             </label>
             <div className="relative">
               <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -195,7 +202,7 @@ export default function App() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Name or UID"
+                placeholder={t.controls.searchPlaceholder}
               />
             </div>
           </div>
@@ -208,20 +215,20 @@ export default function App() {
               }
             }}
             className="flex w-fit flex-wrap justify-start justify-self-start lg:justify-self-end"
-            aria-label="Game type"
+            aria-label={t.controls.gameType}
           >
-            {gameTypes.map((game) => (
-              <ToggleGroupItem value={game.id} key={game.id}>
-                {game.label}
+            {gameTypeIds.map((gameTypeId) => (
+              <ToggleGroupItem value={gameTypeId} key={gameTypeId}>
+                {t.gameTypes[gameTypeId]}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
         </section>
 
         <section className="my-4 grid gap-4 md:grid-cols-3">
-          <SummaryCard label="Players" value={formatInteger(snapshot.players.length)} />
-          <SummaryCard label="Visible" value={formatInteger(filteredPlayers.length)} />
-          <SummaryCard label="Snapshot" value={snapshot.label} />
+          <SummaryCard label={t.summary.players} value={formatInteger(snapshot.players.length)} />
+          <SummaryCard label={t.summary.visible} value={formatInteger(filteredPlayers.length)} />
+          <SummaryCard label={t.summary.snapshot} value={snapshot.label} />
         </section>
 
         <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">

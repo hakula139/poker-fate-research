@@ -1,4 +1,5 @@
 export const storageKeys = {
+  locale: 'poker-fate.locale',
   themeMode: 'poker-fate.theme-mode',
 } as const;
 

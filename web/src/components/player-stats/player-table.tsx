@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { formatInteger, formatProfit, formatRate } from '@/format';
+import { useI18n } from '@/i18n';
 import { leaderboardSummary } from '@/leaderboard';
 import { cn } from '@/lib/utils';
 import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
@@ -81,41 +82,43 @@ export function PlayerTable({
   onSort: (key: SortKey) => void;
   onSelect: (uid: number) => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <Card className="overflow-hidden">
       <Table className="min-w-[1180px]" containerClassName="max-h-[calc(100vh-260px)] min-h-[520px]">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="sticky top-0 z-10 min-w-[260px] bg-muted/95">
-              <SortButton label="Player" sortKey="name" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">Best rank</TableHead>
+            <TableHead className="sticky top-0 z-10 bg-muted/95">{t.table.bestRank}</TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="Hands" sortKey="hands" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="Profit" sortKey="profit" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.hands} sortKey="hands" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="VPIP" sortKey="vpip" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.profit} sortKey="profit" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="PFR" sortKey="pfr" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.vpip} sortKey="vpip" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="3-Bet" sortKey="threeBet" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.pfr} sortKey="pfr" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="WTSD" sortKey="wtsd" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.threeBet} sortKey="threeBet" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="AFq" sortKey="afq" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.wtsd} sortKey="wtsd" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="C-Bet" sortKey="cbet" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.afq} sortKey="afq" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="sticky top-0 z-10 bg-muted/95">
-              <SortButton label="Tag" sortKey="tag" sort={sort} onSort={onSort} />
+              <SortButton label={t.table.cbet} sortKey="cbet" sort={sort} onSort={onSort} />
+            </TableHead>
+            <TableHead className="sticky top-0 z-10 bg-muted/95">
+              <SortButton label={t.table.tag} sortKey="tag" sort={sort} onSort={onSort} />
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -141,7 +144,7 @@ export function PlayerTable({
                     <span className="text-xs text-muted-foreground">{player.uid}</span>
                   </button>
                 </TableCell>
-                <TableCell>{leaderboardSummary(player.leaderboardEntries)}</TableCell>
+                <TableCell>{leaderboardSummary(player.leaderboardEntries, t.periods)}</TableCell>
                 <TableCell>{formatInteger(stats?.hands)}</TableCell>
                 <TableCell
                   className={cn(

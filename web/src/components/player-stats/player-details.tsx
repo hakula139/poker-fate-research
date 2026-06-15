@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatInteger, formatProfit, formatRate } from '@/format';
+import { useI18n } from '@/i18n';
 import { periodLabel } from '@/leaderboard';
 import type { GameStats, GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
 
@@ -13,9 +14,11 @@ function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined
 }
 
 function PeriodBadge({ entry }: { entry: LeaderboardEntry }) {
+  const { t } = useI18n();
+
   return (
     <Badge variant={entry.period === 'current_week' ? 'info' : 'secondary'}>
-      {periodLabel(entry.period)}
+      {periodLabel(entry.period, t.periods)}
     </Badge>
   );
 }
@@ -27,10 +30,12 @@ export function PlayerDetails({
   player: PlayerRecord | undefined;
   gameType: GameTypeId;
 }) {
+  const { t } = useI18n();
+
   if (!player) {
     return (
       <Card className="order-first lg:order-none">
-        <CardContent className="p-4 text-muted-foreground">Select a player</CardContent>
+        <CardContent className="p-4 text-muted-foreground">{t.details.selectPlayer}</CardContent>
       </Card>
     );
   }
@@ -43,34 +48,34 @@ export function PlayerDetails({
   return (
     <Card className="order-first lg:sticky lg:top-4 lg:order-none">
       <CardHeader>
-        <span className={labelClass}>Player</span>
+        <span className={labelClass}>{t.details.player}</span>
         <CardTitle className="[overflow-wrap:anywhere] text-2xl">{player.name}</CardTitle>
         <p className="text-xs text-muted-foreground">{player.uid}</p>
         <TagGroup stats={stats} />
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="grid grid-cols-2 gap-2.5">
-          <MetricTile label="Hands" value={formatInteger(stats?.hands)} />
-          <MetricTile label="Profit" value={formatProfit(stats?.profit)} />
-          <MetricTile label="Score" value={formatInteger(stats?.score)} />
-          <MetricTile label="SNG records" value={formatInteger(player.sngRecordCount)} />
+          <MetricTile label={t.table.hands} value={formatInteger(stats?.hands)} />
+          <MetricTile label={t.table.profit} value={formatProfit(stats?.profit)} />
+          <MetricTile label={t.details.score} value={formatInteger(stats?.score)} />
+          <MetricTile label={t.details.sngRecords} value={formatInteger(player.sngRecordCount)} />
         </div>
 
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {[
-            ['VPIP', stats?.vpip],
-            ['PFR', stats?.pfr],
-            ['3-Bet', stats?.threeBet],
-            ['WTSD', stats?.wtsd],
-            ['AFq', stats?.afq],
-            ['C-Bet', stats?.cbet],
+            [t.table.vpip, stats?.vpip],
+            [t.table.pfr, stats?.pfr],
+            [t.table.threeBet, stats?.threeBet],
+            [t.table.wtsd, stats?.wtsd],
+            [t.table.afq, stats?.afq],
+            [t.table.cbet, stats?.cbet],
           ].map(([label, value]) => (
             <MetricTile key={label} label={String(label)} value={formatRate(value as number | undefined)} />
           ))}
         </div>
 
         <div>
-          <p className={`${labelClass} mb-2`}>Leaderboard ranks</p>
+          <p className={`${labelClass} mb-2`}>{t.details.leaderboardRanks}</p>
           <div className="grid gap-2">
             {entries.length ? (
               entries.map((entry, index) => (
@@ -89,7 +94,7 @@ export function PlayerDetails({
                 </div>
               ))
             ) : (
-              <p className="text-xs text-muted-foreground">No leaderboard rows</p>
+              <p className="text-xs text-muted-foreground">{t.details.noLeaderboardRows}</p>
             )}
           </div>
         </div>

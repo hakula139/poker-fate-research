@@ -1,8 +1,9 @@
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useI18n } from '@/i18n';
 
-import { themeModes, type ThemeMode } from '../theme';
+import { themeModeIds, type ThemeMode } from '../theme';
 
 const themeIcons = {
   system: MonitorIcon,
@@ -19,9 +20,11 @@ export function ThemeControl({
   themeMode: ThemeMode;
   onThemeModeChange: (mode: ThemeMode) => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="grid gap-1.5">
-      <span className={labelClass}>Theme</span>
+      <span className={labelClass}>{t.controls.theme}</span>
       <ToggleGroup
         type="single"
         value={themeMode}
@@ -30,14 +33,14 @@ export function ThemeControl({
             onThemeModeChange(mode as ThemeMode);
           }
         }}
-        aria-label="Theme"
+        aria-label={t.controls.theme}
       >
-        {themeModes.map((mode) => {
-          const Icon = themeIcons[mode.id];
+        {themeModeIds.map((mode) => {
+          const Icon = themeIcons[mode];
           return (
-            <ToggleGroupItem value={mode.id} key={mode.id} aria-label={mode.label} size="sm">
+            <ToggleGroupItem value={mode} key={mode} aria-label={t.themes[mode]} size="sm">
               <Icon />
-              {mode.label}
+              {t.themes[mode]}
             </ToggleGroupItem>
           );
         })}

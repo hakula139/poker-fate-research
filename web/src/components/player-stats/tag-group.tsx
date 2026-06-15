@@ -1,6 +1,7 @@
 import type { VariantProps } from 'class-variance-authority';
 
 import { Badge, type badgeVariants } from '@/components/ui/badge';
+import { useI18n } from '@/i18n';
 import { classifyPlayer } from '@/tagging';
 import type { GameStats, PostflopTag, PreflopTag } from '@/types';
 
@@ -25,9 +26,11 @@ const tagVariants: Record<PlayerTag, BadgeVariant> = {
 };
 
 function PlayerTagChip({ tag }: { tag: PlayerTag }) {
+  const { t } = useI18n();
+
   return (
     <Badge variant={tagVariants[tag]} className="min-h-6 rounded-full px-2.5 font-bold">
-      {tag}
+      {t.tags[tag]}
     </Badge>
   );
 }
