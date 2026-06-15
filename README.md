@@ -24,3 +24,16 @@ nix flake check                                         # Run repository validat
 The shell includes Android static-analysis tools, text search utilities, uv-managed Python tooling, Ruff, documentation linters, and pre-commit hooks.
 
 Local leaderboard snapshots can be collected with `uv run poker-fate players`; see [`docs/research/player-discovery.md`](docs/research/player-discovery.md) for credential and output details.
+
+## Player Stats Website
+
+Build static website data from collected player snapshots, then run the frontend:
+
+```bash
+python scripts/build_web_data.py
+cd web
+npm install
+npm run dev
+```
+
+The website reads generated static snapshot files from ignored `web/public/data/`. Future daily JSONL snapshots can be added under `data/player-snapshots/` and regenerated with the same script.

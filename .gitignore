@@ -4,6 +4,11 @@
 /work/
 /out/
 /data/
+/web/dist/
+/web/node_modules/
+/web/public/data/
+/web/test-results/
+/web/*.tsbuildinfo
 /jadx-out/
 /apktool-out/
 

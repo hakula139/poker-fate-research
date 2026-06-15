@@ -86,6 +86,8 @@
               jadx
               jq
               markdownlint-cli2
+              nodejs
+              playwright-driver
               nixfmt
               python3
               ripgrep
@@ -96,6 +98,7 @@
             ]);
 
           inherit (preCommitCheck) shellHook;
+          PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
         };
 
         formatter = pkgs.nixfmt;
