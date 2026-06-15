@@ -11,11 +11,12 @@ test('loads generated player stats and filters players', async ({ page }) => {
   await page.getByLabel('Search').fill(firstUid);
   await expect(page.locator('tbody tr')).toHaveCount(1);
   await expect(page.getByText(firstUid).first()).toBeVisible();
+  await expect(page.getByText('#4 Throne Points · Last week')).toBeVisible();
 
-  const omaha = page.getByRole('button', { name: 'Omaha' });
+  const omaha = page.getByRole('radio', { name: 'Omaha' });
   await omaha.click();
-  await expect(omaha).toHaveAttribute('aria-pressed', 'true');
+  await expect(omaha).toHaveAttribute('aria-checked', 'true');
 
-  await page.getByRole('button', { name: 'Dark' }).click();
+  await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveClass(/dark/);
 });
