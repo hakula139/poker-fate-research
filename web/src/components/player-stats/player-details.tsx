@@ -6,7 +6,7 @@ import { periodLabel } from '@/leaderboard';
 import type { GameStats, GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
 
 import { MetricTile } from './metric-tile';
-import { labelClass } from './styles';
+import { labelClass, statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
 
 function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
@@ -34,7 +34,7 @@ export function PlayerDetails({
 
   if (!player) {
     return (
-      <Card className="order-first lg:order-none">
+      <Card className={`order-first lg:order-none ${statsPanelClass}`}>
         <CardContent className="p-4 text-muted-foreground">{t.details.selectPlayer}</CardContent>
       </Card>
     );
@@ -46,14 +46,14 @@ export function PlayerDetails({
     .slice(0, 6);
 
   return (
-    <Card className="order-first lg:sticky lg:top-4 lg:order-none">
-      <CardHeader>
+    <Card className={`order-first lg:sticky lg:top-4 lg:order-none lg:flex lg:flex-col lg:overflow-hidden ${statsPanelClass}`}>
+      <CardHeader className="lg:shrink-0">
         <span className={labelClass}>{t.details.player}</span>
         <CardTitle className="[overflow-wrap:anywhere] text-2xl">{player.name}</CardTitle>
         <p className="text-xs text-muted-foreground">{player.uid}</p>
         <TagGroup stats={stats} />
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
         <div className="grid grid-cols-2 gap-2.5">
           <MetricTile label={t.table.hands} value={formatInteger(stats?.hands)} />
           <MetricTile label={t.table.profit} value={formatProfit(stats?.profit)} />

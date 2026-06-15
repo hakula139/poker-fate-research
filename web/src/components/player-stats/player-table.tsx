@@ -16,6 +16,7 @@ import { leaderboardSummary } from '@/leaderboard';
 import { cn } from '@/lib/utils';
 import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
 
+import { statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
 
 export type SortKey =
@@ -85,8 +86,8 @@ export function PlayerTable({
   const { t } = useI18n();
 
   return (
-    <Card className="overflow-hidden">
-      <Table className="min-w-[1180px]" containerClassName="max-h-[calc(100vh-260px)] min-h-[520px]">
+    <Card className={`overflow-hidden ${statsPanelClass}`}>
+      <Table className="min-w-[1180px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="sticky top-0 z-10 min-w-[260px] bg-muted/95">
