@@ -178,8 +178,13 @@ input {
 
 table {
   width: 100%;
-  min-width: 1040px;
+  min-width: 1160px;
   border-collapse: collapse;
+}
+
+th:first-child,
+td:first-child {
+  min-width: 230px;
 }
 
 th {
@@ -238,7 +243,7 @@ tbody tr:hover,
 }
 
 .player-button strong {
-  max-width: 190px;
+  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
