@@ -87,6 +87,7 @@
               jq
               markdownlint-cli2
               nodejs
+              pnpm
               playwright-driver
               nixfmt
               python3

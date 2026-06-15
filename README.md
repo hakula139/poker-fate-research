@@ -32,8 +32,8 @@ Build static website data from collected player snapshots, then run the frontend
 ```bash
 python scripts/build_web_data.py
 cd web
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 The website reads generated static snapshot files from ignored `web/public/data/`. Future daily JSONL snapshots can be added under `data/player-snapshots/` and regenerated with the same script.

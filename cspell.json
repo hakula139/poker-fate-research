@@ -11,5 +11,5 @@
     }
   ],
   "dictionaries": ["project-words"],
-  "ignorePaths": ["flake.lock", "web/package-lock.json"]
+  "ignorePaths": ["flake.lock", "web/pnpm-lock.yaml"]
 }
