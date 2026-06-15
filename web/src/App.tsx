@@ -8,7 +8,8 @@ import type {
   GameTypeId,
   PlayerRecord,
   PlayerSnapshot,
-  PlayerTag,
+  PostflopTag,
+  PreflopTag,
   SnapshotIndex,
   SnapshotIndexItem,
 } from './types';
@@ -28,16 +29,22 @@ const fieldClass =
   'min-h-10 rounded-md border border-[#cbd6cc] bg-white px-3 text-[#17201b] outline-none focus-visible:ring-3 focus-visible:ring-[#23527c]/35';
 const metricClass = 'rounded-md border border-[#e1e7e0] p-2.5';
 const metricLabelClass = 'block text-xs font-bold text-[#62756d] uppercase';
-const metricValueClass = 'mt-1 block overflow-wrap-anywhere text-lg font-semibold text-[#17201b]';
+const metricValueClass = 'mt-1 block text-lg font-semibold text-[#17201b]';
 
-const tagClasses: Record<PlayerTag, string> = {
+const tagClasses: Record<PreflopTag | PostflopTag, string> = {
   'Sample too low': 'bg-[#eceff2] text-[#5b6670]',
   Nit: 'bg-[#e8e4f2] text-[#4a3b73]',
   TAG: 'bg-[#dfeceb] text-[#174d5b]',
+  'Tight-passive': 'bg-[#ebe7d7] text-[#5f5732]',
   LAG: 'bg-[#dfeceb] text-[#174d5b]',
+  'Loose-balanced': 'bg-[#e2eadf] text-[#385a31]',
   'Loose-passive': 'bg-[#f0e3d2] text-[#76511e]',
   Maniac: 'bg-[#f2dada] text-[#842d2d]',
-  Unclassified: 'bg-[#e9ede8] text-[#33443c]',
+  'Fit-or-fold': 'bg-[#e8ecdc] text-[#515f2e]',
+  'Showdown caller': 'bg-[#efe4db] text-[#72503a]',
+  'Showdown-heavy': 'bg-[#eee6d6] text-[#6b5627]',
+  'Postflop aggressor': 'bg-[#eadce3] text-[#74394f]',
+  'Postflop balanced': 'bg-[#e5ece9] text-[#3a554c]',
 };
 
 type SortKey =
@@ -67,7 +74,8 @@ function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): st
     return player.name.toLowerCase();
   }
   if (key === 'tag') {
-    return classifyPlayer(stats);
+    const tags = classifyPlayer(stats);
+    return `${tags.preflop} ${tags.postflop}`;
   }
   return stats?.[key] ?? Number.NEGATIVE_INFINITY;
 }
@@ -81,8 +89,23 @@ function bestLeaderboard(player: PlayerRecord): string {
   return `${rank} ${entry.leaderboardName}`;
 }
 
-function tagClass(tag: PlayerTag): string {
+function tagClass(tag: PreflopTag | PostflopTag): string {
   return `inline-flex min-h-6 items-center rounded-full px-2.5 text-xs font-extrabold ${tagClasses[tag]}`;
+}
+
+function TagGroup({ stats }: { stats: GameStats | undefined }) {
+  const tags = classifyPlayer(stats);
+  const values =
+    tags.preflop === 'Sample too low' ? [tags.preflop] : [tags.preflop, tags.postflop];
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {values.map((tag) => (
+        <span className={tagClass(tag)} key={tag}>
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function SortButton({
@@ -169,7 +192,6 @@ function PlayerTable({
         <tbody>
           {players.map((player) => {
             const stats = stat(player, gameType);
-            const tag = classifyPlayer(stats);
             return (
               <tr
                 className={`border-b border-[#eef2ee] hover:bg-[#f1f7f4] ${
@@ -205,7 +227,7 @@ function PlayerTable({
                 <td className="px-3.5 py-3 whitespace-nowrap">{formatRate(stats?.afq)}</td>
                 <td className="px-3.5 py-3 whitespace-nowrap">{formatRate(stats?.cbet)}</td>
                 <td className="px-3.5 py-3 whitespace-nowrap">
-                  <span className={tagClass(tag)}>{tag}</span>
+                  <TagGroup stats={stats} />
                 </td>
               </tr>
             );
@@ -231,19 +253,18 @@ function PlayerCard({
     );
   }
   const stats = stat(player, gameType);
-  const tag = classifyPlayer(stats);
   const entries = player.leaderboardEntries.slice(0, 5);
 
   return (
     <aside className={`${panelClass} order-first grid gap-4 p-4 lg:sticky lg:top-4 lg:order-none`}>
       <div>
         <p className={`${labelClass} mb-1.5`}>Player</p>
-        <h2 className="overflow-wrap-anywhere text-2xl font-semibold tracking-normal text-[#17201b]">
+        <h2 className="[overflow-wrap:anywhere] text-2xl font-semibold tracking-normal text-[#17201b]">
           {player.name}
         </h2>
         <p className="mt-2 text-xs text-[#6c7c75]">{player.uid}</p>
       </div>
-      <span className={tagClass(tag)}>{tag}</span>
+      <TagGroup stats={stats} />
 
       <div className="grid grid-cols-2 gap-2.5">
         <div className={metricClass}>
@@ -450,7 +471,7 @@ export default function App() {
           </div>
           <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4">
             <span className={metricLabelClass}>Snapshot</span>
-            <strong className="mt-1 block overflow-wrap-anywhere text-2xl font-semibold">
+            <strong className="mt-1 block [overflow-wrap:anywhere] text-2xl font-semibold">
               {snapshot.label}
             </strong>
           </div>

@@ -62,11 +62,25 @@ export type SnapshotIndex = {
   snapshots: SnapshotIndexItem[];
 };
 
-export type PlayerTag =
+export type PreflopTag =
   | 'Sample too low'
   | 'Nit'
   | 'TAG'
+  | 'Tight-passive'
   | 'LAG'
+  | 'Loose-balanced'
   | 'Loose-passive'
-  | 'Maniac'
-  | 'Unclassified';
+  | 'Maniac';
+
+export type PostflopTag =
+  | 'Sample too low'
+  | 'Fit-or-fold'
+  | 'Showdown caller'
+  | 'Showdown-heavy'
+  | 'Postflop aggressor'
+  | 'Postflop balanced';
+
+export type PlayerTags = {
+  preflop: PreflopTag;
+  postflop: PostflopTag;
+};
