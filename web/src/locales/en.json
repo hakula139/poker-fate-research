@@ -1,0 +1,77 @@
+{
+  "app": {
+    "eyebrow": "Poker Fate research",
+    "title": "Player stats",
+    "loading": "Loading player stats"
+  },
+  "controls": {
+    "language": "Language",
+    "theme": "Theme",
+    "snapshot": "Snapshot",
+    "search": "Search",
+    "searchPlaceholder": "Name or UID",
+    "gameType": "Game type"
+  },
+  "languages": {
+    "en": "English",
+    "zh-CN": "中文"
+  },
+  "themes": {
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "gameTypes": {
+    "10010101": "Hold'em",
+    "10020101": "Omaha",
+    "10050301": "SNG",
+    "20010103": "Friend room"
+  },
+  "summary": {
+    "players": "Players",
+    "visible": "Visible",
+    "snapshot": "Snapshot"
+  },
+  "table": {
+    "player": "Player",
+    "bestRank": "Best rank",
+    "hands": "Hands",
+    "profit": "Profit",
+    "vpip": "VPIP",
+    "pfr": "PFR",
+    "threeBet": "3-Bet",
+    "wtsd": "WTSD",
+    "afq": "AFq",
+    "cbet": "C-Bet",
+    "tag": "Tag"
+  },
+  "details": {
+    "player": "Player",
+    "selectPlayer": "Select a player",
+    "score": "Score",
+    "sngRecords": "SNG records",
+    "leaderboardRanks": "Leaderboard ranks",
+    "noLeaderboardRows": "No leaderboard rows"
+  },
+  "periods": {
+    "currentWeek": "Current week",
+    "lastWeek": "Last week",
+    "unknown": "Unknown period"
+  },
+  "tags": {
+    "Sample too low": "Sample too low",
+    "Nit": "Nit",
+    "TAG": "TAG",
+    "Tight-passive": "Tight-passive",
+    "LAG": "LAG",
+    "Loose-balanced": "Loose-balanced",
+    "Loose-passive": "Loose-passive",
+    "Maniac": "Maniac",
+    "Fit-or-fold": "Fit-or-fold",
+    "Showdown caller": "Showdown caller",
+    "Showdown-heavy": "Showdown-heavy",
+    "Postflop passive": "Postflop passive",
+    "Postflop aggressor": "Postflop aggressor",
+    "Postflop balanced": "Postflop balanced"
+  }
+}
