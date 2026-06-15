@@ -80,30 +80,36 @@ describe('classifyPostflop', () => {
   });
 
   it('labels high AFq or C-Bet as postflop aggression', () => {
-    expect(classifyPostflop(stats({ afq: 2900, cbet: 3600 }))).toBe('Postflop aggressor');
-    expect(classifyPostflop(stats({ afq: 1600, cbet: 5600 }))).toBe('Postflop aggressor');
+    expect(classifyPostflop(stats({ afq: 4000, cbet: 3600 }))).toBe('Postflop aggressor');
+    expect(classifyPostflop(stats({ afq: 1600, cbet: 6000 }))).toBe('Postflop aggressor');
   });
 
   it('labels high-showdown low-aggression players as showdown callers', () => {
-    expect(classifyPostflop(stats({ wtsd: 4200, afq: 1700, cbet: 3000 }))).toBe(
+    expect(classifyPostflop(stats({ wtsd: 3300, afq: 2900, cbet: 3000 }))).toBe(
       'Showdown caller',
     );
   });
 
   it('labels low-aggression low-cbet players as fit-or-fold', () => {
-    expect(classifyPostflop(stats({ wtsd: 3100, afq: 1200, cbet: 3000 }))).toBe(
+    expect(classifyPostflop(stats({ wtsd: 2400, afq: 2900, cbet: 4900 }))).toBe(
       'Fit-or-fold',
     );
   });
 
   it('labels high-showdown players without caller shape as showdown-heavy', () => {
-    expect(classifyPostflop(stats({ wtsd: 4100, afq: 2200, cbet: 4200 }))).toBe(
+    expect(classifyPostflop(stats({ wtsd: 3300, afq: 3500, cbet: 4200 }))).toBe(
       'Showdown-heavy',
     );
   });
 
-  it('labels the remaining middle as postflop balanced', () => {
-    expect(classifyPostflop(stats({ wtsd: 3500, afq: 1800, cbet: 3800 }))).toBe(
+  it('labels below-normal aggression as postflop passive', () => {
+    expect(classifyPostflop(stats({ wtsd: 3000, afq: 2900, cbet: 4900 }))).toBe(
+      'Postflop passive',
+    );
+  });
+
+  it('labels the normal 6-max cash middle as postflop balanced', () => {
+    expect(classifyPostflop(stats({ wtsd: 3000, afq: 3900, cbet: 5500 }))).toBe(
       'Postflop balanced',
     );
   });
@@ -111,7 +117,7 @@ describe('classifyPostflop', () => {
 
 describe('classifyPlayer', () => {
   it('returns separate preflop and postflop tags', () => {
-    expect(classifyPlayer(stats({ vpip: 3400, pfr: 2600, wtsd: 4100, afq: 2200 }))).toEqual({
+    expect(classifyPlayer(stats({ vpip: 3400, pfr: 2600, wtsd: 3300, afq: 3500 }))).toEqual({
       preflop: 'LAG',
       postflop: 'Showdown-heavy',
     });

@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { PlayerTagChip } from './components/PlayerTag';
+import { ThemeControl } from './components/ThemeControl';
 import { loadSnapshot, loadSnapshots } from './data';
 import { formatInteger, formatProfit, formatRate } from './format';
 import { classifyPlayer } from './tagging';
+import { getInitialTheme, writeThemeMode, type ThemeMode } from './theme';
 import type {
   GameStats,
   GameTypeId,
   PlayerRecord,
   PlayerSnapshot,
-  PostflopTag,
-  PreflopTag,
   SnapshotIndex,
   SnapshotIndexItem,
 } from './types';
@@ -23,29 +24,14 @@ const gameTypes: { id: GameTypeId; label: string }[] = [
   { id: '20010103', label: 'Friend room' },
 ];
 
-const labelClass = 'text-xs font-bold tracking-normal text-[#557066] uppercase';
-const panelClass = 'rounded-lg border border-[#d3dbd2] bg-white shadow-[0_20px_45px_rgba(31,47,39,0.08)]';
+const labelClass = 'text-xs font-bold tracking-normal text-[#557066] uppercase dark:text-[#9eb3aa]';
+const panelClass =
+  'rounded-lg border border-[#d3dbd2] bg-white shadow-[0_20px_45px_rgba(31,47,39,0.08)] dark:border-[#31483f] dark:bg-[#111a16] dark:shadow-[0_22px_48px_rgba(0,0,0,0.32)]';
 const fieldClass =
-  'min-h-10 rounded-md border border-[#cbd6cc] bg-white px-3 text-[#17201b] outline-none focus-visible:ring-3 focus-visible:ring-[#23527c]/35';
-const metricClass = 'rounded-md border border-[#e1e7e0] p-2.5';
-const metricLabelClass = 'block text-xs font-bold text-[#62756d] uppercase';
-const metricValueClass = 'mt-1 block text-lg font-semibold text-[#17201b]';
-
-const tagClasses: Record<PreflopTag | PostflopTag, string> = {
-  'Sample too low': 'bg-[#eceff2] text-[#5b6670]',
-  Nit: 'bg-[#e8e4f2] text-[#4a3b73]',
-  TAG: 'bg-[#dfeceb] text-[#174d5b]',
-  'Tight-passive': 'bg-[#ebe7d7] text-[#5f5732]',
-  LAG: 'bg-[#dfeceb] text-[#174d5b]',
-  'Loose-balanced': 'bg-[#e2eadf] text-[#385a31]',
-  'Loose-passive': 'bg-[#f0e3d2] text-[#76511e]',
-  Maniac: 'bg-[#f2dada] text-[#842d2d]',
-  'Fit-or-fold': 'bg-[#e8ecdc] text-[#515f2e]',
-  'Showdown caller': 'bg-[#efe4db] text-[#72503a]',
-  'Showdown-heavy': 'bg-[#eee6d6] text-[#6b5627]',
-  'Postflop aggressor': 'bg-[#eadce3] text-[#74394f]',
-  'Postflop balanced': 'bg-[#e5ece9] text-[#3a554c]',
-};
+  'min-h-10 rounded-md border border-[#cbd6cc] bg-white px-3 text-[#17201b] outline-none focus-visible:ring-3 focus-visible:ring-[#23527c]/35 dark:border-[#40594f] dark:bg-[#14201b] dark:text-[#e9f0ec] dark:placeholder:text-[#7f9289]';
+const metricClass = 'rounded-md border border-[#e1e7e0] p-2.5 dark:border-[#31483f]';
+const metricLabelClass = 'block text-xs font-bold text-[#62756d] uppercase dark:text-[#9eb3aa]';
+const metricValueClass = 'mt-1 block text-lg font-semibold text-[#17201b] dark:text-[#eef4f0]';
 
 type SortKey =
   | 'name'
@@ -89,10 +75,6 @@ function bestLeaderboard(player: PlayerRecord): string {
   return `${rank} ${entry.leaderboardName}`;
 }
 
-function tagClass(tag: PreflopTag | PostflopTag): string {
-  return `inline-flex min-h-6 items-center rounded-full px-2.5 text-xs font-extrabold ${tagClasses[tag]}`;
-}
-
 function TagGroup({ stats }: { stats: GameStats | undefined }) {
   const tags = classifyPlayer(stats);
   const values =
@@ -100,9 +82,7 @@ function TagGroup({ stats }: { stats: GameStats | undefined }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {values.map((tag) => (
-        <span className={tagClass(tag)} key={tag}>
-          {tag}
-        </span>
+        <PlayerTagChip tag={tag} key={tag} />
       ))}
     </div>
   );
@@ -154,37 +134,37 @@ function PlayerTable({
       <table className="w-full min-w-[1160px] border-collapse">
         <thead>
           <tr>
-            <th className="sticky top-0 z-10 min-w-[230px] border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 min-w-[230px] border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="Player" sortKey="name" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               Source
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="Hands" sortKey="hands" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="Profit" sortKey="profit" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="VPIP" sortKey="vpip" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="PFR" sortKey="pfr" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="3-Bet" sortKey="threeBet" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="WTSD" sortKey="wtsd" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="AFq" sortKey="afq" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="C-Bet" sortKey="cbet" sort={sort} onSort={onSort} />
             </th>
-            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase">
+            <th className="sticky top-0 z-10 border-b border-[#dce4dc] bg-[#edf2ed] px-3.5 py-3 text-left text-xs font-bold text-[#40534a] uppercase dark:border-[#31483f] dark:bg-[#1d2a24] dark:text-[#b4c7bf]">
               <SortButton label="Tag" sortKey="tag" sort={sort} onSort={onSort} />
             </th>
           </tr>
@@ -194,8 +174,8 @@ function PlayerTable({
             const stats = stat(player, gameType);
             return (
               <tr
-                className={`border-b border-[#eef2ee] hover:bg-[#f1f7f4] ${
-                  selectedUid === player.uid ? 'bg-[#f1f7f4]' : ''
+                className={`border-b border-[#eef2ee] hover:bg-[#f1f7f4] dark:border-[#24372f] dark:hover:bg-[#182720] ${
+                  selectedUid === player.uid ? 'bg-[#f1f7f4] dark:bg-[#182720]' : ''
                 }`}
                 key={player.uid}
                 onClick={() => onSelect(player.uid)}
@@ -205,17 +185,19 @@ function PlayerTable({
                     className="grid gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-3 focus-visible:ring-[#23527c]/35"
                     type="button"
                   >
-                    <strong className="max-w-[260px] overflow-hidden text-ellipsis text-[#17201b]">
+                    <strong className="max-w-[260px] overflow-hidden text-ellipsis text-[#17201b] dark:text-[#eef4f0]">
                       {player.name}
                     </strong>
-                    <span className="text-xs text-[#6c7c75]">{player.uid}</span>
+                    <span className="text-xs text-[#6c7c75] dark:text-[#94a69e]">{player.uid}</span>
                   </button>
                 </td>
                 <td className="px-3.5 py-3 whitespace-nowrap">{bestLeaderboard(player)}</td>
                 <td className="px-3.5 py-3 whitespace-nowrap">{formatInteger(stats?.hands)}</td>
                 <td
                   className={`px-3.5 py-3 whitespace-nowrap ${
-                    stats && stats.profit < 0 ? 'text-[#9b2e2e]' : 'text-[#17613d]'
+                    stats && stats.profit < 0
+                      ? 'text-[#9b2e2e] dark:text-[#f0a0a0]'
+                      : 'text-[#17613d] dark:text-[#77d6a4]'
                   }`}
                 >
                   {formatProfit(stats?.profit)}
@@ -247,7 +229,7 @@ function PlayerCard({
 }) {
   if (!player) {
     return (
-      <aside className={`${panelClass} order-first p-4 text-[#62756d] lg:order-none`}>
+      <aside className={`${panelClass} order-first p-4 text-[#62756d] dark:text-[#9eb3aa] lg:order-none`}>
         Select a player
       </aside>
     );
@@ -259,10 +241,10 @@ function PlayerCard({
     <aside className={`${panelClass} order-first grid gap-4 p-4 lg:sticky lg:top-4 lg:order-none`}>
       <div>
         <p className={`${labelClass} mb-1.5`}>Player</p>
-        <h2 className="[overflow-wrap:anywhere] text-2xl font-semibold tracking-normal text-[#17201b]">
+        <h2 className="[overflow-wrap:anywhere] text-2xl font-semibold tracking-normal text-[#17201b] dark:text-[#eef4f0]">
           {player.name}
         </h2>
-        <p className="mt-2 text-xs text-[#6c7c75]">{player.uid}</p>
+        <p className="mt-2 text-xs text-[#6c7c75] dark:text-[#94a69e]">{player.uid}</p>
       </div>
       <TagGroup stats={stats} />
 
@@ -307,15 +289,15 @@ function PlayerCard({
           {entries.length ? (
             entries.map((entry, index) => (
               <div
-                className="flex items-center justify-between gap-3 border-b border-[#edf1ed] pb-2"
+                className="flex items-center justify-between gap-3 border-b border-[#edf1ed] pb-2 dark:border-[#24372f]"
                 key={`${entry.leaderboardId}-${entry.period}-${index}`}
               >
-                <span className="text-[#40534a]">{entry.leaderboardName}</span>
+                <span className="text-[#40534a] dark:text-[#c8d6d0]">{entry.leaderboardName}</span>
                 <strong>{typeof entry.rank === 'number' ? `#${entry.rank}` : '-'}</strong>
               </div>
             ))
           ) : (
-            <p className="text-xs text-[#6c7c75]">No leaderboard rows</p>
+            <p className="text-xs text-[#6c7c75] dark:text-[#94a69e]">No leaderboard rows</p>
           )}
         </div>
       </div>
@@ -331,6 +313,7 @@ export default function App() {
   const [gameType, setGameType] = useState<GameTypeId>('10010101');
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
+  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
 
   useEffect(() => {
     loadSnapshots().then(({ index, active }) => {
@@ -340,6 +323,23 @@ export default function App() {
       setSelectedUid(active.players[0]?.uid ?? null);
     });
   }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function applyTheme() {
+      const dark = themeMode === 'dark' || (themeMode === 'system' && media.matches);
+      document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+    }
+
+    writeThemeMode(themeMode);
+    applyTheme();
+    if (themeMode === 'system') {
+      media.addEventListener('change', applyTheme);
+      return () => media.removeEventListener('change', applyTheme);
+    }
+  }, [themeMode]);
 
   async function changeSnapshot(item: SnapshotIndexItem) {
     const next = await loadSnapshot(item.path);
@@ -385,14 +385,14 @@ export default function App() {
 
   if (!snapshot || !snapshotIndex) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f6f7f2] text-[#40534a]">
+      <main className="grid min-h-screen place-items-center bg-[#f6f7f2] text-[#40534a] dark:bg-[#0c1411] dark:text-[#c8d6d0]">
         Loading player stats
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,rgba(35,82,124,0.08),transparent_280px),#f6f7f2] text-[#17201b]">
+    <main className="min-h-screen bg-[linear-gradient(180deg,rgba(35,82,124,0.08),transparent_280px),#f6f7f2] text-[#17201b] dark:bg-[linear-gradient(180deg,rgba(83,129,110,0.12),transparent_300px),#0c1411] dark:text-[#e9f0ec]">
       <div className="mx-auto w-[min(1500px,calc(100%-32px))] py-7 max-sm:w-[calc(100%-20px)] max-sm:py-4">
         <section className="grid items-end gap-4 lg:grid-cols-[1fr_auto]">
           <div>
@@ -401,29 +401,36 @@ export default function App() {
               Player stats
             </h1>
           </div>
-          <div className="grid gap-1.5">
-            <label className={labelClass} htmlFor="snapshot">
-              Snapshot
-            </label>
-            <select
-              className={`${fieldClass} max-w-[min(420px,88vw)] pr-8`}
-              id="snapshot"
-              value={snapshotId}
-              onChange={(event) => {
-                const item = snapshotIndex.snapshots.find(
-                  (candidate) => candidate.id === event.target.value,
-                );
-                if (item) {
-                  void changeSnapshot(item);
-                }
-              }}
-            >
-              {snapshotIndex.snapshots.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label} · {item.playerCount} players
-                </option>
-              ))}
-            </select>
+          <div className="grid gap-3 sm:grid-cols-[auto_auto] sm:items-end">
+            <ThemeControl
+              labelClass={labelClass}
+              themeMode={themeMode}
+              onThemeModeChange={setThemeMode}
+            />
+            <div className="grid gap-1.5">
+              <label className={labelClass} htmlFor="snapshot">
+                Snapshot
+              </label>
+              <select
+                className={`${fieldClass} max-w-[min(420px,88vw)] pr-8`}
+                id="snapshot"
+                value={snapshotId}
+                onChange={(event) => {
+                  const item = snapshotIndex.snapshots.find(
+                    (candidate) => candidate.id === event.target.value,
+                  );
+                  if (item) {
+                    void changeSnapshot(item);
+                  }
+                }}
+              >
+                {snapshotIndex.snapshots.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label} · {item.playerCount} players
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </section>
 
@@ -448,7 +455,7 @@ export default function App() {
                 className={`min-h-9 rounded-md border px-3.5 outline-none focus-visible:ring-3 focus-visible:ring-[#23527c]/35 ${
                   game.id === gameType
                     ? 'border-[#23527c] bg-[#23527c] text-white'
-                    : 'border-[#cbd6cc] bg-white text-[#304139]'
+                    : 'border-[#cbd6cc] bg-white text-[#304139] dark:border-[#40594f] dark:bg-[#14201b] dark:text-[#c8d6d0]'
                 }`}
                 key={game.id}
                 type="button"
@@ -461,15 +468,15 @@ export default function App() {
         </section>
 
         <section className="my-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4">
+          <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4 dark:border-[#31483f] dark:bg-[#111a16]/85">
             <span className={metricLabelClass}>Players</span>
             <strong className="mt-1 block text-2xl font-semibold">{formatInteger(snapshot.players.length)}</strong>
           </div>
-          <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4">
+          <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4 dark:border-[#31483f] dark:bg-[#111a16]/85">
             <span className={metricLabelClass}>Visible</span>
             <strong className="mt-1 block text-2xl font-semibold">{formatInteger(filteredPlayers.length)}</strong>
           </div>
-          <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4">
+          <div className="rounded-lg border border-[#d9e0d8] bg-white/80 p-4 dark:border-[#31483f] dark:bg-[#111a16]/85">
             <span className={metricLabelClass}>Snapshot</span>
             <strong className="mt-1 block [overflow-wrap:anywhere] text-2xl font-semibold">
               {snapshot.label}

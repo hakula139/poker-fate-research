@@ -15,4 +15,7 @@ test('loads generated player stats and filters players', async ({ page }) => {
   const omaha = page.getByRole('button', { name: 'Omaha' });
   await omaha.click();
   await expect(omaha).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('button', { name: 'Dark' }).click();
+  await expect(page.locator('html')).toHaveClass(/dark/);
 });

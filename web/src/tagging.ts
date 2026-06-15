@@ -57,20 +57,24 @@ export function classifyPostflop(stats: GameStats | undefined): PostflopTag {
   const afq = ratePercent(stats.afq);
   const cbet = ratePercent(stats.cbet);
 
-  if (afq >= 28 || cbet >= 55) {
+  if (afq >= 40 || cbet >= 60) {
     return 'Postflop aggressor';
   }
 
-  if (wtsd >= 38 && afq < 20) {
+  if (wtsd >= 33 && afq < 30) {
     return 'Showdown caller';
   }
 
-  if (afq < 14 && cbet < 35) {
+  if (wtsd <= 25 && afq < 30 && cbet < 50) {
     return 'Fit-or-fold';
   }
 
-  if (wtsd >= 38) {
+  if (wtsd >= 33) {
     return 'Showdown-heavy';
+  }
+
+  if (afq < 30 && cbet < 50) {
+    return 'Postflop passive';
   }
 
   return 'Postflop balanced';

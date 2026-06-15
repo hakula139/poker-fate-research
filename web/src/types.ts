@@ -77,6 +77,7 @@ export type PostflopTag =
   | 'Fit-or-fold'
   | 'Showdown caller'
   | 'Showdown-heavy'
+  | 'Postflop passive'
   | 'Postflop aggressor'
   | 'Postflop balanced';
 
