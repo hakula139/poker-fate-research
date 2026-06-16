@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { LanguageControl } from '@/components/language-control';
 import { PlayerDetails } from '@/components/player-stats/player-details';
-import { PlayerTable, type SortKey, type SortState } from '@/components/player-stats/player-table';
+import { PlayerTable } from '@/components/player-stats/player-table';
 import { labelClass } from '@/components/player-stats/styles';
 import { ThemeControl } from '@/components/theme-control';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,12 +22,16 @@ import {
   type SnapshotLoadErrorCode,
   snapshotLoadErrorCode,
 } from '@/data';
+import {
+  filterAndSortPlayers,
+  gameTypeIds,
+  type SortKey,
+  type SortState,
+} from '@/features/player-stats/model';
 import { formatInteger } from '@/format';
 import { I18nProvider, useI18n } from '@/i18n';
-import { tagSortValue } from '@/tagging';
 import { getInitialTheme, type ThemeMode, writeThemeMode } from '@/theme';
 import type {
-  GameStats,
   GameTypeId,
   PlayerRecord,
   PlayerSnapshot,
@@ -36,8 +40,6 @@ import type {
 } from '@/types';
 
 import './styles.css';
-
-const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301', '20010103'];
 
 type DataIssue =
   | {
@@ -48,21 +50,6 @@ type DataIssue =
       code: SnapshotLoadErrorCode;
       kind: 'snapshotSelection';
     };
-
-function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
-  return player.games[gameType];
-}
-
-function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): string | number {
-  const stats = stat(player, gameType);
-  if (key === 'name') {
-    return player.name.toLowerCase();
-  }
-  if (key === 'tag') {
-    return tagSortValue(stats);
-  }
-  return stats?.[key] ?? Number.NEGATIVE_INFINITY;
-}
 
 export default function App() {
   return (
@@ -133,24 +120,11 @@ function PlayerStatsApp() {
   }
 
   const filteredPlayers = useMemo(() => {
-    const players = snapshot?.players ?? [];
-    const needle = query.trim().toLowerCase();
-    const filtered = needle
-      ? players.filter(
-          (player) =>
-            player.name.toLowerCase().includes(needle) || String(player.uid).includes(needle),
-        )
-      : players;
-
-    return [...filtered].sort((left, right) => {
-      const leftValue = sortValue(left, gameType, sort.key);
-      const rightValue = sortValue(right, gameType, sort.key);
-      if (typeof leftValue === 'number' && typeof rightValue === 'number') {
-        return sort.direction === 'asc' ? leftValue - rightValue : rightValue - leftValue;
-      }
-      return sort.direction === 'asc'
-        ? String(leftValue).localeCompare(String(rightValue))
-        : String(rightValue).localeCompare(String(leftValue));
+    return filterAndSortPlayers({
+      gameType,
+      players: snapshot?.players ?? [],
+      query,
+      sort,
     });
   }, [gameType, query, snapshot?.players, sort]);
 

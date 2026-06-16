@@ -10,34 +10,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getGameStats, type SortKey, type SortState } from '@/features/player-stats/model';
 import { formatInteger, formatProfit, formatRate } from '@/format';
 import { useI18n } from '@/i18n';
 import { cn } from '@/lib/utils';
-import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
+import type { GameTypeId, PlayerRecord } from '@/types';
 
 import { statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
-
-export type SortKey =
-  | 'name'
-  | 'hands'
-  | 'profit'
-  | 'vpip'
-  | 'pfr'
-  | 'threeBet'
-  | 'wtsd'
-  | 'afq'
-  | 'cbet'
-  | 'tag';
-
-export type SortState = {
-  key: SortKey;
-  direction: 'asc' | 'desc';
-};
-
-function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
-  return player.games[gameType];
-}
 
 function SortButton({
   label,
@@ -178,7 +158,7 @@ export function PlayerTable({
         </TableHeader>
         <TableBody>
           {players.map((player) => {
-            const stats = stat(player, gameType);
+            const stats = getGameStats(player, gameType);
             const selected = selectedUid === player.uid;
             return (
               <TableRow

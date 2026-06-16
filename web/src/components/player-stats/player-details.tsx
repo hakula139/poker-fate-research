@@ -1,17 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getGameStats } from '@/features/player-stats/model';
 import { formatInteger, formatProfit, formatRate } from '@/format';
 import { useI18n } from '@/i18n';
 import { compareLeaderboardEntries, leaderboardNameLabel, periodLabel } from '@/leaderboard';
-import type { GameStats, GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
+import type { GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
 
 import { MetricTile } from './metric-tile';
 import { labelClass, statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
-
-function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
-  return player.games[gameType];
-}
 
 function PeriodBadge({ entry }: { entry: LeaderboardEntry }) {
   const { t } = useI18n();
@@ -39,7 +36,7 @@ export function PlayerDetails({
       </Card>
     );
   }
-  const stats = stat(player, gameType);
+  const stats = getGameStats(player, gameType);
   const entries = [...player.leaderboardEntries]
     .filter((entry) => typeof entry.rank === 'number')
     .sort(compareLeaderboardEntries)
