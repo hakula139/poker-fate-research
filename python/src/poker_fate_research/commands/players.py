@@ -10,6 +10,7 @@ from poker_fate_research.client import PokerFateClient
 from poker_fate_research.collector import collect_snapshot
 from poker_fate_research.constants import BASE_HOST, DEVICE_TOKEN_ENV
 from poker_fate_research.models import CollectorConfig, OutputPaths
+from poker_fate_research.paths import repo_path
 from poker_fate_research.time import iso_now
 
 
@@ -20,9 +21,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         description='Collect Poker Fate leaderboard player stats.',
     )
     parser.add_argument('--base-host', default=BASE_HOST)
-    parser.add_argument(
-        '--output-dir', type=Path, default=Path('data/player-snapshots')
-    )
+    parser.add_argument('--output-dir', type=Path)
     parser.add_argument('--page-size', type=int, default=50)
     parser.add_argument('--sleep-seconds', type=float, default=0.25)
     parser.add_argument('--max-players', type=int, default=None)
@@ -30,9 +29,10 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
 
 def config_from_args(args: argparse.Namespace) -> CollectorConfig:
+    output_dir = cast(Path | None, args.output_dir)
     return CollectorConfig(
         base_host=cast(str, args.base_host),
-        output_dir=cast(Path, args.output_dir),
+        output_dir=output_dir or repo_path('data', 'player-snapshots'),
         page_size=cast(int, args.page_size),
         sleep_seconds=cast(float, args.sleep_seconds),
         max_players=cast(int | None, args.max_players),
