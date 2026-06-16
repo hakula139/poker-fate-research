@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatInteger, formatProfit, formatRate } from '@/format';
 import { useI18n } from '@/i18n';
-import { periodLabel } from '@/leaderboard';
+import { compareLeaderboardEntries, leaderboardNameLabel, periodLabel } from '@/leaderboard';
 import type { GameStats, GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
 
 import { MetricTile } from './metric-tile';
@@ -42,7 +42,7 @@ export function PlayerDetails({
   const stats = stat(player, gameType);
   const entries = [...player.leaderboardEntries]
     .filter((entry) => typeof entry.rank === 'number')
-    .sort((left, right) => Number(left.rank) - Number(right.rank))
+    .sort(compareLeaderboardEntries)
     .slice(0, 6);
 
   return (
@@ -90,7 +90,9 @@ export function PlayerDetails({
                   key={`${String(entry.leaderboardId)}-${entry.period}-${String(index)}`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <span className="font-medium">{entry.leaderboardName}</span>
+                    <span className="font-medium">
+                      {leaderboardNameLabel(entry.leaderboardName, t.leaderboards)}
+                    </span>
                     <strong>#{entry.rank}</strong>
                   </div>
                   <div className="text-muted-foreground flex items-center justify-between gap-3 text-xs">

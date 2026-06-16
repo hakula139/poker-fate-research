@@ -89,10 +89,10 @@ export function PlayerTable({
 
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
-      <Table className="min-w-[1180px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
+      <Table className="min-w-[1120px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="bg-muted/95 sticky top-0 z-10 min-w-[260px]">
+            <TableHead className="bg-muted/95 sticky top-0 left-0 z-20 w-[220px] max-w-[220px] min-w-[220px]">
               <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">{t.table.bestRank}</TableHead>
@@ -130,16 +130,21 @@ export function PlayerTable({
             const stats = stat(player, gameType);
             return (
               <TableRow
-                className={cn('cursor-pointer', selectedUid === player.uid && 'bg-accent/70')}
+                className={cn('group cursor-pointer', selectedUid === player.uid && 'bg-accent/70')}
                 key={player.uid}
                 aria-selected={selectedUid === player.uid}
                 onClick={() => {
                   onSelect(player.uid);
                 }}
               >
-                <TableCell className="min-w-[260px]">
+                <TableCell
+                  className={cn(
+                    'bg-card group-hover:bg-muted/50 sticky left-0 z-10 w-[220px] max-w-[220px] min-w-[220px]',
+                    selectedUid === player.uid && 'bg-accent',
+                  )}
+                >
                   <button
-                    className="focus-visible:ring-ring/50 grid max-w-[300px] gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
+                    className="focus-visible:ring-ring/50 grid w-full gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
                     type="button"
                     onClick={() => {
                       onSelect(player.uid);
@@ -151,7 +156,9 @@ export function PlayerTable({
                     <span className="text-muted-foreground text-xs">{player.uid}</span>
                   </button>
                 </TableCell>
-                <TableCell>{leaderboardSummary(player.leaderboardEntries, t.periods)}</TableCell>
+                <TableCell>
+                  {leaderboardSummary(player.leaderboardEntries, t.periods, t.leaderboards)}
+                </TableCell>
                 <TableCell>{formatInteger(stats?.hands)}</TableCell>
                 <TableCell
                   className={cn(
