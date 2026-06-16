@@ -13,6 +13,9 @@ Keep user-facing status in `README.md`. Keep durable evidence, schemas, request 
 ├── artifacts/                             # Local APK / EXE downloads; ignored except README
 ├── docs/                                  # API contract, current findings, and artifact provenance
 │   └── research/                          # Guest auth, player lookup, stats schema, APK evidence
+├── python/                                # uv-managed collector and website data builder package
+│   └── src/poker_fate_research/           # Python package source
+├── web/                                   # pnpm-managed stats website
 ├── work/                                  # Scratch command output; ignored
 ├── data/                                  # Raw API responses and normalized local datasets; ignored
 ├── apktool-out/                           # Decoded Android resources; ignored
@@ -70,7 +73,7 @@ nix develop -c zsh                                      # Manual interactive she
 nix flake check                                         # Run repository validation
 ```
 
-Use the dev shell tools instead of requiring global installs. Python collector tooling is uv-managed through `pyproject.toml` and `uv.lock`; repository validation runs through `nix flake check`. Keep the flake on the current NixOS stable branch unless a tool requires unstable.
+Use the dev shell tools instead of requiring global installs. Python collector tooling is uv-managed through `python/pyproject.toml` and `python/uv.lock`; repository validation runs through `nix flake check`. Keep the flake on the current NixOS stable branch unless a tool requires unstable.
 
 ### Pre-commit Hooks
 

@@ -51,7 +51,7 @@ export function PlayerDetails({
     >
       <CardHeader className="lg:shrink-0">
         <span className={labelClass}>{t.details.player}</span>
-        <CardTitle className="text-2xl [overflow-wrap:anywhere]">{player.name}</CardTitle>
+        <CardTitle className="text-2xl wrap-anywhere">{player.name}</CardTitle>
         <p className="text-muted-foreground text-xs">{player.uid}</p>
         <TagGroup stats={stats} />
       </CardHeader>
