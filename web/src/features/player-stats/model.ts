@@ -1,7 +1,7 @@
 import { tagSortValue } from '@/tagging';
 import type { GameStats, GameTypeId, PlayerRecord, SnapshotIndexItem } from '@/types';
 
-export const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301', '20010103'];
+export const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301'];
 
 export type ScoreLabelKey = 'powerScore' | 'championPoints';
 

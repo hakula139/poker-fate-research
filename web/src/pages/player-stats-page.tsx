@@ -40,8 +40,8 @@ export function PlayerStatsPage() {
 
   return (
     <main className="text-foreground min-h-screen bg-[linear-gradient(180deg,color-mix(in_oklch,var(--primary)_11%,transparent),transparent_280px),var(--background)]">
-      <div className="mx-auto w-[min(1500px,calc(100%-32px))] py-7 max-sm:w-[calc(100%-20px)] max-sm:py-4">
-        <section className="grid items-end gap-4 lg:grid-cols-[1fr_auto]">
+      <div className="mx-auto w-[min(1500px,calc(100%-32px))] py-4 max-sm:w-[calc(100%-20px)]">
+        <section className="grid items-end gap-3 lg:grid-cols-[1fr_auto]">
           <div>
             <p className={`${labelClass} mb-1.5`}>{t.app.eyebrow}</p>
             <h1 className="text-[clamp(32px,5vw,54px)] leading-none font-semibold tracking-normal">
@@ -87,7 +87,7 @@ export function PlayerStatsPage() {
           </div>
         </section>
 
-        <section className="mt-6 grid items-end gap-4 lg:grid-cols-[minmax(220px,360px)_1fr]">
+        <section className="mt-4 grid items-end gap-3 lg:grid-cols-[minmax(220px,340px)_1fr]">
           <div className="grid gap-1.5">
             <FieldLabel htmlFor="player-search">{t.controls.search}</FieldLabel>
             <div className="relative">
@@ -126,7 +126,7 @@ export function PlayerStatsPage() {
           </ToggleGroup>
         </section>
 
-        <section className="my-4 grid gap-4 md:grid-cols-3">
+        <section className="my-3 grid gap-3 md:grid-cols-3">
           <SummaryCard
             label={t.summary.players}
             value={format.integer(snapshot.players.length)}
@@ -148,7 +148,7 @@ export function PlayerStatsPage() {
           </p>
         ) : null}
 
-        <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_340px]">
           <PlayerTable
             players={view.filteredPlayers}
             gameType={view.gameType}

@@ -1,6 +1,8 @@
 import type { Locale } from './locale';
 
 export type NumberFormatters = {
+  compactInteger: (value: number | undefined | null) => string;
+  compactProfit: (value: number | undefined) => string;
   integer: (value: number | undefined | null) => string;
   profit: (value: number | undefined) => string;
   rate: (rate: number | undefined) => string;
@@ -9,6 +11,10 @@ export type NumberFormatters = {
 const missingValue = '-';
 
 export function createFormatters(locale: Locale): NumberFormatters {
+  const compactIntegerFormatter = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 2,
+    notation: 'compact',
+  });
   const integerFormatter = new Intl.NumberFormat(locale);
   const rateFormatter = new Intl.NumberFormat(locale, {
     maximumFractionDigits: 2,
@@ -23,12 +29,27 @@ export function createFormatters(locale: Locale): NumberFormatters {
     return integerFormatter.format(value);
   }
 
+  function compactInteger(value: number | undefined | null): string {
+    if (value === undefined || value === null) {
+      return missingValue;
+    }
+    return compactIntegerFormatter.format(value);
+  }
+
   function profit(value: number | undefined): string {
     if (value === undefined) {
       return missingValue;
     }
     const sign = value > 0 ? '+' : '';
     return `${sign}${integer(value)}`;
+  }
+
+  function compactProfit(value: number | undefined): string {
+    if (value === undefined) {
+      return missingValue;
+    }
+    const sign = value > 0 ? '+' : '';
+    return `${sign}${compactInteger(value)}`;
   }
 
   function rate(rateValue: number | undefined): string {
@@ -38,7 +59,7 @@ export function createFormatters(locale: Locale): NumberFormatters {
     return rateFormatter.format(rateValue / 10000);
   }
 
-  return { integer, profit, rate };
+  return { compactInteger, compactProfit, integer, profit, rate };
 }
 
 const defaultFormatters = createFormatters('en');
@@ -56,4 +77,8 @@ export function formatInteger(value: number | undefined | null): string {
 
 export function formatProfit(value: number | undefined): string {
   return defaultFormatters.profit(value);
+}
+
+export function formatCompactProfit(value: number | undefined): string {
+  return defaultFormatters.compactProfit(value);
 }
