@@ -10,13 +10,14 @@ type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 
 const tagVariants: Record<PlayerTag, BadgeVariant> = {
   'Sample too low': 'secondary',
-  Nit: 'outline',
-  TAG: 'info',
+  'Nit': 'outline',
+  'Tight-balanced': 'success',
+  'TAG': 'info',
   'Tight-passive': 'warning',
-  LAG: 'info',
+  'LAG': 'info',
   'Loose-balanced': 'success',
   'Loose-passive': 'warning',
-  Maniac: 'danger',
+  'Maniac': 'danger',
   'Fit-or-fold': 'warning',
   'Showdown caller': 'warning',
   'Showdown-heavy': 'warning',
@@ -37,8 +38,7 @@ function PlayerTagChip({ tag }: { tag: PlayerTag }) {
 
 export function TagGroup({ stats }: { stats: GameStats | undefined }) {
   const tags = classifyPlayer(stats);
-  const values =
-    tags.preflop === 'Sample too low' ? [tags.preflop] : [tags.preflop, tags.postflop];
+  const values = tags.preflop === 'Sample too low' ? [tags.preflop] : [tags.preflop, tags.postflop];
   return (
     <div className="flex flex-wrap gap-1.5">
       {values.map((tag) => (

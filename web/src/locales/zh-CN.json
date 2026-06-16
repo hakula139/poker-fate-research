@@ -61,8 +61,9 @@
   "tags": {
     "Sample too low": "样本不足",
     "Nit": "极紧型",
+    "Tight-balanced": "紧且均衡",
     "TAG": "紧凶型",
-    "Tight-passive": "弱紧型",
+    "Tight-passive": "紧弱型",
     "LAG": "松凶型",
     "Loose-balanced": "松且均衡",
     "Loose-passive": "松弱型",

@@ -14,14 +14,17 @@ export function classifyPreflop(stats: GameStats | undefined): PreflopTag {
   const vpip = ratePercent(stats.vpip);
   const pfr = ratePercent(stats.pfr);
   const threeBet = ratePercent(stats.threeBet);
-  const afq = ratePercent(stats.afq);
   const gap = vpip - pfr;
 
   if (vpip < 15) {
     return 'Nit';
   }
 
-  if (vpip >= 40 && pfr >= 25 && (threeBet >= 10 || afq >= 30)) {
+  if (vpip < 20) {
+    return gap <= 8 ? 'Tight-balanced' : 'Tight-passive';
+  }
+
+  if (vpip >= 40 && pfr >= 25 && threeBet >= 10) {
     return 'Maniac';
   }
 
@@ -41,7 +44,7 @@ export function classifyPreflop(stats: GameStats | undefined): PreflopTag {
     return 'LAG';
   }
 
-  if (gap <= 12) {
+  if (gap <= 10) {
     return 'TAG';
   }
 

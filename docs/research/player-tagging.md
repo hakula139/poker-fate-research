@@ -27,12 +27,14 @@ Use a minimum hand threshold before assigning a preflop style. A conservative fi
 | ------------------------------------------------- | ----------------- | ------------------------------------------------------------------ |
 | Hands `< 500`                                     | `Sample too low`  | Avoid strong labels from unstable small samples.                   |
 | VPIP `< 15%`                                      | `Nit`             | Very tight preflop participation.                                  |
-| VPIP `15-28%`, VPIP / PFR gap `<= 12%`            | `TAG`             | Tight or standard range with enough raising.                       |
-| VPIP `15-28%`, VPIP / PFR gap `> 12%`             | `Tight-passive`   | Tight range that still calls noticeably more often than it raises. |
+| VPIP `15-20%`, VPIP / PFR gap `<= 8%`             | `Tight-balanced`  | Tight for 6-max, but still entering pots with matching raises.     |
+| VPIP `15-20%`, VPIP / PFR gap `> 8%`              | `Tight-passive`   | Tight range that still calls noticeably more often than it raises. |
+| VPIP `20-28%`, VPIP / PFR gap `<= 10%`            | `TAG`             | Standard 6-max tight-aggressive range with enough raising.         |
+| VPIP `20-28%`, VPIP / PFR gap `> 10%`             | `Tight-passive`   | Standard-width VPIP with too much calling relative to raising.     |
 | VPIP `28-40%`, VPIP / PFR gap `<= 12%`            | `LAG`             | Loose range with matching aggression.                              |
 | VPIP `28-40%`, VPIP / PFR gap `> 12%` and `< 18%` | `Loose-balanced`  | Loose range with a medium raise gap, between LAG and passive.      |
 | VPIP `>= 28%`, VPIP / PFR gap `>= 18%`            | `Loose-passive`   | Many pots entered without matching raises.                         |
-| VPIP `>= 40%`, PFR `>= 25%`, high 3-Bet or AFq    | `Maniac`          | Loose and over-aggressive profile.                                 |
+| VPIP `>= 40%`, PFR `>= 25%`, 3-Bet `>= 10%`       | `Maniac`          | Loose and over-aggressive preflop profile.                         |
 | VPIP `>= 40%`, PFR `>= 25%`, below maniac cutoff  | `LAG`             | Very loose and aggressive, but without the extra maniac signal.    |
 
 The v1 site should not emit `Unclassified` once a player passes the hand threshold. The 2026-06-12 Hold'em snapshot showed that fallthrough rows had enough data and mostly sat between the original TAG / LAG / loose-passive thresholds, so the model now uses explicit middle buckets instead of hiding those players behind an unknown label.

@@ -30,17 +30,19 @@ function stats(overrides: Partial<GameStats>): GameStats {
 
 describe('classifyPreflop', () => {
   it('requires a meaningful hand sample', () => {
-    expect(classifyPreflop(stats({ hands: 499, vpip: 7000, pfr: 6000 }))).toBe(
-      'Sample too low',
-    );
+    expect(classifyPreflop(stats({ hands: 499, vpip: 7000, pfr: 6000 }))).toBe('Sample too low');
   });
 
   it('labels very tight players as nits', () => {
     expect(classifyPreflop(stats({ vpip: 1400, pfr: 1000 }))).toBe('Nit');
   });
 
-  it('labels tight aggressive ranges as TAG', () => {
-    expect(classifyPreflop(stats({ vpip: 2400, pfr: 1300 }))).toBe('TAG');
+  it('labels tight low-gap ranges as tight-balanced', () => {
+    expect(classifyPreflop(stats({ vpip: 1800, pfr: 1300 }))).toBe('Tight-balanced');
+  });
+
+  it('labels standard tight aggressive ranges as TAG', () => {
+    expect(classifyPreflop(stats({ vpip: 2400, pfr: 1600 }))).toBe('TAG');
   });
 
   it('labels tight ranges with wide raise gaps as tight-passive', () => {
@@ -60,23 +62,19 @@ describe('classifyPreflop', () => {
   });
 
   it('labels high loose aggression as maniac', () => {
-    expect(
-      classifyPreflop(stats({ vpip: 5200, pfr: 3100, threeBet: 1200, afq: 2700 })),
-    ).toBe('Maniac');
+    expect(classifyPreflop(stats({ vpip: 5200, pfr: 3100, threeBet: 1200, afq: 2700 }))).toBe(
+      'Maniac',
+    );
   });
 
   it('labels very loose aggression below maniac thresholds as LAG', () => {
-    expect(classifyPreflop(stats({ vpip: 4200, pfr: 2600, threeBet: 900, afq: 2700 }))).toBe(
-      'LAG',
-    );
+    expect(classifyPreflop(stats({ vpip: 4200, pfr: 2600, threeBet: 900, afq: 2700 }))).toBe('LAG');
   });
 });
 
 describe('classifyPostflop', () => {
   it('requires a meaningful hand sample', () => {
-    expect(classifyPostflop(stats({ hands: 499, wtsd: 4500, afq: 3000 }))).toBe(
-      'Sample too low',
-    );
+    expect(classifyPostflop(stats({ hands: 499, wtsd: 4500, afq: 3000 }))).toBe('Sample too low');
   });
 
   it('labels high AFq or C-Bet as postflop aggression', () => {
@@ -85,27 +83,19 @@ describe('classifyPostflop', () => {
   });
 
   it('labels high-showdown low-aggression players as showdown callers', () => {
-    expect(classifyPostflop(stats({ wtsd: 3300, afq: 2900, cbet: 3000 }))).toBe(
-      'Showdown caller',
-    );
+    expect(classifyPostflop(stats({ wtsd: 3300, afq: 2900, cbet: 3000 }))).toBe('Showdown caller');
   });
 
   it('labels low-aggression low-cbet players as fit-or-fold', () => {
-    expect(classifyPostflop(stats({ wtsd: 2400, afq: 2900, cbet: 4900 }))).toBe(
-      'Fit-or-fold',
-    );
+    expect(classifyPostflop(stats({ wtsd: 2400, afq: 2900, cbet: 4900 }))).toBe('Fit-or-fold');
   });
 
   it('labels high-showdown players without caller shape as showdown-heavy', () => {
-    expect(classifyPostflop(stats({ wtsd: 3300, afq: 3500, cbet: 4200 }))).toBe(
-      'Showdown-heavy',
-    );
+    expect(classifyPostflop(stats({ wtsd: 3300, afq: 3500, cbet: 4200 }))).toBe('Showdown-heavy');
   });
 
   it('labels below-normal aggression as postflop passive', () => {
-    expect(classifyPostflop(stats({ wtsd: 3000, afq: 2900, cbet: 4900 }))).toBe(
-      'Postflop passive',
-    );
+    expect(classifyPostflop(stats({ wtsd: 3000, afq: 2900, cbet: 4900 }))).toBe('Postflop passive');
   });
 
   it('labels the normal 6-max cash middle as postflop balanced', () => {

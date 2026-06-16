@@ -65,6 +65,7 @@ export type SnapshotIndex = {
 export type PreflopTag =
   | 'Sample too low'
   | 'Nit'
+  | 'Tight-balanced'
   | 'TAG'
   | 'Tight-passive'
   | 'LAG'
