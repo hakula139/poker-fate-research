@@ -34,7 +34,7 @@ export function PlayerDetails({
 
   if (!player) {
     return (
-      <Card className={`order-first lg:order-none ${statsPanelClass}`}>
+      <Card className={`order-first lg:order-0 ${statsPanelClass}`}>
         <CardContent className="text-muted-foreground p-4">{t.details.selectPlayer}</CardContent>
       </Card>
     );
@@ -47,7 +47,7 @@ export function PlayerDetails({
 
   return (
     <Card
-      className={`order-first lg:sticky lg:top-4 lg:order-none lg:flex lg:flex-col lg:overflow-hidden ${statsPanelClass}`}
+      className={`order-first lg:sticky lg:top-4 lg:order-0 lg:flex lg:flex-col lg:overflow-hidden ${statsPanelClass}`}
     >
       <CardHeader className="lg:shrink-0">
         <span className={labelClass}>{t.details.player}</span>
