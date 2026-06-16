@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/table';
 import { formatInteger, formatProfit, formatRate } from '@/format';
 import { useI18n } from '@/i18n';
-import { leaderboardSummary } from '@/leaderboard';
 import { cn } from '@/lib/utils';
 import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
 
@@ -89,13 +88,12 @@ export function PlayerTable({
 
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
-      <Table className="min-w-[1120px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
+      <Table className="min-w-[980px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="bg-muted sticky top-0 left-0 z-30 w-[220px] max-w-[220px] min-w-[220px] border-r">
               <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">{t.table.bestRank}</TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.hands} sortKey="hands" sort={sort} onSort={onSort} />
             </TableHead>
@@ -155,9 +153,6 @@ export function PlayerTable({
                     </strong>
                     <span className="text-muted-foreground text-xs">{player.uid}</span>
                   </button>
-                </TableCell>
-                <TableCell>
-                  {leaderboardSummary(player.leaderboardEntries, t.periods, t.leaderboards)}
                 </TableCell>
                 <TableCell>{formatInteger(stats?.hands)}</TableCell>
                 <TableCell

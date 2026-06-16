@@ -35,7 +35,6 @@ export type Messages = {
   };
   table: {
     player: string;
-    bestRank: string;
     hands: string;
     profit: string;
     vpip: string;

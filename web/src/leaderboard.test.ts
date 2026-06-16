@@ -5,7 +5,6 @@ import {
   compareLeaderboardEntries,
   leaderboardNameLabel,
   leaderboardNameOrder,
-  leaderboardSummary,
   periodLabel,
 } from './leaderboard';
 import type { LeaderboardEntry } from './types';
@@ -46,25 +45,13 @@ describe('bestLeaderboardEntry', () => {
   });
 });
 
-describe('leaderboardSummary', () => {
-  it('includes rank, board, and period', () => {
-    expect(leaderboardSummary([entry(7, 'current_week'), entry(4, 'last_week')])).toBe(
-      '#4 Throne Points · Last week',
-    );
-  });
-
-  it('uses translated leaderboard names', () => {
-    expect(
-      leaderboardSummary([entry(7, 'current_week')], undefined, {
-        'Throne Points': '王座积分',
-      }),
-    ).toBe('#7 王座积分 · Current week');
-  });
-});
-
 describe('leaderboardNameLabel', () => {
   it('falls back to the API name for unknown leaderboards', () => {
     expect(leaderboardNameLabel('Seasonal Board', {})).toBe('Seasonal Board');
+  });
+
+  it('uses translated leaderboard names', () => {
+    expect(leaderboardNameLabel('Throne Points', { 'Throne Points': '王座积分' })).toBe('王座积分');
   });
 });
 

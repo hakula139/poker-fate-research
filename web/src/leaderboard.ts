@@ -58,16 +58,3 @@ export function compareLeaderboardEntries(left: LeaderboardEntry, right: Leaderb
     (left.rank ?? Number.MAX_SAFE_INTEGER) - (right.rank ?? Number.MAX_SAFE_INTEGER)
   );
 }
-
-export function leaderboardSummary(
-  entries: LeaderboardEntry[],
-  labels: PeriodLabels = defaultPeriodLabels,
-  leaderboardLabels: LeaderboardNameLabels = {},
-): string {
-  const entry = bestLeaderboardEntry(entries);
-  if (!entry) {
-    return '-';
-  }
-
-  return `#${String(entry.rank)} ${leaderboardNameLabel(entry.leaderboardName, leaderboardLabels)} · ${periodLabel(entry.period, labels)}`;
-}

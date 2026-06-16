@@ -21,7 +21,10 @@ test('loads generated player stats and filters players', async ({ page }) => {
   await page.getByLabel('Search').fill(firstUid);
   await expect(page.locator('tbody tr')).toHaveCount(1);
   await expect(page.getByText(firstUid).first()).toBeVisible();
-  await expect(page.getByText('#4 Throne Points · Last week')).toBeVisible();
+  await expect(page.getByText('Leaderboard ranks')).toBeVisible();
+  await expect(page.getByText('Throne Points').first()).toBeVisible();
+  await expect(page.getByText('#4')).toBeVisible();
+  await expect(page.getByText('Last week').first()).toBeVisible();
 
   const omaha = page.getByRole('radio', { name: 'Omaha' });
   await omaha.click();

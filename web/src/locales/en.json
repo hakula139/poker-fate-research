@@ -35,7 +35,6 @@
   },
   "table": {
     "player": "Player",
-    "bestRank": "Best rank",
     "hands": "Hands",
     "profit": "Profit",
     "vpip": "VPIP",
