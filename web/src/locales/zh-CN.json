@@ -2,7 +2,8 @@
   "app": {
     "eyebrow": "Poker Fate 研究",
     "title": "玩家数据",
-    "loading": "正在加载玩家数据"
+    "loading": "正在加载玩家数据",
+    "dataIssue": "无法加载生成数据"
   },
   "controls": {
     "language": "语言",

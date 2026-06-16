@@ -14,6 +14,7 @@ export type Messages = {
     eyebrow: string;
     title: string;
     loading: string;
+    dataIssue: string;
   };
   controls: {
     language: string;

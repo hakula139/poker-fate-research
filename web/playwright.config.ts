@@ -3,12 +3,12 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   webServer: {
-    command: 'pnpm run dev -- --port 5173',
-    url: 'http://127.0.0.1:5173',
-    reuseExistingServer: !process.env.CI,
+    command: 'pnpm exec vite --host 127.0.0.1 --port 5178',
+    url: 'http://127.0.0.1:5178',
+    reuseExistingServer: false,
   },
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://127.0.0.1:5178',
     trace: 'on-first-retry',
   },
   projects: [

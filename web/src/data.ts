@@ -1,10 +1,20 @@
 import { sampleSnapshot } from './fixtures/sampleData';
 import type { PlayerSnapshot, SnapshotIndex } from './types';
 
-export async function loadSnapshots(): Promise<{
+export type SnapshotLoadSource = 'generated' | 'sample';
+
+export type SnapshotLoadResult = {
   index: SnapshotIndex;
   active: PlayerSnapshot;
-}> {
+  source: SnapshotLoadSource;
+  error: string | null;
+};
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'unknown snapshot load error';
+}
+
+export async function loadSnapshots(): Promise<SnapshotLoadResult> {
   try {
     const indexResponse = await fetch('/data/snapshots.json');
     if (!indexResponse.ok) {
@@ -22,8 +32,10 @@ export async function loadSnapshots(): Promise<{
     return {
       index,
       active: (await snapshotResponse.json()) as PlayerSnapshot,
+      source: 'generated',
+      error: null,
     };
-  } catch {
+  } catch (error) {
     return {
       index: {
         generatedAt: sampleSnapshot.generatedAt,
@@ -38,6 +50,8 @@ export async function loadSnapshots(): Promise<{
         ],
       },
       active: sampleSnapshot,
+      source: 'sample',
+      error: errorMessage(error),
     };
   }
 }

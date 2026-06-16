@@ -2,7 +2,8 @@
   "app": {
     "eyebrow": "Poker Fate research",
     "title": "Player stats",
-    "loading": "Loading player stats"
+    "loading": "Loading player stats",
+    "dataIssue": "Generated data could not be loaded"
   },
   "controls": {
     "language": "Language",

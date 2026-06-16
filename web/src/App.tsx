@@ -68,13 +68,15 @@ function PlayerStatsApp() {
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
+  const [dataIssue, setDataIssue] = useState<string | null>(null);
 
   useEffect(() => {
-    void loadSnapshots().then(({ index, active }) => {
+    void loadSnapshots().then(({ index, active, source, error }) => {
       setSnapshotIndex(index);
       setSnapshot(active);
       setSnapshotId(active.id);
       setSelectedUid(null);
+      setDataIssue(source === 'sample' ? error : null);
     });
   }, []);
 
@@ -98,10 +100,15 @@ function PlayerStatsApp() {
   }, [themeMode]);
 
   async function changeSnapshot(item: SnapshotIndexItem) {
-    const next = await loadSnapshot(item.path);
-    setSnapshot(next);
-    setSnapshotId(next.id);
-    setSelectedUid(null);
+    try {
+      const next = await loadSnapshot(item.path);
+      setSnapshot(next);
+      setSnapshotId(next.id);
+      setSelectedUid(null);
+      setDataIssue(null);
+    } catch (error) {
+      setDataIssue(error instanceof Error ? error.message : 'snapshot data is unavailable');
+    }
   }
 
   function changeSort(key: SortKey) {
@@ -234,6 +241,12 @@ function PlayerStatsApp() {
           <SummaryCard label={t.summary.visible} value={formatInteger(filteredPlayers.length)} />
           <SummaryCard label={t.summary.snapshot} value={snapshot.label} />
         </section>
+
+        {dataIssue ? (
+          <p className="border-warning bg-warning/10 text-warning-foreground mb-4 rounded-md border px-3 py-2 text-sm">
+            {t.app.dataIssue}: {dataIssue}
+          </p>
+        ) : null}
 
         <section className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <PlayerTable
