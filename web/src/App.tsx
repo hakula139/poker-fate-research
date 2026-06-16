@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
 import { SearchIcon } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { LanguageControl } from '@/components/language-control';
-import { ThemeControl } from '@/components/theme-control';
 import { PlayerDetails } from '@/components/player-stats/player-details';
 import { PlayerTable, type SortKey, type SortState } from '@/components/player-stats/player-table';
 import { labelClass } from '@/components/player-stats/styles';
+import { ThemeControl } from '@/components/theme-control';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,7 +20,7 @@ import { loadSnapshot, loadSnapshots } from '@/data';
 import { formatInteger } from '@/format';
 import { I18nProvider, useI18n } from '@/i18n';
 import { tagSortValue } from '@/tagging';
-import { getInitialTheme, writeThemeMode, type ThemeMode } from '@/theme';
+import { getInitialTheme, type ThemeMode, writeThemeMode } from '@/theme';
 import type {
   GameStats,
   GameTypeId,

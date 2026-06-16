@@ -3,7 +3,7 @@ import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useI18n } from '@/i18n';
 
-import { themeModeIds, type ThemeMode } from '../theme';
+import { type ThemeMode, themeModeIds } from '../theme';
 
 const themeIcons = {
   system: MonitorIcon,

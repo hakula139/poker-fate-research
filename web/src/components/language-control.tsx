@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useI18n } from '@/i18n';
-import { localeOptions, type Locale } from '@/locale';
+import { type Locale, localeOptions } from '@/locale';
 
 export function LanguageControl({ labelClass }: { labelClass: string }) {
   const { locale, setLocale, t } = useI18n();

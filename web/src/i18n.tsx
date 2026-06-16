@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
-import { messages, type Locale, type Messages } from './locale';
+import { type Locale, type Messages, messages } from './locale';
 import { readString, storageKeys, writeString } from './storage';
 
 type I18nContextValue = {

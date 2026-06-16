@@ -2,8 +2,19 @@ import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+
+const importSortGroups = [
+  ['^\\u0000'],
+  ['^node:'],
+  ['^@?\\w'],
+  ['^@/'],
+  ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
+  ['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
+  ['^.+\\.s?css$'],
+];
 
 export default tseslint.config(
   {
@@ -17,7 +28,16 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['*.config.ts', 'playwright.config.ts', 'vite.config.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.es2025,
+        ...globals.node,
+      },
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
@@ -29,7 +49,6 @@ export default tseslint.config(
       globals: {
         ...globals.browser,
         ...globals.es2025,
-        ...globals.node,
         ...globals.worker,
       },
       parserOptions: {
@@ -40,6 +59,7 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'simple-import-sort': simpleImportSort,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -51,6 +71,36 @@ export default tseslint.config(
           allowExportNames: ['badgeVariants', 'buttonVariants', 'useI18n'],
         },
       ],
+      'simple-import-sort/exports': 'error',
+      'simple-import-sort/imports': ['error', { groups: importSortGroups }],
+    },
+  },
+  {
+    files: ['tests/**/*.{ts,tsx}', '*.config.ts', 'playwright.config.ts', 'vite.config.ts'],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.es2025,
+        ...globals.node,
+      },
+      parserOptions: {
+        project: './tsconfig.eslint.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      'simple-import-sort': simpleImportSort,
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      'simple-import-sort/exports': 'error',
+      'simple-import-sort/imports': ['error', { groups: importSortGroups }],
     },
   },
   eslintConfigPrettier,
