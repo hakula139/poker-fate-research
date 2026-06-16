@@ -39,6 +39,7 @@ export type Messages = {
   gameTypes: Record<GameTypeId, string>;
   summary: {
     players: string;
+    sampleSnapshot: string;
     visible: string;
     snapshot: string;
   };
@@ -53,14 +54,26 @@ export type Messages = {
     afq: string;
     cbet: string;
     tag: string;
+    noPlayers: string;
+  };
+  statDescriptions: {
+    vpip: string;
+    pfr: string;
+    threeBet: string;
+    wtsd: string;
+    afq: string;
+    cbet: string;
   };
   details: {
     player: string;
     selectPlayer: string;
-    score: string;
+    powerScore: string;
+    championPoints: string;
     sngRecords: string;
     leaderboardRanks: string;
     noLeaderboardRows: string;
+    noMatchingPlayer: string;
+    value: string;
   };
   periods: {
     currentWeek: string;

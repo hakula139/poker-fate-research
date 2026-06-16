@@ -1,7 +1,9 @@
 import { tagSortValue } from '@/tagging';
-import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
+import type { GameStats, GameTypeId, PlayerRecord, SnapshotIndexItem } from '@/types';
 
 export const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301', '20010103'];
+
+export type ScoreLabelKey = 'powerScore' | 'championPoints';
 
 export type SortKey =
   | 'name'
@@ -22,6 +24,17 @@ export type SortState = {
 
 export function getGameStats(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
   return player.games[gameType];
+}
+
+export function scoreLabelKey(gameType: GameTypeId): ScoreLabelKey {
+  return gameType === '10050301' ? 'championPoints' : 'powerScore';
+}
+
+export function snapshotDisplayLabel(
+  snapshot: Pick<SnapshotIndexItem, 'id' | 'label'>,
+  labels: { sampleSnapshot: string },
+): string {
+  return snapshot.id === 'sample' ? labels.sampleSnapshot : snapshot.label;
 }
 
 function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): string | number {

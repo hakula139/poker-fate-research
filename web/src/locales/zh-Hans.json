@@ -35,11 +35,12 @@
     "10010101": "德州扑克",
     "10020101": "奥马哈",
     "10050301": "SNG",
-    "20010103": "好友房"
+    "20010103": "好友房德州扑克"
   },
   "summary": {
-    "players": "玩家数",
-    "visible": "当前显示",
+    "players": "快照玩家",
+    "sampleSnapshot": "示例数据",
+    "visible": "匹配玩家",
     "snapshot": "快照"
   },
   "table": {
@@ -52,15 +53,27 @@
     "wtsd": "WTSD",
     "afq": "AFq",
     "cbet": "C-Bet",
-    "tag": "标签"
+    "tag": "标签",
+    "noPlayers": "没有匹配当前搜索和模式的玩家"
+  },
+  "statDescriptions": {
+    "vpip": "主动入池率",
+    "pfr": "翻前加注率",
+    "threeBet": "翻前 3-Bet 率",
+    "wtsd": "摊牌率",
+    "afq": "激进频率",
+    "cbet": "持续下注率"
   },
   "details": {
     "player": "玩家",
     "selectPlayer": "选择一个玩家",
-    "score": "积分",
+    "powerScore": "战力值",
+    "championPoints": "冠军积分",
     "sngRecords": "SNG 记录",
     "leaderboardRanks": "排行榜排名",
-    "noLeaderboardRows": "没有排行榜记录"
+    "noLeaderboardRows": "没有排行榜记录",
+    "noMatchingPlayer": "没有匹配当前搜索和模式的玩家",
+    "value": "数值"
   },
   "periods": {
     "currentWeek": "本周",

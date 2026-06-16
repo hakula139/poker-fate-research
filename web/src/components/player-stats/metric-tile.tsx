@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
+
 import { labelClass } from './styles';
 
-export function MetricTile({ label, value }: { label: string; value: string }) {
+export function MetricTile({ label, value }: { label: ReactNode; value: string }) {
   return (
     <div className="bg-background/45 rounded-md border p-2.5">
       <span className={labelClass}>{label}</span>

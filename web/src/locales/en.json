@@ -35,11 +35,12 @@
     "10010101": "Hold'em",
     "10020101": "Omaha",
     "10050301": "SNG",
-    "20010103": "Friend room"
+    "20010103": "Friend-room Hold'em"
   },
   "summary": {
-    "players": "Players",
-    "visible": "Visible",
+    "players": "Snapshot players",
+    "sampleSnapshot": "Sample data",
+    "visible": "Matching players",
     "snapshot": "Snapshot"
   },
   "table": {
@@ -52,15 +53,27 @@
     "wtsd": "WTSD",
     "afq": "AFq",
     "cbet": "C-Bet",
-    "tag": "Tag"
+    "tag": "Tag",
+    "noPlayers": "No players match this search and game type"
+  },
+  "statDescriptions": {
+    "vpip": "Voluntarily put money in pot",
+    "pfr": "Preflop raise",
+    "threeBet": "Preflop 3-bet",
+    "wtsd": "Went to showdown",
+    "afq": "Aggression frequency",
+    "cbet": "Continuation bet"
   },
   "details": {
     "player": "Player",
     "selectPlayer": "Select a player",
-    "score": "Score",
+    "powerScore": "Power score",
+    "championPoints": "Champion points",
     "sngRecords": "SNG records",
     "leaderboardRanks": "Leaderboard ranks",
-    "noLeaderboardRows": "No leaderboard rows"
+    "noLeaderboardRows": "No leaderboard rows",
+    "noMatchingPlayer": "No players match this search and game type",
+    "value": "Value"
   },
   "periods": {
     "currentWeek": "Current week",

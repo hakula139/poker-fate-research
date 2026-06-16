@@ -1,11 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getGameStats } from '@/features/player-stats/model';
+import { getGameStats, scoreLabelKey } from '@/features/player-stats/model';
 import { useI18n } from '@/i18n';
 import { compareLeaderboardEntries, leaderboardNameLabel, periodLabel } from '@/leaderboard';
 import type { GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
 
 import { MetricTile } from './metric-tile';
+import { StatLabel, type StatLabelId } from './stat-label';
 import { labelClass, statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
 
@@ -31,13 +32,24 @@ export function PlayerDetails({
   if (!player) {
     return (
       <Card className={`order-first lg:order-0 ${statsPanelClass}`}>
-        <CardContent className="text-muted-foreground p-4">{t.details.selectPlayer}</CardContent>
+        <CardContent className="text-muted-foreground p-4">
+          {t.details.noMatchingPlayer}
+        </CardContent>
       </Card>
     );
   }
   const stats = getGameStats(player, gameType);
+  const selectedGameType = Number(gameType);
+  const statMetrics: { id: StatLabelId; label: string; value: number | undefined }[] = [
+    { id: 'vpip', label: t.table.vpip, value: stats?.vpip },
+    { id: 'pfr', label: t.table.pfr, value: stats?.pfr },
+    { id: 'threeBet', label: t.table.threeBet, value: stats?.threeBet },
+    { id: 'wtsd', label: t.table.wtsd, value: stats?.wtsd },
+    { id: 'afq', label: t.table.afq, value: stats?.afq },
+    { id: 'cbet', label: t.table.cbet, value: stats?.cbet },
+  ];
   const entries = [...player.leaderboardEntries]
-    .filter((entry) => typeof entry.rank === 'number')
+    .filter((entry) => typeof entry.rank === 'number' && entry.gameType === selectedGameType)
     .sort(compareLeaderboardEntries)
     .slice(0, 6);
 
@@ -62,7 +74,7 @@ export function PlayerDetails({
             value={format.profit(stats?.profit)}
           />
           <MetricTile
-            label={t.details.score}
+            label={t.details[scoreLabelKey(gameType)]}
             value={format.integer(stats?.score)}
           />
           <MetricTile
@@ -72,18 +84,16 @@ export function PlayerDetails({
         </div>
 
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-          {[
-            [t.table.vpip, stats?.vpip],
-            [t.table.pfr, stats?.pfr],
-            [t.table.threeBet, stats?.threeBet],
-            [t.table.wtsd, stats?.wtsd],
-            [t.table.afq, stats?.afq],
-            [t.table.cbet, stats?.cbet],
-          ].map(([label, value]) => (
+          {statMetrics.map((metric) => (
             <MetricTile
-              key={label}
-              label={String(label)}
-              value={format.rate(value as number | undefined)}
+              key={metric.id}
+              label={
+                <StatLabel
+                  id={metric.id}
+                  label={metric.label}
+                />
+              }
+              value={format.rate(metric.value)}
             />
           ))}
         </div>
@@ -105,7 +115,9 @@ export function PlayerDetails({
                   </div>
                   <div className="text-muted-foreground flex items-center justify-between gap-3 text-xs">
                     <PeriodBadge entry={entry} />
-                    <span>{format.integer(entry.value ?? undefined)}</span>
+                    <span>
+                      {t.details.value}: {format.integer(entry.value ?? undefined)}
+                    </span>
                   </div>
                 </div>
               ))

@@ -25,6 +25,7 @@ import {
 import {
   filterAndSortPlayers,
   gameTypeIds,
+  snapshotDisplayLabel,
   type SortKey,
   type SortState,
 } from '@/features/player-stats/model';
@@ -185,7 +186,7 @@ function PlayerStatsApp() {
                       key={item.id}
                       value={item.id}
                     >
-                      {item.label} · {format.integer(item.playerCount)}
+                      {snapshotDisplayLabel(item, t.summary)} · {format.integer(item.playerCount)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -249,7 +250,7 @@ function PlayerStatsApp() {
           />
           <SummaryCard
             label={t.summary.snapshot}
-            value={snapshot.label}
+            value={snapshotDisplayLabel(snapshot, t.summary)}
           />
         </section>
 
