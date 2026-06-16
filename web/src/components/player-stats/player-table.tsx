@@ -92,7 +92,7 @@ export function PlayerTable({
       <Table className="min-w-[1120px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="bg-muted/95 sticky top-0 left-0 z-20 w-[220px] max-w-[220px] min-w-[220px]">
+            <TableHead className="bg-muted sticky top-0 left-0 z-30 w-[220px] max-w-[220px] min-w-[220px] border-r">
               <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">{t.table.bestRank}</TableHead>
@@ -139,7 +139,7 @@ export function PlayerTable({
               >
                 <TableCell
                   className={cn(
-                    'bg-card group-hover:bg-muted/50 sticky left-0 z-10 w-[220px] max-w-[220px] min-w-[220px]',
+                    'bg-card group-hover:bg-muted sticky left-0 z-20 w-[220px] max-w-[220px] min-w-[220px] border-r',
                     selectedUid === player.uid && 'bg-accent',
                   )}
                 >
