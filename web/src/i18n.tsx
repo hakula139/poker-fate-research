@@ -67,7 +67,7 @@ export type Messages = {
 export const localeOptions: { id: Locale }[] = [{ id: 'en' }, { id: 'zh-CN' }];
 
 export const messages: Record<Locale, Messages> = {
-  en: enMessages,
+  'en': enMessages,
   'zh-CN': zhCNMessages,
 };
 

@@ -35,7 +35,7 @@ export function PlayerDetails({
   if (!player) {
     return (
       <Card className={`order-first lg:order-none ${statsPanelClass}`}>
-        <CardContent className="p-4 text-muted-foreground">{t.details.selectPlayer}</CardContent>
+        <CardContent className="text-muted-foreground p-4">{t.details.selectPlayer}</CardContent>
       </Card>
     );
   }
@@ -46,11 +46,13 @@ export function PlayerDetails({
     .slice(0, 6);
 
   return (
-    <Card className={`order-first lg:sticky lg:top-4 lg:order-none lg:flex lg:flex-col lg:overflow-hidden ${statsPanelClass}`}>
+    <Card
+      className={`order-first lg:sticky lg:top-4 lg:order-none lg:flex lg:flex-col lg:overflow-hidden ${statsPanelClass}`}
+    >
       <CardHeader className="lg:shrink-0">
         <span className={labelClass}>{t.details.player}</span>
-        <CardTitle className="[overflow-wrap:anywhere] text-2xl">{player.name}</CardTitle>
-        <p className="text-xs text-muted-foreground">{player.uid}</p>
+        <CardTitle className="text-2xl [overflow-wrap:anywhere]">{player.name}</CardTitle>
+        <p className="text-muted-foreground text-xs">{player.uid}</p>
         <TagGroup stats={stats} />
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
@@ -70,7 +72,11 @@ export function PlayerDetails({
             [t.table.afq, stats?.afq],
             [t.table.cbet, stats?.cbet],
           ].map(([label, value]) => (
-            <MetricTile key={label} label={String(label)} value={formatRate(value as number | undefined)} />
+            <MetricTile
+              key={label}
+              label={String(label)}
+              value={formatRate(value as number | undefined)}
+            />
           ))}
         </div>
 
@@ -80,21 +86,21 @@ export function PlayerDetails({
             {entries.length ? (
               entries.map((entry, index) => (
                 <div
-                  className="grid gap-1 rounded-md border bg-background/45 p-2.5"
-                  key={`${entry.leaderboardId}-${entry.period}-${index}`}
+                  className="bg-background/45 grid gap-1 rounded-md border p-2.5"
+                  key={`${String(entry.leaderboardId)}-${entry.period}-${String(index)}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className="font-medium">{entry.leaderboardName}</span>
                     <strong>#{entry.rank}</strong>
                   </div>
-                  <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center justify-between gap-3 text-xs">
                     <PeriodBadge entry={entry} />
                     <span>{formatInteger(entry.value ?? undefined)}</span>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-xs text-muted-foreground">{t.details.noLeaderboardRows}</p>
+              <p className="text-muted-foreground text-xs">{t.details.noLeaderboardRows}</p>
             )}
           </div>
         </div>

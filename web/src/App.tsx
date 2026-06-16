@@ -70,7 +70,7 @@ function PlayerStatsApp() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
 
   useEffect(() => {
-    loadSnapshots().then(({ index, active }) => {
+    void loadSnapshots().then(({ index, active }) => {
       setSnapshotIndex(index);
       setSnapshot(active);
       setSnapshotId(active.id);
@@ -91,7 +91,9 @@ function PlayerStatsApp() {
     applyTheme();
     if (themeMode === 'system') {
       media.addEventListener('change', applyTheme);
-      return () => media.removeEventListener('change', applyTheme);
+      return () => {
+        media.removeEventListener('change', applyTheme);
+      };
     }
   }, [themeMode]);
 
@@ -131,21 +133,21 @@ function PlayerStatsApp() {
     });
   }, [gameType, query, snapshot?.players, sort]);
 
-  const selectedPlayer = useMemo(
+  const selectedPlayer = useMemo<PlayerRecord | undefined>(
     () => filteredPlayers.find((player) => player.uid === selectedUid) ?? filteredPlayers[0],
     [filteredPlayers, selectedUid],
   );
 
   if (!snapshot || !snapshotIndex) {
     return (
-      <main className="grid min-h-screen place-items-center bg-background text-muted-foreground">
+      <main className="bg-background text-muted-foreground grid min-h-screen place-items-center">
         {t.app.loading}
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,color-mix(in_oklch,var(--primary)_11%,transparent),transparent_280px),var(--background)] text-foreground">
+    <main className="text-foreground min-h-screen bg-[linear-gradient(180deg,color-mix(in_oklch,var(--primary)_11%,transparent),transparent_280px),var(--background)]">
       <div className="mx-auto w-[min(1500px,calc(100%-32px))] py-7 max-sm:w-[calc(100%-20px)] max-sm:py-4">
         <section className="grid items-end gap-4 lg:grid-cols-[1fr_auto]">
           <div>
@@ -195,13 +197,15 @@ function PlayerStatsApp() {
               {t.controls.search}
             </label>
             <div className="relative">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <Input
                 className="pl-9"
                 id="player-search"
                 type="search"
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                }}
                 placeholder={t.controls.searchPlaceholder}
               />
             </div>
@@ -252,7 +256,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
     <Card>
       <CardContent className="p-4">
         <span className={labelClass}>{label}</span>
-        <strong className="mt-1 block [overflow-wrap:anywhere] text-2xl font-semibold">
+        <strong className="mt-1 block text-2xl font-semibold [overflow-wrap:anywhere]">
           {value}
         </strong>
       </CardContent>

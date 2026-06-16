@@ -27,7 +27,10 @@ function ToggleGroup({
   return (
     <ToggleGroupPrimitive.Root
       data-slot="toggle-group"
-      className={cn('inline-flex items-center gap-1 rounded-lg border bg-card p-1 shadow-xs', className)}
+      className={cn(
+        'bg-card inline-flex items-center gap-1 rounded-lg border p-1 shadow-xs',
+        className,
+      )}
       {...props}
     />
   );

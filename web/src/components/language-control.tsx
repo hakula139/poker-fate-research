@@ -20,7 +20,12 @@ export function LanguageControl({ labelClass }: { labelClass: string }) {
         aria-label={t.controls.language}
       >
         {localeOptions.map((option) => (
-          <ToggleGroupItem value={option.id} key={option.id} aria-label={t.languages[option.id]} size="sm">
+          <ToggleGroupItem
+            value={option.id}
+            key={option.id}
+            aria-label={t.languages[option.id]}
+            size="sm"
+          >
             <LanguagesIcon />
             {t.languages[option.id]}
           </ToggleGroupItem>

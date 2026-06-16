@@ -60,7 +60,9 @@ function SortButton({
       size="sm"
       className="h-7 px-0 text-xs font-bold text-inherit uppercase hover:bg-transparent"
       type="button"
-      onClick={() => onSort(sortKey)}
+      onClick={() => {
+        onSort(sortKey);
+      }}
     >
       {label}
       <Icon className={cn(!active && 'text-muted-foreground/60')} />
@@ -90,35 +92,35 @@ export function PlayerTable({
       <Table className="min-w-[1180px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="sticky top-0 z-10 min-w-[260px] bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10 min-w-[260px]">
               <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">{t.table.bestRank}</TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">{t.table.bestRank}</TableHead>
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.hands} sortKey="hands" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.profit} sortKey="profit" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.vpip} sortKey="vpip" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.pfr} sortKey="pfr" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.threeBet} sortKey="threeBet" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.wtsd} sortKey="wtsd" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.afq} sortKey="afq" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.cbet} sortKey="cbet" sort={sort} onSort={onSort} />
             </TableHead>
-            <TableHead className="sticky top-0 z-10 bg-muted/95">
+            <TableHead className="bg-muted/95 sticky top-0 z-10">
               <SortButton label={t.table.tag} sortKey="tag" sort={sort} onSort={onSort} />
             </TableHead>
           </TableRow>
@@ -131,18 +133,22 @@ export function PlayerTable({
                 className={cn('cursor-pointer', selectedUid === player.uid && 'bg-accent/70')}
                 key={player.uid}
                 aria-selected={selectedUid === player.uid}
-                onClick={() => onSelect(player.uid)}
+                onClick={() => {
+                  onSelect(player.uid);
+                }}
               >
                 <TableCell className="min-w-[260px]">
                   <button
-                    className="grid max-w-[300px] gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    className="focus-visible:ring-ring/50 grid max-w-[300px] gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
                     type="button"
-                    onClick={() => onSelect(player.uid)}
+                    onClick={() => {
+                      onSelect(player.uid);
+                    }}
                   >
-                    <strong className="overflow-hidden text-ellipsis font-semibold text-foreground">
+                    <strong className="text-foreground overflow-hidden font-semibold text-ellipsis">
                       {player.name}
                     </strong>
-                    <span className="text-xs text-muted-foreground">{player.uid}</span>
+                    <span className="text-muted-foreground text-xs">{player.uid}</span>
                   </button>
                 </TableCell>
                 <TableCell>{leaderboardSummary(player.leaderboardEntries, t.periods)}</TableCell>

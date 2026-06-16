@@ -38,5 +38,5 @@ export function leaderboardSummary(
     return '-';
   }
 
-  return `#${entry.rank} ${entry.leaderboardName} · ${periodLabel(entry.period, labels)}`;
+  return `#${String(entry.rank)} ${entry.leaderboardName} · ${periodLabel(entry.period, labels)}`;
 }
