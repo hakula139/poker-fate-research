@@ -48,13 +48,7 @@ export default tseslint.config(
         'error',
         {
           allowConstantExport: true,
-          allowExportNames: [
-            'badgeVariants',
-            'buttonVariants',
-            'localeOptions',
-            'messages',
-            'useI18n',
-          ],
+          allowExportNames: ['badgeVariants', 'buttonVariants', 'useI18n'],
         },
       ],
     },

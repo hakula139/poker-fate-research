@@ -30,7 +30,7 @@ test('loads generated player stats and filters players', async ({ page }) => {
   await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveClass(/dark/);
 
-  await page.getByRole('radio', { name: '中文' }).click();
+  await page.getByRole('radio', { name: '简体中文' }).click();
   await expect(page.getByRole('heading', { name: '玩家数据' })).toBeVisible();
-  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hans');
 });

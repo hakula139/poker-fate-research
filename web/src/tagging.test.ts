@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { classifyPlayer, classifyPostflop, classifyPreflop } from './tagging';
+import {
+  classifyPlayer,
+  classifyPostflop,
+  classifyPreflop,
+  postflopTagOrder,
+  preflopTagOrder,
+  tagSortValue,
+} from './tagging';
 import type { GameStats } from './types';
 
 function stats(overrides: Partial<GameStats>): GameStats {
@@ -37,8 +44,8 @@ describe('classifyPreflop', () => {
     expect(classifyPreflop(stats({ vpip: 1400, pfr: 1000 }))).toBe('Nit');
   });
 
-  it('labels tight low-gap ranges as tight-balanced', () => {
-    expect(classifyPreflop(stats({ vpip: 1800, pfr: 1300 }))).toBe('Tight-balanced');
+  it('labels tight low-gap ranges as TAG', () => {
+    expect(classifyPreflop(stats({ vpip: 1800, pfr: 1300 }))).toBe('TAG');
   });
 
   it('labels standard tight aggressive ranges as TAG', () => {
@@ -111,5 +118,44 @@ describe('classifyPlayer', () => {
       preflop: 'LAG',
       postflop: 'Showdown-heavy',
     });
+  });
+});
+
+describe('tagSortValue', () => {
+  it('keeps preflop tags in taxonomy order', () => {
+    expect(preflopTagOrder).toEqual([
+      'Sample too low',
+      'Nit',
+      'Tight-passive',
+      'TAG',
+      'LAG',
+      'Loose-balanced',
+      'Loose-passive',
+      'Maniac',
+    ]);
+  });
+
+  it('keeps postflop tags in taxonomy order', () => {
+    expect(postflopTagOrder).toEqual([
+      'Sample too low',
+      'Fit-or-fold',
+      'Postflop passive',
+      'Postflop balanced',
+      'Postflop aggressor',
+      'Showdown-heavy',
+      'Showdown caller',
+    ]);
+  });
+
+  it('sorts primarily by preflop style', () => {
+    expect(tagSortValue(stats({ vpip: 1400, pfr: 1000 }))).toBeLessThan(
+      tagSortValue(stats({ vpip: 3400, pfr: 2600 })),
+    );
+  });
+
+  it('sorts secondarily by postflop style', () => {
+    expect(tagSortValue(stats({ vpip: 2400, pfr: 1600, wtsd: 2400, afq: 2900 }))).toBeLessThan(
+      tagSortValue(stats({ vpip: 2400, pfr: 1600, wtsd: 3300, afq: 2900 })),
+    );
   });
 });

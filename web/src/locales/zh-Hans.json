@@ -15,7 +15,7 @@
   },
   "languages": {
     "en": "English",
-    "zh-CN": "中文"
+    "zh-Hans": "简体中文"
   },
   "themes": {
     "system": "跟随系统",
@@ -59,10 +59,16 @@
     "lastWeek": "上周",
     "unknown": "未知周期"
   },
+  "leaderboards": {
+    "Winnings": "盈利",
+    "Throne Points": "王座积分",
+    "Honor Points": "荣誉积分",
+    "Classic Winnings": "对局盈利",
+    "Casual Winnings": "休闲盈利"
+  },
   "tags": {
     "Sample too low": "样本不足",
     "Nit": "极紧型",
-    "Tight-balanced": "紧且均衡",
     "TAG": "紧凶型",
     "Tight-passive": "紧弱型",
     "LAG": "松凶型",

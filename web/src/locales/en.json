@@ -15,7 +15,7 @@
   },
   "languages": {
     "en": "English",
-    "zh-CN": "中文"
+    "zh-Hans": "简体中文"
   },
   "themes": {
     "system": "System",
@@ -59,10 +59,16 @@
     "lastWeek": "Last week",
     "unknown": "Unknown period"
   },
+  "leaderboards": {
+    "Winnings": "Winnings",
+    "Throne Points": "Throne Points",
+    "Honor Points": "Honor Points",
+    "Classic Winnings": "Classic Winnings",
+    "Casual Winnings": "Casual Winnings"
+  },
   "tags": {
     "Sample too low": "Sample too low",
     "Nit": "Nit",
-    "Tight-balanced": "Tight-balanced",
     "TAG": "TAG",
     "Tight-passive": "Tight-passive",
     "LAG": "LAG",

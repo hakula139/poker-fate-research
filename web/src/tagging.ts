@@ -2,6 +2,27 @@ import type { GameStats, PlayerTags, PostflopTag, PreflopTag } from './types';
 
 const MIN_HANDS = 500;
 
+export const preflopTagOrder: PreflopTag[] = [
+  'Sample too low',
+  'Nit',
+  'Tight-passive',
+  'TAG',
+  'LAG',
+  'Loose-balanced',
+  'Loose-passive',
+  'Maniac',
+];
+
+export const postflopTagOrder: PostflopTag[] = [
+  'Sample too low',
+  'Fit-or-fold',
+  'Postflop passive',
+  'Postflop balanced',
+  'Postflop aggressor',
+  'Showdown-heavy',
+  'Showdown caller',
+];
+
 export function ratePercent(rate: number): number {
   return rate / 100;
 }
@@ -21,7 +42,7 @@ export function classifyPreflop(stats: GameStats | undefined): PreflopTag {
   }
 
   if (vpip < 20) {
-    return gap <= 8 ? 'Tight-balanced' : 'Tight-passive';
+    return gap <= 8 ? 'TAG' : 'Tight-passive';
   }
 
   if (vpip >= 40 && pfr >= 25 && threeBet >= 10) {
@@ -88,4 +109,11 @@ export function classifyPlayer(stats: GameStats | undefined): PlayerTags {
     preflop: classifyPreflop(stats),
     postflop: classifyPostflop(stats),
   };
+}
+
+export function tagSortValue(stats: GameStats | undefined): number {
+  const tags = classifyPlayer(stats);
+  const preflopIndex = preflopTagOrder.indexOf(tags.preflop);
+  const postflopIndex = postflopTagOrder.indexOf(tags.postflop);
+  return preflopIndex * 100 + postflopIndex;
 }

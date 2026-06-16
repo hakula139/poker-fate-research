@@ -19,7 +19,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { loadSnapshot, loadSnapshots } from '@/data';
 import { formatInteger } from '@/format';
 import { I18nProvider, useI18n } from '@/i18n';
-import { classifyPlayer } from '@/tagging';
+import { tagSortValue } from '@/tagging';
 import { getInitialTheme, writeThemeMode, type ThemeMode } from '@/theme';
 import type {
   GameStats,
@@ -44,8 +44,7 @@ function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): st
     return player.name.toLowerCase();
   }
   if (key === 'tag') {
-    const tags = classifyPlayer(stats);
-    return `${tags.preflop} ${tags.postflop}`;
+    return tagSortValue(stats);
   }
   return stats?.[key] ?? Number.NEGATIVE_INFINITY;
 }

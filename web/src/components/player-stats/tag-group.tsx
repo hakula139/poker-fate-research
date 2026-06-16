@@ -11,7 +11,6 @@ type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 const tagVariants: Record<PlayerTag, BadgeVariant> = {
   'Sample too low': 'secondary',
   'Nit': 'outline',
-  'Tight-balanced': 'success',
   'TAG': 'info',
   'Tight-passive': 'warning',
   'LAG': 'info',

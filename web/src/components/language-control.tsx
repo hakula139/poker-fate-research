@@ -1,7 +1,8 @@
 import { LanguagesIcon } from 'lucide-react';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { localeOptions, useI18n, type Locale } from '@/i18n';
+import { useI18n } from '@/i18n';
+import { localeOptions, type Locale } from '@/locale';
 
 export function LanguageControl({ labelClass }: { labelClass: string }) {
   const { locale, setLocale, t } = useI18n();

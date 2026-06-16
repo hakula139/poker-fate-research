@@ -27,7 +27,7 @@ Use a minimum hand threshold before assigning a preflop style. A conservative fi
 | ------------------------------------------------- | ----------------- | ------------------------------------------------------------------ |
 | Hands `< 500`                                     | `Sample too low`  | Avoid strong labels from unstable small samples.                   |
 | VPIP `< 15%`                                      | `Nit`             | Very tight preflop participation.                                  |
-| VPIP `15-20%`, VPIP / PFR gap `<= 8%`             | `Tight-balanced`  | Tight for 6-max, but still entering pots with matching raises.     |
+| VPIP `15-20%`, VPIP / PFR gap `<= 8%`             | `TAG`             | Tight for 6-max, but still entering pots with matching raises.     |
 | VPIP `15-20%`, VPIP / PFR gap `> 8%`              | `Tight-passive`   | Tight range that still calls noticeably more often than it raises. |
 | VPIP `20-28%`, VPIP / PFR gap `<= 10%`            | `TAG`             | Standard 6-max tight-aggressive range with enough raising.         |
 | VPIP `20-28%`, VPIP / PFR gap `> 10%`             | `Tight-passive`   | Standard-width VPIP with too much calling relative to raising.     |
