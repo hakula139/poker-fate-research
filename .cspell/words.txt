@@ -32,6 +32,7 @@ pytest
 rdkey
 statix
 venv
+vite
 VPIP
 WTSD
 XXTEA
