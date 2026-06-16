@@ -24,6 +24,28 @@ from poker_fate_research.models import (
 from poker_fate_research.time import iso_now
 
 
+def require_success_response(
+    path: str, request: JsonObject, response: JsonObject
+) -> None:
+    code = response.get('code')
+    if code != 0:
+        raise RuntimeError(
+            f'{path} failed with code {code!r} for request '
+            f'{json.dumps(request, ensure_ascii=False, separators=(",", ":"))}'
+        )
+
+
+def require_object_field(path: str, response: JsonObject, key: str) -> None:
+    if not isinstance(response.get(key), dict):
+        raise RuntimeError(f'{path} returned code 0 without object field {key!r}')
+
+
+def require_list_or_missing_field(path: str, response: JsonObject, key: str) -> None:
+    value = response.get(key)
+    if value is not None and not isinstance(value, list):
+        raise RuntimeError(f'{path} returned code 0 with non-list field {key!r}')
+
+
 def iter_leaderboard_pages(
     client: PokerFateClient,
     page_size: int,
@@ -41,6 +63,10 @@ def iter_leaderboard_pages(
                     'immediately': True,
                 }
                 response = client.post_json('/activity/rankingList', request_body)
+                require_success_response(
+                    '/activity/rankingList', request_body, response
+                )
+                require_list_or_missing_field('/activity/rankingList', response, 'list')
                 page = LeaderboardPage.from_api(
                     leaderboard_id=leaderboard_id,
                     leaderboard_name=leaderboard_name,
@@ -67,22 +93,30 @@ def fetch_player_snapshot(
             'player_uid': seed.uid,
             'lang': 'en',
         }
+        response = client.post_json('/player/gameData', request_body)
+        require_success_response('/player/gameData', request_body, response)
+        require_object_field('/player/gameData', response, 'data')
         game_data.append(
             GameDataSnapshot(
                 game_type=game_type,
                 label=label,
                 request=request_body,
-                response=client.post_json('/player/gameData', request_body),
+                response=response,
             )
         )
         time.sleep(sleep_seconds)
+
+    sng_request: JsonObject = {'player_uid': seed.uid}
+    sng_record = client.post_json('/player/sngRecord', sng_request)
+    require_success_response('/player/sngRecord', sng_request, sng_record)
+    require_list_or_missing_field('/player/sngRecord', sng_record, 'list')
 
     return PlayerSnapshot(
         uid=seed.uid,
         names=sorted(seed.names),
         leaderboard_entries=seed.leaderboard_entries,
         game_data=game_data,
-        sng_record=client.post_json('/player/sngRecord', {'player_uid': seed.uid}),
+        sng_record=sng_record,
         fetched_at=iso_now(),
     )
 
