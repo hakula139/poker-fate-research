@@ -40,7 +40,6 @@ export function ThemeControl({
           return (
             <ToggleGroupItem value={mode} key={mode} aria-label={t.themes[mode]} size="sm">
               <Icon />
-              {t.themes[mode]}
             </ToggleGroupItem>
           );
         })}

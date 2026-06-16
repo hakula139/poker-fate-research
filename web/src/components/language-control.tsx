@@ -1,6 +1,12 @@
 import { LanguagesIcon } from 'lucide-react';
 
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useI18n } from '@/i18n';
 import { localeOptions, type Locale } from '@/locale';
 
@@ -9,29 +15,27 @@ export function LanguageControl({ labelClass }: { labelClass: string }) {
 
   return (
     <div className="grid gap-1.5">
-      <span className={labelClass}>{t.controls.language}</span>
-      <ToggleGroup
-        type="single"
+      <label className={labelClass} htmlFor="language">
+        {t.controls.language}
+      </label>
+      <Select
         value={locale}
         onValueChange={(value) => {
-          if (value) {
-            setLocale(value as Locale);
-          }
+          setLocale(value as Locale);
         }}
-        aria-label={t.controls.language}
       >
-        {localeOptions.map((option) => (
-          <ToggleGroupItem
-            value={option.id}
-            key={option.id}
-            aria-label={t.languages[option.id]}
-            size="sm"
-          >
-            <LanguagesIcon />
-            {t.languages[option.id]}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+        <SelectTrigger id="language" className="min-w-40">
+          <LanguagesIcon />
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {localeOptions.map((option) => (
+            <SelectItem value={option.id} key={option.id}>
+              {t.languages[option.id]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
