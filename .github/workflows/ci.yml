@@ -21,3 +21,12 @@ jobs:
 
       - name: Run flake checks
         run: nix flake check --show-trace
+
+      - name: Install web dependencies
+        run: nix develop --command bash -lc 'cd web && pnpm install --frozen-lockfile'
+
+      - name: Run web checks
+        run: nix develop --command bash -lc 'cd web && pnpm run check'
+
+      - name: Run web smoke test
+        run: nix develop --command bash -lc 'cd web && pnpm run smoke'
