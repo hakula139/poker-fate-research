@@ -11,7 +11,16 @@ export type Messages = {
     eyebrow: string;
     title: string;
     loading: string;
-    dataIssue: string;
+    sampleDataIssue: string;
+    snapshotDataIssue: string;
+    dataIssues: {
+      indexUnavailable: string;
+      indexInvalid: string;
+      indexEmpty: string;
+      snapshotUnavailable: string;
+      snapshotInvalid: string;
+      unknown: string;
+    };
   };
   controls: {
     language: string;

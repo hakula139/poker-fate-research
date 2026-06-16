@@ -3,7 +3,16 @@
     "eyebrow": "Poker Fate 研究",
     "title": "玩家数据",
     "loading": "正在加载玩家数据",
-    "dataIssue": "无法加载生成数据"
+    "sampleDataIssue": "生成快照无法加载，当前正在使用示例数据。",
+    "snapshotDataIssue": "无法加载所选快照。",
+    "dataIssues": {
+      "indexUnavailable": "请先生成网站数据以查看已采集的玩家。",
+      "indexInvalid": "快照索引格式不符合预期。",
+      "indexEmpty": "快照索引中没有任何快照。",
+      "snapshotUnavailable": "无法加载所选快照文件。",
+      "snapshotInvalid": "所选快照格式不符合预期。",
+      "unknown": "请检查生成的数据文件后重试。"
+    }
   },
   "controls": {
     "language": "语言",

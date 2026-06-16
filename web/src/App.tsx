@@ -16,7 +16,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { loadSnapshot, loadSnapshots } from '@/data';
+import {
+  loadSnapshot,
+  loadSnapshots,
+  type SnapshotLoadErrorCode,
+  snapshotLoadErrorCode,
+} from '@/data';
 import { formatInteger } from '@/format';
 import { I18nProvider, useI18n } from '@/i18n';
 import { tagSortValue } from '@/tagging';
@@ -33,6 +38,16 @@ import type {
 import './styles.css';
 
 const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301', '20010103'];
+
+type DataIssue =
+  | {
+      code: SnapshotLoadErrorCode;
+      kind: 'sampleFallback';
+    }
+  | {
+      code: SnapshotLoadErrorCode;
+      kind: 'snapshotSelection';
+    };
 
 function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
   return player.games[gameType];
@@ -67,7 +82,7 @@ function PlayerStatsApp() {
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
-  const [dataIssue, setDataIssue] = useState<string | null>(null);
+  const [dataIssue, setDataIssue] = useState<DataIssue | null>(null);
 
   useEffect(() => {
     void loadSnapshots().then(({ index, active, source, error }) => {
@@ -75,7 +90,7 @@ function PlayerStatsApp() {
       setSnapshot(active);
       setSnapshotId(active.id);
       setSelectedUid(null);
-      setDataIssue(source === 'sample' ? error : null);
+      setDataIssue(source === 'sample' && error ? { kind: 'sampleFallback', code: error } : null);
     });
   }, []);
 
@@ -106,7 +121,7 @@ function PlayerStatsApp() {
       setSelectedUid(null);
       setDataIssue(null);
     } catch (error) {
-      setDataIssue(error instanceof Error ? error.message : 'snapshot data is unavailable');
+      setDataIssue({ kind: 'snapshotSelection', code: snapshotLoadErrorCode(error) });
     }
   }
 
@@ -267,7 +282,8 @@ function PlayerStatsApp() {
 
         {dataIssue ? (
           <p className="border-warning bg-warning/10 text-warning-foreground mb-4 rounded-md border px-3 py-2 text-sm">
-            {t.app.dataIssue}: {dataIssue}
+            {dataIssue.kind === 'sampleFallback' ? t.app.sampleDataIssue : t.app.snapshotDataIssue}{' '}
+            {t.app.dataIssues[dataIssue.code]}
           </p>
         ) : null}
 
