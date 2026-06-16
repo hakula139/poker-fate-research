@@ -38,6 +38,7 @@ export default tseslint.config(
   },
   {
     files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
@@ -76,7 +77,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['tests/**/*.{ts,tsx}', '*.config.ts', 'playwright.config.ts', 'vite.config.ts'],
+    files: [
+      'src/**/*.test.{ts,tsx}',
+      'tests/**/*.{ts,tsx}',
+      '*.config.ts',
+      'playwright.config.ts',
+      'vite.config.ts',
+    ],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
