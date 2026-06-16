@@ -10,7 +10,11 @@ export function readString(key: StorageKey): string | null {
     return null;
   }
 
-  return window.localStorage.getItem(key);
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 export function writeString(key: StorageKey, value: string): void {
@@ -18,5 +22,9 @@ export function writeString(key: StorageKey, value: string): void {
     return;
   }
 
-  window.localStorage.setItem(key, value);
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore unavailable storage; the app can continue with in-memory defaults.
+  }
 }

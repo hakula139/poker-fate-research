@@ -13,7 +13,7 @@ dependencies = []
 poker-fate = "poker_fate_research.cli:main"
 
 [dependency-groups]
-dev = ["ruff>=0.14.7"]
+dev = ["pytest>=9.0.2", "ruff>=0.14.7"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/poker_fate_research"]

@@ -1,9 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
-import { messages, type Locale, type Messages } from './locale';
+import { createFormatters, type NumberFormatters } from './format';
+import { type Locale, localeFromLanguageTag, type Messages, messages } from './locale';
 import { readString, storageKeys, writeString } from './storage';
 
 type I18nContextValue = {
+  format: NumberFormatters;
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: Messages;
@@ -20,7 +22,7 @@ function storedLocale(value: string | null): Locale | null {
     return value;
   }
 
-  return value === 'zh-CN' ? 'zh-Hans' : null;
+  return localeFromLanguageTag(value);
 }
 
 function getInitialLocale(): Locale {
@@ -29,8 +31,14 @@ function getInitialLocale(): Locale {
     return stored;
   }
 
-  if (typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('zh')) {
-    return 'zh-Hans';
+  if (typeof navigator !== 'undefined') {
+    const browserLocales = navigator.languages.length ? navigator.languages : [navigator.language];
+    for (const browserLocale of browserLocales) {
+      const locale = localeFromLanguageTag(browserLocale);
+      if (locale) {
+        return locale;
+      }
+    }
   }
 
   return 'en';
@@ -46,6 +54,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      format: createFormatters(locale),
       locale,
       setLocale,
       t: messages[locale],

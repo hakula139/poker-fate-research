@@ -1,4 +1,5 @@
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from 'lucide-react';
+import type { AriaAttributes, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,42 +11,26 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatInteger, formatProfit, formatRate } from '@/format';
+import { getGameStats, type SortKey, type SortState } from '@/features/player-stats/model';
 import { useI18n } from '@/i18n';
 import { cn } from '@/lib/utils';
-import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
+import type { GameTypeId, PlayerRecord } from '@/types';
 
+import { StatLabel } from './stat-label';
 import { statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
 
-export type SortKey =
-  | 'name'
-  | 'hands'
-  | 'profit'
-  | 'vpip'
-  | 'pfr'
-  | 'threeBet'
-  | 'wtsd'
-  | 'afq'
-  | 'cbet'
-  | 'tag';
-
-export type SortState = {
-  key: SortKey;
-  direction: 'asc' | 'desc';
-};
-
-function stat(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
-  return player.games[gameType];
-}
+const tableColumnCount = 10;
 
 function SortButton({
+  ariaLabel,
   label,
   sortKey,
   sort,
   onSort,
 }: {
-  label: string;
+  ariaLabel: string;
+  label: ReactNode;
   sortKey: SortKey;
   sort: SortState;
   onSort: (key: SortKey) => void;
@@ -59,6 +44,7 @@ function SortButton({
       size="sm"
       className="h-7 px-0 text-xs font-bold text-inherit uppercase hover:bg-transparent"
       type="button"
+      aria-label={ariaLabel}
       onClick={() => {
         onSort(sortKey);
       }}
@@ -67,6 +53,13 @@ function SortButton({
       <Icon className={cn(!active && 'text-muted-foreground/60')} />
     </Button>
   );
+}
+
+function ariaSort(sort: SortState, key: SortKey): AriaAttributes['aria-sort'] {
+  if (sort.key !== key) {
+    return 'none';
+  }
+  return sort.direction === 'asc' ? 'ascending' : 'descending';
 }
 
 export function PlayerTable({
@@ -84,98 +77,170 @@ export function PlayerTable({
   onSort: (key: SortKey) => void;
   onSelect: (uid: number) => void;
 }) {
-  const { t } = useI18n();
+  const { format, t } = useI18n();
+  const headers: { key: SortKey; label: ReactNode; ariaLabel: string; sticky?: boolean }[] = [
+    { key: 'name', label: t.table.player, ariaLabel: t.table.player, sticky: true },
+    { key: 'hands', label: t.table.hands, ariaLabel: t.table.hands },
+    { key: 'profit', label: t.table.profit, ariaLabel: t.table.profit },
+    {
+      key: 'vpip',
+      label: (
+        <StatLabel
+          id="vpip"
+          label={t.table.vpip}
+        />
+      ),
+      ariaLabel: `${t.table.vpip}, ${t.statDescriptions.vpip}`,
+    },
+    {
+      key: 'pfr',
+      label: (
+        <StatLabel
+          id="pfr"
+          label={t.table.pfr}
+        />
+      ),
+      ariaLabel: `${t.table.pfr}, ${t.statDescriptions.pfr}`,
+    },
+    {
+      key: 'threeBet',
+      label: (
+        <StatLabel
+          id="threeBet"
+          label={t.table.threeBet}
+        />
+      ),
+      ariaLabel: `${t.table.threeBet}, ${t.statDescriptions.threeBet}`,
+    },
+    {
+      key: 'wtsd',
+      label: (
+        <StatLabel
+          id="wtsd"
+          label={t.table.wtsd}
+        />
+      ),
+      ariaLabel: `${t.table.wtsd}, ${t.statDescriptions.wtsd}`,
+    },
+    {
+      key: 'afq',
+      label: (
+        <StatLabel
+          id="afq"
+          label={t.table.afq}
+        />
+      ),
+      ariaLabel: `${t.table.afq}, ${t.statDescriptions.afq}`,
+    },
+    {
+      key: 'cbet',
+      label: (
+        <StatLabel
+          id="cbet"
+          label={t.table.cbet}
+        />
+      ),
+      ariaLabel: `${t.table.cbet}, ${t.statDescriptions.cbet}`,
+    },
+    { key: 'tag', label: t.table.tag, ariaLabel: t.table.tag },
+  ];
 
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
-      <Table className="min-w-[980px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
+      <Table
+        className="min-w-[980px]"
+        containerClassName="max-h-[560px] lg:h-full lg:max-h-none"
+      >
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="bg-muted sticky top-0 left-0 z-30 w-[220px] max-w-[220px] min-w-[220px] border-r">
-              <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.hands} sortKey="hands" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.profit} sortKey="profit" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.vpip} sortKey="vpip" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.pfr} sortKey="pfr" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.threeBet} sortKey="threeBet" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.wtsd} sortKey="wtsd" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.afq} sortKey="afq" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.cbet} sortKey="cbet" sort={sort} onSort={onSort} />
-            </TableHead>
-            <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.tag} sortKey="tag" sort={sort} onSort={onSort} />
-            </TableHead>
+            {headers.map((header) => (
+              <TableHead
+                key={header.key}
+                aria-sort={ariaSort(sort, header.key)}
+                className={
+                  header.sticky
+                    ? 'bg-muted sticky top-0 left-0 z-30 w-[220px] max-w-[220px] min-w-[220px] border-r'
+                    : 'bg-muted/95 sticky top-0 z-10'
+                }
+              >
+                <SortButton
+                  ariaLabel={header.ariaLabel}
+                  label={header.label}
+                  sortKey={header.key}
+                  sort={sort}
+                  onSort={onSort}
+                />
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {players.map((player) => {
-            const stats = stat(player, gameType);
-            return (
-              <TableRow
-                className={cn('group cursor-pointer', selectedUid === player.uid && 'bg-accent/70')}
-                key={player.uid}
-                aria-selected={selectedUid === player.uid}
-                onClick={() => {
-                  onSelect(player.uid);
-                }}
-              >
-                <TableCell
+          {players.length ? (
+            players.map((player) => {
+              const stats = getGameStats(player, gameType);
+              const selected = selectedUid === player.uid;
+              return (
+                <TableRow
                   className={cn(
-                    'bg-card group-hover:bg-muted sticky left-0 z-20 w-[220px] max-w-[220px] min-w-[220px] border-r',
-                    selectedUid === player.uid && 'bg-accent',
+                    'group cursor-pointer',
+                    selected ? 'bg-accent/70 hover:bg-accent/70' : 'hover:bg-muted/50',
                   )}
+                  key={player.uid}
+                  aria-selected={selected}
+                  onClick={() => {
+                    onSelect(player.uid);
+                  }}
                 >
-                  <button
-                    className="focus-visible:ring-ring/50 grid w-full gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
-                    type="button"
-                    onClick={() => {
-                      onSelect(player.uid);
-                    }}
+                  <TableCell
+                    className={cn(
+                      'sticky left-0 z-20 w-[220px] max-w-[220px] min-w-[220px] border-r',
+                      selected ? 'bg-accent group-hover:bg-accent' : 'bg-card group-hover:bg-muted',
+                    )}
                   >
-                    <strong className="text-foreground overflow-hidden font-semibold text-ellipsis">
-                      {player.name}
-                    </strong>
-                    <span className="text-muted-foreground text-xs">{player.uid}</span>
-                  </button>
-                </TableCell>
-                <TableCell>{formatInteger(stats?.hands)}</TableCell>
-                <TableCell
-                  className={cn(
-                    stats && stats.profit < 0
-                      ? 'text-destructive'
-                      : 'text-emerald-700 dark:text-emerald-300',
-                  )}
-                >
-                  {formatProfit(stats?.profit)}
-                </TableCell>
-                <TableCell>{formatRate(stats?.vpip)}</TableCell>
-                <TableCell>{formatRate(stats?.pfr)}</TableCell>
-                <TableCell>{formatRate(stats?.threeBet)}</TableCell>
-                <TableCell>{formatRate(stats?.wtsd)}</TableCell>
-                <TableCell>{formatRate(stats?.afq)}</TableCell>
-                <TableCell>{formatRate(stats?.cbet)}</TableCell>
-                <TableCell>
-                  <TagGroup stats={stats} />
-                </TableCell>
-              </TableRow>
-            );
-          })}
+                    <button
+                      className="focus-visible:ring-ring/50 grid w-full cursor-pointer gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
+                      type="button"
+                      onClick={() => {
+                        onSelect(player.uid);
+                      }}
+                    >
+                      <strong className="text-foreground overflow-hidden font-semibold text-ellipsis">
+                        {player.name}
+                      </strong>
+                      <span className="text-muted-foreground text-xs">{player.uid}</span>
+                    </button>
+                  </TableCell>
+                  <TableCell>{format.integer(stats?.hands)}</TableCell>
+                  <TableCell
+                    className={cn(
+                      stats && stats.profit < 0 && 'text-destructive',
+                      stats && stats.profit > 0 && 'text-emerald-700 dark:text-emerald-300',
+                    )}
+                  >
+                    {format.profit(stats?.profit)}
+                  </TableCell>
+                  <TableCell>{format.rate(stats?.vpip)}</TableCell>
+                  <TableCell>{format.rate(stats?.pfr)}</TableCell>
+                  <TableCell>{format.rate(stats?.threeBet)}</TableCell>
+                  <TableCell>{format.rate(stats?.wtsd)}</TableCell>
+                  <TableCell>{format.rate(stats?.afq)}</TableCell>
+                  <TableCell>{format.rate(stats?.cbet)}</TableCell>
+                  <TableCell>
+                    <TagGroup stats={stats} />
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          ) : (
+            <TableRow className="hover:bg-transparent">
+              <TableCell
+                colSpan={tableColumnCount}
+                className="text-muted-foreground h-24 text-center"
+              >
+                {t.table.noPlayers}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </Card>

@@ -1,15 +1,40 @@
 import { expect, test } from '@playwright/test';
 
+import { sampleSnapshot } from '../src/fixtures/sampleData';
+
 test('loads generated player stats and filters players', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('poker-fate.locale', 'en');
+  });
+  await page.route('**/data/snapshots.json', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      json: {
+        generatedAt: sampleSnapshot.generatedAt,
+        snapshots: [
+          {
+            id: sampleSnapshot.id,
+            label: sampleSnapshot.label,
+            playerCount: sampleSnapshot.players.length,
+            source: sampleSnapshot.source,
+            path: 'data/snapshots/sample.json',
+          },
+        ],
+      },
+    });
+  });
+  await page.route('**/data/snapshots/sample.json', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      json: sampleSnapshot,
+    });
   });
 
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'Player stats' })).toBeVisible();
   await expect(page.locator('tbody tr')).not.toHaveCount(0);
-  await expect(page.getByText('2026-06-12 08:50 UTC', { exact: true })).toBeVisible();
+  await expect(page.getByText('Sample data').first()).toBeVisible();
 
   const firstUid = await page
     .locator('tbody tr')
@@ -22,9 +47,9 @@ test('loads generated player stats and filters players', async ({ page }) => {
   await expect(page.locator('tbody tr')).toHaveCount(1);
   await expect(page.getByText(firstUid).first()).toBeVisible();
   await expect(page.getByText('Leaderboard ranks')).toBeVisible();
-  await expect(page.getByText('Throne Points').first()).toBeVisible();
-  await expect(page.getByText('#4')).toBeVisible();
-  await expect(page.getByText('Last week').first()).toBeVisible();
+  await expect(page.getByText('Classic Winnings').first()).toBeVisible();
+  await expect(page.getByText('#1')).toBeVisible();
+  await expect(page.getByText('Current week').first()).toBeVisible();
 
   const omaha = page.getByRole('radio', { name: 'Omaha' });
   await omaha.click();

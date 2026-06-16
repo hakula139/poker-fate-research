@@ -1,21 +1,59 @@
-export function formatRate(rate: number | undefined): string {
-  if (rate === undefined) {
-    return '-';
+import type { Locale } from './locale';
+
+export type NumberFormatters = {
+  integer: (value: number | undefined | null) => string;
+  profit: (value: number | undefined) => string;
+  rate: (rate: number | undefined) => string;
+};
+
+const missingValue = '-';
+
+export function createFormatters(locale: Locale): NumberFormatters {
+  const integerFormatter = new Intl.NumberFormat(locale);
+  const rateFormatter = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+    style: 'percent',
+  });
+
+  function integer(value: number | undefined | null): string {
+    if (value === undefined || value === null) {
+      return missingValue;
+    }
+    return integerFormatter.format(value);
   }
-  return `${(rate / 100).toFixed(2)}%`;
+
+  function profit(value: number | undefined): string {
+    if (value === undefined) {
+      return missingValue;
+    }
+    const sign = value > 0 ? '+' : '';
+    return `${sign}${integer(value)}`;
+  }
+
+  function rate(rateValue: number | undefined): string {
+    if (rateValue === undefined) {
+      return missingValue;
+    }
+    return rateFormatter.format(rateValue / 10000);
+  }
+
+  return { integer, profit, rate };
+}
+
+const defaultFormatters = createFormatters('en');
+
+export function formatRate(rate: number | undefined): string {
+  return defaultFormatters.rate(rate);
 }
 
 export function formatInteger(value: number | undefined | null): string {
   if (value === undefined || value === null) {
-    return '-';
+    return missingValue;
   }
-  return new Intl.NumberFormat('en-US').format(value);
+  return defaultFormatters.integer(value);
 }
 
 export function formatProfit(value: number | undefined): string {
-  if (value === undefined) {
-    return '-';
-  }
-  const sign = value > 0 ? '+' : '';
-  return `${sign}${formatInteger(value)}`;
+  return defaultFormatters.profit(value);
 }

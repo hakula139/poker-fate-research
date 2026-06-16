@@ -4,11 +4,14 @@ Local React website for browsing generated Poker Fate player snapshots.
 
 ## Data
 
-From the repository root, generate frontend data after collecting player snapshots:
+From the repository root, collect player snapshots if needed, then generate frontend data:
 
 ```bash
+uv --project python run poker-fate players
 uv --project python run poker-fate web-data
 ```
+
+The collector needs the dedicated guest research credential described in [`../docs/research/player-discovery.md`](../docs/research/player-discovery.md).
 
 The app reads generated JSON from `web/public/data/`. Those files are local artifacts and are not committed. If generated data is missing, the app falls back to committed sample data and marks that state in the UI.
 
@@ -26,14 +29,11 @@ The dev server runs at <http://127.0.0.1:5178/>. Smoke tests run their own Vite 
 ## Checks
 
 ```bash
-pnpm run check
-PLAYWRIGHT_BROWSERS_PATH=$(nix eval --raw nixpkgs#playwright-driver.browsers) pnpm run smoke
+nix develop --command scripts/check-web.sh
 ```
 
-`pnpm run check` runs ESLint, Prettier check, Vitest, type checking, and a production build.
+The web check script installs locked pnpm dependencies, runs ESLint, Prettier check, Vitest, type checking, a production build, and the Playwright smoke test.
 
-## Notes
-
-Tailwind CSS v4 provides the styling system, with local shadcn/ui-style primitives in `src/components/ui/` so this app owns its component styling. UI catalogs live in `src/locales/`, and `zh-Hans` is used for Simplified Chinese.
+## Player Tags
 
 Player tags are split into preflop and postflop labels. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model.

@@ -41,20 +41,20 @@ Local leaderboard snapshots can be collected with `uv --project python run poker
 
 ## Player Stats Website
 
-Build static website data from collected player snapshots, then run the frontend:
+Collect leaderboard player snapshots when needed, build static website data, then run the frontend:
 
 ```bash
+uv --project python run poker-fate players
 uv --project python run poker-fate web-data
 pnpm --dir web install
 pnpm --dir web run dev
 ```
 
-The dev server runs at <http://127.0.0.1:5178/>. See [`web/README.md`](web/README.md) for frontend setup, data generation, ports, and checks.
+The collector needs the dedicated guest research credential described in [`docs/research/player-discovery.md`](docs/research/player-discovery.md). The dev server runs at <http://127.0.0.1:5178/>. See [`web/README.md`](web/README.md) for frontend setup, data generation, ports, and checks.
 
 ## Validation
 
 ```bash
 nix flake check
-pnpm --dir web run check
-PLAYWRIGHT_BROWSERS_PATH=$(nix eval --raw nixpkgs#playwright-driver.browsers) pnpm --dir web run smoke
+nix develop --command scripts/check-web.sh
 ```

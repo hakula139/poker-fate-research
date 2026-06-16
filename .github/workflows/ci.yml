@@ -21,3 +21,6 @@ jobs:
 
       - name: Run flake checks
         run: nix flake check --show-trace
+
+      - name: Run web checks
+        run: nix develop --command scripts/check-web.sh

@@ -1,6 +1,7 @@
-dist
-node_modules
-public/data
-test-results
+.vite/
+dist/
+node_modules/
+public/data/
+test-results/
 *.tsbuildinfo
 pnpm-lock.yaml

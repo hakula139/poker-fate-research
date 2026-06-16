@@ -7,8 +7,6 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_INPUT_DIR = Path('data/player-snapshots')
-DEFAULT_OUTPUT_DIR = Path('web/public/data')
 SNAPSHOT_RE = re.compile(r'poker-fate-players-(?P<stamp>.+)\.jsonl$')
 
 

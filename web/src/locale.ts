@@ -11,7 +11,16 @@ export type Messages = {
     eyebrow: string;
     title: string;
     loading: string;
-    dataIssue: string;
+    sampleDataIssue: string;
+    snapshotDataIssue: string;
+    dataIssues: {
+      indexUnavailable: string;
+      indexInvalid: string;
+      indexEmpty: string;
+      snapshotUnavailable: string;
+      snapshotInvalid: string;
+      unknown: string;
+    };
   };
   controls: {
     language: string;
@@ -30,6 +39,7 @@ export type Messages = {
   gameTypes: Record<GameTypeId, string>;
   summary: {
     players: string;
+    sampleSnapshot: string;
     visible: string;
     snapshot: string;
   };
@@ -44,14 +54,26 @@ export type Messages = {
     afq: string;
     cbet: string;
     tag: string;
+    noPlayers: string;
+  };
+  statDescriptions: {
+    vpip: string;
+    pfr: string;
+    threeBet: string;
+    wtsd: string;
+    afq: string;
+    cbet: string;
   };
   details: {
     player: string;
     selectPlayer: string;
-    score: string;
+    powerScore: string;
+    championPoints: string;
     sngRecords: string;
     leaderboardRanks: string;
     noLeaderboardRows: string;
+    noMatchingPlayer: string;
+    value: string;
   };
   periods: {
     currentWeek: string;
@@ -68,3 +90,22 @@ export const messages: Record<Locale, Messages> = {
   'en': enMessages,
   'zh-Hans': zhHansMessages,
 };
+
+export function localeFromLanguageTag(value: string | null): Locale | null {
+  const normalized = value?.toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  if (normalized === 'en' || normalized.startsWith('en-')) {
+    return 'en';
+  }
+  if (
+    normalized === 'zh-hans' ||
+    normalized.startsWith('zh-hans-') ||
+    normalized === 'zh-cn' ||
+    normalized === 'zh-sg'
+  ) {
+    return 'zh-Hans';
+  }
+  return null;
+}

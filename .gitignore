@@ -5,6 +5,7 @@
 /out/
 /data/
 /web/dist/
+/web/.vite/
 /web/node_modules/
 /web/public/data/
 /web/test-results/
@@ -37,3 +38,6 @@ __pycache__/
 .claude/plans/
 .claude/settings.local.json
 .claude/worktrees/
+
+# Codex
+.codex/plans/

@@ -21,6 +21,9 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
+        pythonTestEnv = pkgs.python3.withPackages (pythonPackages: [
+          pythonPackages.pytest
+        ]);
 
         preCommitCheck = git-hooks-nix.lib.${system}.run {
           src = ./.;
@@ -70,7 +73,17 @@
         };
       in
       {
-        checks.pre-commit = preCommitCheck;
+        checks = {
+          pre-commit = preCommitCheck;
+          python-tests = pkgs.runCommand "python-tests" { nativeBuildInputs = [ pythonTestEnv ]; } ''
+            cp -R ${./.} "$TMPDIR/poker-fate-research"
+            chmod -R u+w "$TMPDIR/poker-fate-research"
+            cd "$TMPDIR/poker-fate-research"
+            export PYTHONPATH="$PWD/python/src"
+            pytest -q python/tests
+            touch "$out"
+          '';
+        };
 
         devShells.default = pkgs.mkShell {
           packages =
