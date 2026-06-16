@@ -162,7 +162,7 @@ function PlayerStatsApp() {
               {t.app.title}
             </h1>
           </div>
-          <div className="grid gap-3 sm:grid-cols-[auto_auto_minmax(280px,420px)] sm:items-end">
+          <div className="grid gap-3 sm:grid-cols-[auto_auto_260px] sm:items-end">
             <LanguageControl labelClass={labelClass} />
             <ThemeControl
               labelClass={labelClass}
