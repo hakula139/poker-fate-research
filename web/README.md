@@ -29,11 +29,10 @@ The dev server runs at <http://127.0.0.1:5178/>. Smoke tests run their own Vite 
 ## Checks
 
 ```bash
-pnpm run check
-PLAYWRIGHT_BROWSERS_PATH=$(nix eval --raw nixpkgs#playwright-driver.browsers) pnpm run smoke
+nix develop --command scripts/check-web.sh
 ```
 
-`pnpm run check` runs ESLint, Prettier check, Vitest, type checking, and a production build.
+The web check script installs locked pnpm dependencies, runs ESLint, Prettier check, Vitest, type checking, a production build, and the Playwright smoke test.
 
 ## Player Tags
 

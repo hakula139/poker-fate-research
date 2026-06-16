@@ -56,6 +56,5 @@ The collector needs the dedicated guest research credential described in [`docs/
 
 ```bash
 nix flake check
-pnpm --dir web run check
-PLAYWRIGHT_BROWSERS_PATH=$(nix eval --raw nixpkgs#playwright-driver.browsers) pnpm --dir web run smoke
+nix develop --command scripts/check-web.sh
 ```

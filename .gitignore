@@ -41,4 +41,3 @@ __pycache__/
 
 # Codex
 .codex/plans/
-.codex/settings.local.json
