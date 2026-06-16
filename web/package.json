@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@11.1.3",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite --host 127.0.0.1 --port 5178",
     "build": "pnpm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "smoke": "playwright test",
