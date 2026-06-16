@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import json
 import re
 from datetime import UTC, datetime
@@ -164,19 +163,3 @@ def run(input_dir: Path, output_dir: Path, requested: list[Path]) -> None:
         json.dumps(index, ensure_ascii=False, indent=2) + '\n',
         encoding='utf-8',
     )
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(
-        description='Build static frontend data from player snapshot JSONL files.'
-    )
-    parser.add_argument('--input-dir', type=Path, default=DEFAULT_INPUT_DIR)
-    parser.add_argument('--output-dir', type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument('snapshots', nargs='*', type=Path)
-    args = parser.parse_args()
-    run(args.input_dir, args.output_dir, args.snapshots)
-    return 0
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())
