@@ -179,23 +179,27 @@ export function PlayerTable({
         <TableBody>
           {players.map((player) => {
             const stats = stat(player, gameType);
+            const selected = selectedUid === player.uid;
             return (
               <TableRow
-                className={cn('group cursor-pointer', selectedUid === player.uid && 'bg-accent/70')}
+                className={cn(
+                  'group cursor-pointer',
+                  selected ? 'bg-accent/70 hover:bg-accent/70' : 'hover:bg-muted/50',
+                )}
                 key={player.uid}
-                aria-selected={selectedUid === player.uid}
+                aria-selected={selected}
                 onClick={() => {
                   onSelect(player.uid);
                 }}
               >
                 <TableCell
                   className={cn(
-                    'bg-card group-hover:bg-muted sticky left-0 z-20 w-[220px] max-w-[220px] min-w-[220px] border-r',
-                    selectedUid === player.uid && 'bg-accent',
+                    'sticky left-0 z-20 w-[220px] max-w-[220px] min-w-[220px] border-r',
+                    selected ? 'bg-accent group-hover:bg-accent' : 'bg-card group-hover:bg-muted',
                   )}
                 >
                   <button
-                    className="focus-visible:ring-ring/50 grid w-full gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
+                    className="focus-visible:ring-ring/50 grid w-full cursor-pointer gap-0.5 bg-transparent p-0 text-left text-inherit outline-none focus-visible:ring-[3px]"
                     type="button"
                     onClick={() => {
                       onSelect(player.uid);
