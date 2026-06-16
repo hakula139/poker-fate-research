@@ -88,13 +88,13 @@ The most promising expansion path is the tournament WebSocket API. The decoded p
 
 ## Leaderboard Snapshot Collector
 
-Use `uv run poker-fate players` to create reproducible local JSONL snapshots under ignored `data/player-snapshots/`. The collector requires `POKER_FATE_RESEARCH_DEVICE_TOKEN` from an ignored local environment file and does not write guest authorization, `rdkey`, or raw login responses to output.
+Use `uv --project python run poker-fate players` from the repository root to create reproducible local JSONL snapshots under ignored `data/player-snapshots/`. The collector requires `POKER_FATE_RESEARCH_DEVICE_TOKEN` from an ignored local environment file and does not write guest authorization, `rdkey`, or raw login responses to output.
 
 ```bash
 set -a
 source .envrc.local
 set +a
-uv run poker-fate players
+uv --project python run poker-fate players
 ```
 
 Output files:
@@ -107,7 +107,7 @@ Output files:
 
 For a low-volume protocol check, use `--max-players 2`. That still fetches leaderboard pages but only enriches the first two discovered UIDs.
 
-Reusable API client, model, and collection helpers live under `src/poker_fate_research/`. Run the collector through the uv-managed console script so imports and tool versions stay consistent.
+Reusable API client, model, and collection helpers live under `python/src/poker_fate_research/`. Run the collector through the uv-managed console script so imports and tool versions stay consistent.
 
 ## Stats Enrichment
 

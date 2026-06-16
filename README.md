@@ -1,12 +1,26 @@
 # Poker Fate Research
 
-Research workspace for the official Poker Fate client APIs that expose player profile statistics.
+Research workspace, collector, and local player stats website for Poker Fate profile data.
 
-Tracked files keep the current API contract, artifact provenance, and fetched result snapshots. Large binaries, decoded client output, raw API responses, and temporary session credentials stay under ignored directories.
+The repo keeps the confirmed API findings, the snapshot collector, the website data builder, and the frontend source. Large binaries, decoded client output, raw API responses, generated website data, and local credentials stay out of git.
 
 ## Current Result
 
-The Android client exposes a guest login path and authenticated read APIs for player lookup and profile statistics. A dedicated guest account resolved `Hakula` to UID `10410931` and fetched VPIP / PFR / related profile rates. The leaderboard API provides public UID discovery for top weekly leaderboard rows, which can be enriched through the same profile-stat endpoint and classified with a documented first-pass tagging model.
+The main output is a local website for browsing collected leaderboard player snapshots. It supports snapshot selection, game-mode filtering, player search, sortable stats, player details, dark mode, and English / Simplified Chinese UI.
+
+Player classification is split into preflop and postflop tags. The current thresholds are tuned for 6-max Hold'em, which is the main mode this project uses.
+
+The site is built from static JSON generated from local JSONL snapshots. New daily snapshots can be collected and regenerated into the same frontend data format.
+
+## Project Layout
+
+| Path                         | Purpose                                                       |
+| ---------------------------- | ------------------------------------------------------------- |
+| [`python/`](python/)         | Python package for the collector and website data builder CLI |
+| [`web/`](web/)               | React player stats website                                    |
+| [`docs/`](docs/)             | Research notes, API findings, APK provenance, and tag model   |
+| [`artifacts/`](artifacts/)   | Ignored local APK / binary downloads with tracked metadata    |
+| `data/`, `work/`             | Ignored local snapshots, API responses, and scratch output    |
 
 ## Documentation
 
@@ -21,19 +35,26 @@ nix develop -c zsh                                      # Manual interactive she
 nix flake check                                         # Run repository validation
 ```
 
-The shell includes Android static-analysis tools, text search utilities, uv-managed Python tooling, Ruff, documentation linters, and pre-commit hooks.
+The shell includes Android static-analysis tools, text search utilities, uv-managed Python tooling, frontend tooling, Ruff, documentation linters, and pre-commit hooks.
 
-Local leaderboard snapshots can be collected with `uv run poker-fate players`; see [`docs/research/player-discovery.md`](docs/research/player-discovery.md) for credential and output details.
+Local leaderboard snapshots can be collected with `uv --project python run poker-fate players`; see [`docs/research/player-discovery.md`](docs/research/player-discovery.md) for credential and output details.
 
 ## Player Stats Website
 
 Build static website data from collected player snapshots, then run the frontend:
 
 ```bash
-python scripts/build_web_data.py
-cd web
-pnpm install
-pnpm run dev
+uv --project python run poker-fate web-data
+pnpm --dir web install
+pnpm --dir web run dev
 ```
 
-The website reads generated static snapshot files from ignored `web/public/data/`. Future daily JSONL snapshots can be added under `data/player-snapshots/` and regenerated with the same script.
+The dev server runs at <http://127.0.0.1:5178/>. See [`web/README.md`](web/README.md) for frontend setup, data generation, ports, and checks.
+
+## Validation
+
+```bash
+nix flake check
+pnpm --dir web run check
+PLAYWRIGHT_BROWSERS_PATH=$(nix eval --raw nixpkgs#playwright-driver.browsers) pnpm --dir web run smoke
+```

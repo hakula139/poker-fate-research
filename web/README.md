@@ -1,0 +1,39 @@
+# Poker Fate Stats Web
+
+Local React website for browsing generated Poker Fate player snapshots.
+
+## Data
+
+From the repository root, generate frontend data after collecting player snapshots:
+
+```bash
+uv --project python run poker-fate web-data
+```
+
+The app reads generated JSON from `web/public/data/`. Those files are local artifacts and are not committed. If generated data is missing, the app falls back to committed sample data and marks that state in the UI.
+
+Daily JSONL snapshots can be added under `data/player-snapshots/` and regenerated with the same command from the repository root.
+
+## Development
+
+```bash
+pnpm install
+pnpm run dev
+```
+
+The dev server runs at <http://127.0.0.1:5178/>. Smoke tests run their own Vite server on port `5179`, so they do not depend on the dev server.
+
+## Checks
+
+```bash
+pnpm run check
+PLAYWRIGHT_BROWSERS_PATH=$(nix eval --raw nixpkgs#playwright-driver.browsers) pnpm run smoke
+```
+
+`pnpm run check` runs ESLint, Prettier check, Vitest, type checking, and a production build.
+
+## Notes
+
+Tailwind CSS v4 provides the styling system, with local shadcn/ui-style primitives in `src/components/ui/` so this app owns its component styling. UI catalogs live in `src/locales/`, and `zh-Hans` is used for Simplified Chinese.
+
+Player tags are split into preflop and postflop labels. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model.
