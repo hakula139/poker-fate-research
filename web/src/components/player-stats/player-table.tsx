@@ -11,7 +11,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getGameStats, type SortKey, type SortState } from '@/features/player-stats/model';
-import { formatInteger, formatProfit, formatRate } from '@/format';
 import { useI18n } from '@/i18n';
 import { cn } from '@/lib/utils';
 import type { GameTypeId, PlayerRecord } from '@/types';
@@ -64,7 +63,7 @@ export function PlayerTable({
   onSort: (key: SortKey) => void;
   onSelect: (uid: number) => void;
 }) {
-  const { t } = useI18n();
+  const { format, t } = useI18n();
 
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
@@ -191,7 +190,7 @@ export function PlayerTable({
                     <span className="text-muted-foreground text-xs">{player.uid}</span>
                   </button>
                 </TableCell>
-                <TableCell>{formatInteger(stats?.hands)}</TableCell>
+                <TableCell>{format.integer(stats?.hands)}</TableCell>
                 <TableCell
                   className={cn(
                     stats && stats.profit < 0
@@ -199,14 +198,14 @@ export function PlayerTable({
                       : 'text-emerald-700 dark:text-emerald-300',
                   )}
                 >
-                  {formatProfit(stats?.profit)}
+                  {format.profit(stats?.profit)}
                 </TableCell>
-                <TableCell>{formatRate(stats?.vpip)}</TableCell>
-                <TableCell>{formatRate(stats?.pfr)}</TableCell>
-                <TableCell>{formatRate(stats?.threeBet)}</TableCell>
-                <TableCell>{formatRate(stats?.wtsd)}</TableCell>
-                <TableCell>{formatRate(stats?.afq)}</TableCell>
-                <TableCell>{formatRate(stats?.cbet)}</TableCell>
+                <TableCell>{format.rate(stats?.vpip)}</TableCell>
+                <TableCell>{format.rate(stats?.pfr)}</TableCell>
+                <TableCell>{format.rate(stats?.threeBet)}</TableCell>
+                <TableCell>{format.rate(stats?.wtsd)}</TableCell>
+                <TableCell>{format.rate(stats?.afq)}</TableCell>
+                <TableCell>{format.rate(stats?.cbet)}</TableCell>
                 <TableCell>
                   <TagGroup stats={stats} />
                 </TableCell>

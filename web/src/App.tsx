@@ -28,7 +28,6 @@ import {
   type SortKey,
   type SortState,
 } from '@/features/player-stats/model';
-import { formatInteger } from '@/format';
 import { I18nProvider, useI18n } from '@/i18n';
 import { getInitialTheme, type ThemeMode, writeThemeMode } from '@/theme';
 import type {
@@ -60,7 +59,7 @@ export default function App() {
 }
 
 function PlayerStatsApp() {
-  const { t } = useI18n();
+  const { format, t } = useI18n();
   const [snapshotIndex, setSnapshotIndex] = useState<SnapshotIndex | null>(null);
   const [snapshot, setSnapshot] = useState<PlayerSnapshot | null>(null);
   const [snapshotId, setSnapshotId] = useState<string>('');
@@ -186,7 +185,7 @@ function PlayerStatsApp() {
                       key={item.id}
                       value={item.id}
                     >
-                      {item.label} · {formatInteger(item.playerCount)}
+                      {item.label} · {format.integer(item.playerCount)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -242,11 +241,11 @@ function PlayerStatsApp() {
         <section className="my-4 grid gap-4 md:grid-cols-3">
           <SummaryCard
             label={t.summary.players}
-            value={formatInteger(snapshot.players.length)}
+            value={format.integer(snapshot.players.length)}
           />
           <SummaryCard
             label={t.summary.visible}
-            value={formatInteger(filteredPlayers.length)}
+            value={format.integer(filteredPlayers.length)}
           />
           <SummaryCard
             label={t.summary.snapshot}

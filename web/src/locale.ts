@@ -77,3 +77,22 @@ export const messages: Record<Locale, Messages> = {
   'en': enMessages,
   'zh-Hans': zhHansMessages,
 };
+
+export function localeFromLanguageTag(value: string | null): Locale | null {
+  const normalized = value?.toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  if (normalized === 'en' || normalized.startsWith('en-')) {
+    return 'en';
+  }
+  if (
+    normalized === 'zh-hans' ||
+    normalized.startsWith('zh-hans-') ||
+    normalized === 'zh-cn' ||
+    normalized === 'zh-sg'
+  ) {
+    return 'zh-Hans';
+  }
+  return null;
+}

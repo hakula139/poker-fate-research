@@ -1,7 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getGameStats } from '@/features/player-stats/model';
-import { formatInteger, formatProfit, formatRate } from '@/format';
 import { useI18n } from '@/i18n';
 import { compareLeaderboardEntries, leaderboardNameLabel, periodLabel } from '@/leaderboard';
 import type { GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
@@ -27,7 +26,7 @@ export function PlayerDetails({
   player: PlayerRecord | undefined;
   gameType: GameTypeId;
 }) {
-  const { t } = useI18n();
+  const { format, t } = useI18n();
 
   if (!player) {
     return (
@@ -56,19 +55,19 @@ export function PlayerDetails({
         <div className="grid grid-cols-2 gap-2.5">
           <MetricTile
             label={t.table.hands}
-            value={formatInteger(stats?.hands)}
+            value={format.integer(stats?.hands)}
           />
           <MetricTile
             label={t.table.profit}
-            value={formatProfit(stats?.profit)}
+            value={format.profit(stats?.profit)}
           />
           <MetricTile
             label={t.details.score}
-            value={formatInteger(stats?.score)}
+            value={format.integer(stats?.score)}
           />
           <MetricTile
             label={t.details.sngRecords}
-            value={formatInteger(player.sngRecordCount)}
+            value={format.integer(player.sngRecordCount)}
           />
         </div>
 
@@ -84,7 +83,7 @@ export function PlayerDetails({
             <MetricTile
               key={label}
               label={String(label)}
-              value={formatRate(value as number | undefined)}
+              value={format.rate(value as number | undefined)}
             />
           ))}
         </div>
@@ -106,7 +105,7 @@ export function PlayerDetails({
                   </div>
                   <div className="text-muted-foreground flex items-center justify-between gap-3 text-xs">
                     <PeriodBadge entry={entry} />
-                    <span>{formatInteger(entry.value ?? undefined)}</span>
+                    <span>{format.integer(entry.value ?? undefined)}</span>
                   </div>
                 </div>
               ))
