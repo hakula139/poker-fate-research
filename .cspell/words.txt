@@ -2,12 +2,14 @@ aapt
 apktool
 awss
 cachix
+cbet
 direnv
 envrc
 findutils
 Hakula
 HOLDEM
 IL2CPP
+leaderboard
 imei
 isort
 jadx
@@ -22,6 +24,7 @@ pkgs
 pkproject
 pkproto
 pokerfate
+readonly
 pycache
 pyproject
 pypi
