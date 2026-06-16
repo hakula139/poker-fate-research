@@ -170,7 +170,10 @@ function PlayerStatsApp() {
               onThemeModeChange={setThemeMode}
             />
             <div className="grid gap-1.5">
-              <label className={labelClass} htmlFor="snapshot">
+              <label
+                className={labelClass}
+                htmlFor="snapshot"
+              >
                 {t.controls.snapshot}
               </label>
               <Select
@@ -182,12 +185,18 @@ function PlayerStatsApp() {
                   }
                 }}
               >
-                <SelectTrigger id="snapshot" className="w-full">
+                <SelectTrigger
+                  id="snapshot"
+                  className="w-full"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {snapshotIndex.snapshots.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
+                    <SelectItem
+                      key={item.id}
+                      value={item.id}
+                    >
                       {item.label} · {formatInteger(item.playerCount)}
                     </SelectItem>
                   ))}
@@ -199,7 +208,10 @@ function PlayerStatsApp() {
 
         <section className="mt-6 grid items-end gap-4 lg:grid-cols-[minmax(220px,360px)_1fr]">
           <div className="grid gap-1.5">
-            <label className={labelClass} htmlFor="player-search">
+            <label
+              className={labelClass}
+              htmlFor="player-search"
+            >
               {t.controls.search}
             </label>
             <div className="relative">
@@ -228,7 +240,10 @@ function PlayerStatsApp() {
             aria-label={t.controls.gameType}
           >
             {gameTypeIds.map((gameTypeId) => (
-              <ToggleGroupItem value={gameTypeId} key={gameTypeId}>
+              <ToggleGroupItem
+                value={gameTypeId}
+                key={gameTypeId}
+              >
                 {t.gameTypes[gameTypeId]}
               </ToggleGroupItem>
             ))}
@@ -236,9 +251,18 @@ function PlayerStatsApp() {
         </section>
 
         <section className="my-4 grid gap-4 md:grid-cols-3">
-          <SummaryCard label={t.summary.players} value={formatInteger(snapshot.players.length)} />
-          <SummaryCard label={t.summary.visible} value={formatInteger(filteredPlayers.length)} />
-          <SummaryCard label={t.summary.snapshot} value={snapshot.label} />
+          <SummaryCard
+            label={t.summary.players}
+            value={formatInteger(snapshot.players.length)}
+          />
+          <SummaryCard
+            label={t.summary.visible}
+            value={formatInteger(filteredPlayers.length)}
+          />
+          <SummaryCard
+            label={t.summary.snapshot}
+            value={snapshot.label}
+          />
         </section>
 
         {dataIssue ? (
@@ -256,7 +280,10 @@ function PlayerStatsApp() {
             onSort={changeSort}
             onSelect={setSelectedUid}
           />
-          <PlayerDetails player={selectedPlayer} gameType={gameType} />
+          <PlayerDetails
+            player={selectedPlayer}
+            gameType={gameType}
+          />
         </section>
       </div>
     </main>

@@ -15,7 +15,10 @@ export function LanguageControl({ labelClass }: { labelClass: string }) {
 
   return (
     <div className="grid gap-1.5">
-      <label className={labelClass} htmlFor="language">
+      <label
+        className={labelClass}
+        htmlFor="language"
+      >
         {t.controls.language}
       </label>
       <Select
@@ -24,13 +27,19 @@ export function LanguageControl({ labelClass }: { labelClass: string }) {
           setLocale(value as Locale);
         }}
       >
-        <SelectTrigger id="language" className="min-w-40">
+        <SelectTrigger
+          id="language"
+          className="min-w-40"
+        >
           <LanguagesIcon />
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {localeOptions.map((option) => (
-            <SelectItem value={option.id} key={option.id}>
+            <SelectItem
+              value={option.id}
+              key={option.id}
+            >
               {t.languages[option.id]}
             </SelectItem>
           ))}

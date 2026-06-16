@@ -29,7 +29,10 @@ function PlayerTagChip({ tag }: { tag: PlayerTag }) {
   const { t } = useI18n();
 
   return (
-    <Badge variant={tagVariants[tag]} className="min-h-6 rounded-full px-2.5 font-bold">
+    <Badge
+      variant={tagVariants[tag]}
+      className="min-h-6 rounded-full px-2.5 font-bold"
+    >
       {t.tags[tag]}
     </Badge>
   );
@@ -41,7 +44,10 @@ export function TagGroup({ stats }: { stats: GameStats | undefined }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {values.map((tag) => (
-        <PlayerTagChip tag={tag} key={tag} />
+        <PlayerTagChip
+          tag={tag}
+          key={tag}
+        />
       ))}
     </div>
   );

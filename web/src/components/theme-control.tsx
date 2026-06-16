@@ -38,7 +38,12 @@ export function ThemeControl({
         {themeModeIds.map((mode) => {
           const Icon = themeIcons[mode];
           return (
-            <ToggleGroupItem value={mode} key={mode} aria-label={t.themes[mode]} size="sm">
+            <ToggleGroupItem
+              value={mode}
+              key={mode}
+              aria-label={t.themes[mode]}
+              size="sm"
+            >
               <Icon />
             </ToggleGroupItem>
           );

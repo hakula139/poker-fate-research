@@ -57,10 +57,22 @@ export function PlayerDetails({
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
         <div className="grid grid-cols-2 gap-2.5">
-          <MetricTile label={t.table.hands} value={formatInteger(stats?.hands)} />
-          <MetricTile label={t.table.profit} value={formatProfit(stats?.profit)} />
-          <MetricTile label={t.details.score} value={formatInteger(stats?.score)} />
-          <MetricTile label={t.details.sngRecords} value={formatInteger(player.sngRecordCount)} />
+          <MetricTile
+            label={t.table.hands}
+            value={formatInteger(stats?.hands)}
+          />
+          <MetricTile
+            label={t.table.profit}
+            value={formatProfit(stats?.profit)}
+          />
+          <MetricTile
+            label={t.details.score}
+            value={formatInteger(stats?.score)}
+          />
+          <MetricTile
+            label={t.details.sngRecords}
+            value={formatInteger(player.sngRecordCount)}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">

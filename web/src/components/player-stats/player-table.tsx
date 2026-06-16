@@ -88,38 +88,91 @@ export function PlayerTable({
 
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
-      <Table className="min-w-[980px]" containerClassName="max-h-[560px] lg:h-full lg:max-h-none">
+      <Table
+        className="min-w-[980px]"
+        containerClassName="max-h-[560px] lg:h-full lg:max-h-none"
+      >
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="bg-muted sticky top-0 left-0 z-30 w-[220px] max-w-[220px] min-w-[220px] border-r">
-              <SortButton label={t.table.player} sortKey="name" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.player}
+                sortKey="name"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.hands} sortKey="hands" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.hands}
+                sortKey="hands"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.profit} sortKey="profit" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.profit}
+                sortKey="profit"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.vpip} sortKey="vpip" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.vpip}
+                sortKey="vpip"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.pfr} sortKey="pfr" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.pfr}
+                sortKey="pfr"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.threeBet} sortKey="threeBet" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.threeBet}
+                sortKey="threeBet"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.wtsd} sortKey="wtsd" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.wtsd}
+                sortKey="wtsd"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.afq} sortKey="afq" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.afq}
+                sortKey="afq"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.cbet} sortKey="cbet" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.cbet}
+                sortKey="cbet"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
             <TableHead className="bg-muted/95 sticky top-0 z-10">
-              <SortButton label={t.table.tag} sortKey="tag" sort={sort} onSort={onSort} />
+              <SortButton
+                label={t.table.tag}
+                sortKey="tag"
+                sort={sort}
+                onSort={onSort}
+              />
             </TableHead>
           </TableRow>
         </TableHeader>
