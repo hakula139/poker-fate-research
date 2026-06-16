@@ -1,5 +1,6 @@
 import { LanguagesIcon } from 'lucide-react';
 
+import { FieldLabel } from '@/components/field-label';
 import {
   Select,
   SelectContent,
@@ -10,17 +11,12 @@ import {
 import { useI18n } from '@/i18n';
 import { type Locale, localeOptions } from '@/locale';
 
-export function LanguageControl({ labelClass }: { labelClass: string }) {
+export function LanguageControl() {
   const { locale, setLocale, t } = useI18n();
 
   return (
     <div className="grid gap-1.5">
-      <label
-        className={labelClass}
-        htmlFor="language"
-      >
-        {t.controls.language}
-      </label>
+      <FieldLabel htmlFor="language">{t.controls.language}</FieldLabel>
       <Select
         value={locale}
         onValueChange={(value) => {

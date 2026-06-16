@@ -1,6 +1,7 @@
 import { SearchIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+import { FieldLabel } from '@/components/field-label';
 import { LanguageControl } from '@/components/language-control';
 import { PlayerDetails } from '@/components/player-stats/player-details';
 import { PlayerTable } from '@/components/player-stats/player-table';
@@ -152,19 +153,13 @@ function PlayerStatsApp() {
             </h1>
           </div>
           <div className="grid gap-3 sm:grid-cols-[auto_auto_260px] sm:items-end">
-            <LanguageControl labelClass={labelClass} />
+            <LanguageControl />
             <ThemeControl
-              labelClass={labelClass}
               themeMode={themeMode}
               onThemeModeChange={setThemeMode}
             />
             <div className="grid gap-1.5">
-              <label
-                className={labelClass}
-                htmlFor="snapshot"
-              >
-                {t.controls.snapshot}
-              </label>
+              <FieldLabel htmlFor="snapshot">{t.controls.snapshot}</FieldLabel>
               <Select
                 value={snapshotId}
                 onValueChange={(value) => {
@@ -197,12 +192,7 @@ function PlayerStatsApp() {
 
         <section className="mt-6 grid items-end gap-4 lg:grid-cols-[minmax(220px,360px)_1fr]">
           <div className="grid gap-1.5">
-            <label
-              className={labelClass}
-              htmlFor="player-search"
-            >
-              {t.controls.search}
-            </label>
+            <FieldLabel htmlFor="player-search">{t.controls.search}</FieldLabel>
             <div className="relative">
               <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <Input
