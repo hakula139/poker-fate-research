@@ -21,6 +21,19 @@ import { statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
 
 const tableColumnCount = 10;
+const playerColumnClass = 'w-[150px] max-w-[150px] min-w-[150px]';
+const columnWidths = [
+  '150px',
+  '72px',
+  '76px',
+  '68px',
+  '62px',
+  '68px',
+  '68px',
+  '62px',
+  '68px',
+  '166px',
+];
 
 function SortButton({
   ariaLabel,
@@ -148,9 +161,17 @@ export function PlayerTable({
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
       <Table
-        className="min-w-[980px]"
+        className="w-full min-w-[860px] table-fixed text-sm [&_td]:px-2 [&_th]:px-2"
         containerClassName="max-h-[560px] lg:h-full lg:max-h-none"
       >
+        <colgroup>
+          {columnWidths.map((width, index) => (
+            <col
+              key={index}
+              style={{ width }}
+            />
+          ))}
+        </colgroup>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             {headers.map((header) => (
@@ -159,7 +180,7 @@ export function PlayerTable({
                 aria-sort={ariaSort(sort, header.key)}
                 className={
                   header.sticky
-                    ? 'bg-muted sticky top-0 left-0 z-30 w-[220px] max-w-[220px] min-w-[220px] border-r'
+                    ? cn('bg-muted sticky top-0 left-0 z-30 border-r', playerColumnClass)
                     : 'bg-muted/95 sticky top-0 z-10'
                 }
               >
@@ -179,6 +200,7 @@ export function PlayerTable({
             players.map((player) => {
               const stats = getGameStats(player, gameType);
               const selected = selectedUid === player.uid;
+              const fullProfit = format.profit(stats?.profit);
               return (
                 <TableRow
                   className={cn(
@@ -193,7 +215,8 @@ export function PlayerTable({
                 >
                   <TableCell
                     className={cn(
-                      'sticky left-0 z-20 w-[220px] max-w-[220px] min-w-[220px] border-r',
+                      'sticky left-0 z-20 border-r',
+                      playerColumnClass,
                       selected ? 'bg-accent group-hover:bg-accent' : 'bg-card group-hover:bg-muted',
                     )}
                   >
@@ -212,12 +235,13 @@ export function PlayerTable({
                   </TableCell>
                   <TableCell>{format.integer(stats?.hands)}</TableCell>
                   <TableCell
+                    title={fullProfit}
                     className={cn(
                       stats && stats.profit < 0 && 'text-destructive',
                       stats && stats.profit > 0 && 'text-emerald-700 dark:text-emerald-300',
                     )}
                   >
-                    {format.profit(stats?.profit)}
+                    {format.compactProfit(stats?.profit)}
                   </TableCell>
                   <TableCell>{format.rate(stats?.vpip)}</TableCell>
                   <TableCell>{format.rate(stats?.pfr)}</TableCell>
@@ -225,7 +249,7 @@ export function PlayerTable({
                   <TableCell>{format.rate(stats?.wtsd)}</TableCell>
                   <TableCell>{format.rate(stats?.afq)}</TableCell>
                   <TableCell>{format.rate(stats?.cbet)}</TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-normal">
                     <TagGroup stats={stats} />
                   </TableCell>
                 </TableRow>
