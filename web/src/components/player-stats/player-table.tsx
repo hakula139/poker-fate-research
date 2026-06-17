@@ -161,7 +161,7 @@ export function PlayerTable({
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
       <Table
-        className="w-full min-w-[860px] table-fixed text-[13px] [&_td]:px-2 [&_th]:px-2"
+        className="w-full min-w-[860px] table-fixed text-sm [&_td]:px-2 [&_th]:px-2"
         containerClassName="max-h-[560px] lg:h-full lg:max-h-none"
       >
         <colgroup>
