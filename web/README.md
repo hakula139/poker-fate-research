@@ -43,7 +43,7 @@ pnpm run build
 pnpm exec wrangler deploy
 ```
 
-Production URL: <https://pokerfate.hakula.xyz/>
+Production URL: <https://poker-fate-stats.hakula.xyz/>
 
 GitHub Actions deploys from `main` and uploads pull request previews. The workflows require these repository secrets:
 

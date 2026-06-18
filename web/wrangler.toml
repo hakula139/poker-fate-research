@@ -1,6 +1,6 @@
 name = "poker-fate-stats"
 compatibility_date = "2026-06-18"
-routes = [{ pattern = "pokerfate.hakula.xyz", custom_domain = true }]
+routes = [{ pattern = "poker-fate-stats.hakula.xyz", custom_domain = true }]
 preview_urls = true
 
 [assets]
