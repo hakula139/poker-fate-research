@@ -129,7 +129,7 @@ export function PlayerStatsPage() {
         <section className="my-3 grid gap-3 md:grid-cols-3">
           <SummaryCard
             label={t.summary.players}
-            value={format.integer(snapshot.players.length)}
+            value={format.integer(view.loadedPlayers.length)}
           />
           <SummaryCard
             label={t.summary.visible}

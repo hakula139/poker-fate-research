@@ -8,25 +8,30 @@ import { filterAndSortPlayers, type SortKey, type SortState } from './model';
 export function usePlayerStatsView(players: PlayerRecord[]) {
   const [query, setQuery] = useState('');
   const [gameType, setGameType] = useState<GameTypeId>('10010101');
-  const [lookupResult, setLookupResult] = useState<{
-    players: PlayerRecord[];
-    query: string;
-  } | null>(null);
+  const [searchedPlayers, setSearchedPlayers] = useState<PlayerRecord[]>([]);
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
 
-  const localFilteredPlayers = useMemo(() => {
+  const loadedPlayers = useMemo(() => {
+    const playerByUid = new Map(players.map((player) => [player.uid, player]));
+    for (const player of searchedPlayers) {
+      playerByUid.set(player.uid, playerByUid.get(player.uid) ?? player);
+    }
+    return [...playerByUid.values()];
+  }, [players, searchedPlayers]);
+
+  const filteredPlayers = useMemo(() => {
     return filterAndSortPlayers({
       gameType,
-      players,
+      players: loadedPlayers,
       query,
       sort,
     });
-  }, [gameType, players, query, sort]);
+  }, [gameType, loadedPlayers, query, sort]);
 
   useEffect(() => {
     const trimmedQuery = query.trim();
-    if (trimmedQuery.length < 2 || localFilteredPlayers.length > 0) {
+    if (trimmedQuery.length < 2 || filteredPlayers.length > 0) {
       return;
     }
 
@@ -35,39 +40,30 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
       void searchPlayers(trimmedQuery)
         .then((nextPlayers) => {
           if (!abortController.signal.aborted) {
-            setLookupResult({ players: nextPlayers, query: trimmedQuery });
+            if (nextPlayers.length === 0) {
+              return;
+            }
+            setSearchedPlayers((currentPlayers) => {
+              const playerByUid = new Map(currentPlayers.map((player) => [player.uid, player]));
+              let changed = false;
+              for (const player of nextPlayers) {
+                if (!playerByUid.has(player.uid)) {
+                  playerByUid.set(player.uid, player);
+                  changed = true;
+                }
+              }
+              return changed ? [...playerByUid.values()] : currentPlayers;
+            });
           }
         })
-        .catch(() => {
-          if (!abortController.signal.aborted) {
-            setLookupResult({ players: [], query: trimmedQuery });
-          }
-        });
+        .catch(() => undefined);
     }, 300);
 
     return () => {
       abortController.abort();
       window.clearTimeout(timer);
     };
-  }, [localFilteredPlayers.length, query]);
-
-  const mergedPlayers = useMemo(() => {
-    const playerByUid = new Map(players.map((player) => [player.uid, player]));
-    const lookupPlayers = lookupResult?.query === query.trim() ? lookupResult.players : [];
-    for (const player of lookupPlayers) {
-      playerByUid.set(player.uid, playerByUid.get(player.uid) ?? player);
-    }
-    return [...playerByUid.values()];
-  }, [lookupResult, players, query]);
-
-  const filteredPlayers = useMemo(() => {
-    return filterAndSortPlayers({
-      gameType,
-      players: mergedPlayers,
-      query,
-      sort,
-    });
-  }, [gameType, mergedPlayers, query, sort]);
+  }, [filteredPlayers.length, query]);
 
   const selectedPlayer = useMemo<PlayerRecord | undefined>(
     () => filteredPlayers.find((player) => player.uid === selectedUid) ?? filteredPlayers[0],
@@ -84,6 +80,7 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
   return {
     filteredPlayers,
     gameType,
+    loadedPlayers,
     query,
     selectedPlayer,
     selectedUid,
