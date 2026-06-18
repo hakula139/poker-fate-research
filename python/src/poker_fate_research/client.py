@@ -5,17 +5,31 @@ import json
 import urllib.error
 import urllib.request
 from http.client import HTTPResponse
-from typing import cast
+from typing import Protocol, cast
 
 from poker_fate_research.constants import LOGIN_VERIFY_SALT
-from poker_fate_research.json_types import JsonObject, json_int, json_str
+from poker_fate_research.json_types import (
+    JsonObject,
+    expect_object,
+    json_int,
+    json_str,
+    parse_json,
+)
 from poker_fate_research.models import Session
+
+
+class PostJsonClient(Protocol):
+    """Minimal client surface the collector depends on."""
+
+    def post_json(
+        self, path: str, body: JsonObject | None, timeout: float = ...
+    ) -> JsonObject: ...
 
 
 class PokerFateClient:
     def __init__(self, base_host: str, authorization: str | None = None) -> None:
-        self.base_host = base_host.rstrip('/')
-        self.authorization = authorization
+        self.base_host: str = base_host.rstrip('/')
+        self.authorization: str | None = authorization
 
     def post_json(
         self, path: str, body: JsonObject | None, timeout: float = 20
@@ -35,16 +49,14 @@ class PokerFateClient:
                 HTTPResponse, urllib.request.urlopen(request, timeout=timeout)
             )
             with response:
-                decoded = cast(object, json.loads(response.read().decode()))
+                payload = parse_json(response.read().decode())
         except urllib.error.HTTPError as error:
             details = error.read().decode(errors='replace')[:300]
             raise RuntimeError(
                 f'{path} failed with HTTP {error.code}: {details}'
             ) from error
 
-        if not isinstance(decoded, dict):
-            raise RuntimeError(f'{path} returned a non-object JSON response')
-        return cast(JsonObject, decoded)
+        return expect_object(payload, f'{path} returned a non-object JSON response')
 
     def login_guest(self, device_token: str) -> Session:
         os_name = 'Android'
