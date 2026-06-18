@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  bestLeaderboardEntry,
   compareLeaderboardEntries,
   leaderboardNameLabel,
   leaderboardNameOrder,
@@ -24,24 +23,6 @@ describe('periodLabel', () => {
   it('formats known leaderboard periods', () => {
     expect(periodLabel('current_week')).toBe('Current week');
     expect(periodLabel('last_week')).toBe('Last week');
-  });
-});
-
-describe('bestLeaderboardEntry', () => {
-  it('chooses the highest rank across periods and boards', () => {
-    expect(
-      bestLeaderboardEntry([
-        entry(7, 'current_week'),
-        entry(4, 'last_week'),
-        entry(6, 'current_week', 'Classic Winnings'),
-      ]),
-    ).toEqual(entry(4, 'last_week'));
-  });
-
-  it('ignores entries without ranks', () => {
-    expect(bestLeaderboardEntry([entry(null, 'current_week'), entry(8, 'last_week')])).toEqual(
-      entry(8, 'last_week'),
-    );
   });
 });
 

@@ -61,24 +61,3 @@ export function createFormatters(locale: Locale): NumberFormatters {
 
   return { compactInteger, compactProfit, integer, profit, rate };
 }
-
-const defaultFormatters = createFormatters('en');
-
-export function formatRate(rate: number | undefined): string {
-  return defaultFormatters.rate(rate);
-}
-
-export function formatInteger(value: number | undefined | null): string {
-  if (value === undefined || value === null) {
-    return missingValue;
-  }
-  return defaultFormatters.integer(value);
-}
-
-export function formatProfit(value: number | undefined): string {
-  return defaultFormatters.profit(value);
-}
-
-export function formatCompactProfit(value: number | undefined): string {
-  return defaultFormatters.compactProfit(value);
-}

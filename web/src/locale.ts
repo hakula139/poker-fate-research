@@ -65,7 +65,6 @@ export type Messages = {
   };
   details: {
     player: string;
-    selectPlayer: string;
     thronePoints: string;
     championPoints: string;
     sngRecords: string;

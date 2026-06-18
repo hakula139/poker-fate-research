@@ -1,32 +1,28 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createFormatters,
-  formatCompactProfit,
-  formatInteger,
-  formatProfit,
-  formatRate,
-} from './format';
+import { createFormatters } from './format';
 
-describe('format helpers', () => {
+describe('createFormatters', () => {
+  const en = createFormatters('en');
+
   it('renders API rate basis points as percentages', () => {
-    expect(formatRate(2530)).toBe('25.30%');
+    expect(en.rate(2530)).toBe('25.30%');
   });
 
   it('renders missing values as dashes', () => {
-    expect(formatRate(undefined)).toBe('-');
-    expect(formatInteger(null)).toBe('-');
+    expect(en.rate(undefined)).toBe('-');
+    expect(en.integer(null)).toBe('-');
   });
 
   it('renders positive profit with a sign', () => {
-    expect(formatProfit(1234567)).toBe('+1,234,567');
-    expect(formatProfit(-1234567)).toBe('-1,234,567');
+    expect(en.profit(1234567)).toBe('+1,234,567');
+    expect(en.profit(-1234567)).toBe('-1,234,567');
   });
 
   it('renders compact profit for dense table columns', () => {
-    expect(formatCompactProfit(1840000000)).toBe('+1.84B');
-    expect(formatCompactProfit(1560000)).toBe('+1.56M');
-    expect(formatCompactProfit(-1560000)).toBe('-1.56M');
+    expect(en.compactProfit(1840000000)).toBe('+1.84B');
+    expect(en.compactProfit(1560000)).toBe('+1.56M');
+    expect(en.compactProfit(-1560000)).toBe('-1.56M');
   });
 
   it('creates locale-aware formatter sets', () => {

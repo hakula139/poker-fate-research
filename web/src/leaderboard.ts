@@ -39,12 +39,6 @@ export function leaderboardNameLabel(name: string, labels: LeaderboardNameLabels
   return labels[name] ?? name;
 }
 
-export function bestLeaderboardEntry(entries: LeaderboardEntry[]): LeaderboardEntry | undefined {
-  return entries
-    .filter((entry) => typeof entry.rank === 'number')
-    .sort((left, right) => Number(left.rank) - Number(right.rank))[0];
-}
-
 function orderIndex(values: string[], value: string): number {
   const index = values.indexOf(value);
   return index === -1 ? values.length : index;
