@@ -43,7 +43,9 @@ def test_snapshot_import_sql_loads_snapshot_into_schema(tmp_path: Path) -> None:
     )
 
     connection = sqlite3.connect(':memory:')
-    migration = find_repo_root(Path.cwd()) / 'web/migrations/0001_player_data.sql'
+    repo_root = find_repo_root(Path.cwd())
+    assert repo_root is not None
+    migration = repo_root / 'web/migrations/0001_player_data.sql'
     connection.executescript(migration.read_text(encoding='utf-8'))
     connection.executescript(sql)
 
@@ -96,7 +98,9 @@ def test_snapshot_import_sql_accepts_normalized_snapshot_json(tmp_path: Path) ->
     )
 
     connection = sqlite3.connect(':memory:')
-    migration = find_repo_root(Path.cwd()) / 'web/migrations/0001_player_data.sql'
+    repo_root = find_repo_root(Path.cwd())
+    assert repo_root is not None
+    migration = repo_root / 'web/migrations/0001_player_data.sql'
     connection.executescript(migration.read_text(encoding='utf-8'))
     connection.executescript(sql)
 

@@ -10,7 +10,8 @@ from poker_fate_research.paths import find_repo_root, repo_path
 
 
 def test_find_repo_root_from_package_subdir() -> None:
-    assert find_repo_root(Path.cwd() / 'python').name == 'poker-fate-research'
+    repo_root = Path.cwd().resolve()
+    assert find_repo_root(repo_root / 'python') == repo_root
 
 
 def test_repo_path_resolves_from_subdir(monkeypatch: pytest.MonkeyPatch) -> None:

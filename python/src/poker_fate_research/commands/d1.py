@@ -7,7 +7,7 @@ from typing import cast
 from poker_fate_research.d1_export import write_snapshot_import_sql
 
 
-def register(subparsers: argparse._SubParsersAction) -> None:
+def register(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     parser = subparsers.add_parser(
         'd1-import-sql',
         help='Build D1 import SQL for a player snapshot',

@@ -21,7 +21,8 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        pythonTestEnv = pkgs.python3.withPackages (pythonPackages: [
+        pythonCheckEnv = pkgs.python3.withPackages (pythonPackages: [
+          pythonPackages.mypy
           pythonPackages.pytest
         ]);
 
@@ -75,12 +76,16 @@
       {
         checks = {
           pre-commit = preCommitCheck;
-          python-tests = pkgs.runCommand "python-tests" { nativeBuildInputs = [ pythonTestEnv ]; } ''
-            cp -R ${./.} "$TMPDIR/poker-fate-research"
-            chmod -R u+w "$TMPDIR/poker-fate-research"
-            cd "$TMPDIR/poker-fate-research"
+          python-tests = pkgs.runCommand "python-tests" { nativeBuildInputs = [ pythonCheckEnv ]; } ''
+            cd ${./.}
             export PYTHONPATH="$PWD/python/src"
-            pytest -q python/tests
+            pytest -q -o cache_dir="$TMPDIR/pytest-cache" python/tests
+            touch "$out"
+          '';
+          python-types = pkgs.runCommand "python-types" { nativeBuildInputs = [ pythonCheckEnv ]; } ''
+            cd ${./.}
+            export MYPY_CACHE_DIR="$TMPDIR/mypy-cache"
+            mypy --config-file python/pyproject.toml python/src python/tests
             touch "$out"
           '';
         };
@@ -99,6 +104,7 @@
               jadx
               jq
               markdownlint-cli2
+              mypy
               nodejs
               pnpm
               playwright-driver

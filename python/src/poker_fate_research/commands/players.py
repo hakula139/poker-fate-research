@@ -14,7 +14,7 @@ from poker_fate_research.paths import repo_path
 from poker_fate_research.time import iso_now
 
 
-def register(subparsers: argparse._SubParsersAction) -> None:
+def register(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     parser = subparsers.add_parser(
         'players',
         help='Collect leaderboard player snapshots',
