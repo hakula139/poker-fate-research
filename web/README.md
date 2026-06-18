@@ -47,6 +47,9 @@ GitHub Actions deploys from `main` and uploads pull request previews. The workfl
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
+- `POKER_FATE_RESEARCH_DEVICE_TOKEN`
+
+Production deploys collect a fresh player snapshot before building. Pull request previews build without live collection and fall back to sample data when generated JSON is absent.
 
 ## Player Tags
 

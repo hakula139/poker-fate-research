@@ -17,6 +17,9 @@ jobs:
     uses: ./.github/workflows/web-build.yml
     with:
       upload-artifact: true
+      generate-data: true
+    secrets:
+      POKER_FATE_RESEARCH_DEVICE_TOKEN: ${{ secrets.POKER_FATE_RESEARCH_DEVICE_TOKEN }}
 
   deploy:
     needs: build
