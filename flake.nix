@@ -40,27 +40,10 @@
             };
             deadnix.enable = true;
             end-of-file-fixer.enable = true;
-            markdownlint = {
+            markdownlint-cli2 = {
               enable = true;
-              args = [ "--fix" ];
-              settings.configuration = {
-                default = true;
-                MD003.style = "atx";
-                MD004.style = "dash";
-                MD007.indent = 2;
-                MD010.code_blocks = false;
-                MD013 = false;
-                MD024.siblings_only = true;
-                MD026.punctuation = ".,;:";
-                MD029.style = "ordered";
-                MD033 = false;
-                MD034 = false;
-                MD041 = false;
-                MD046.style = "fenced";
-                MD048.style = "backtick";
-                MD049.style = "underscore";
-                MD050.style = "asterisk";
-              };
+              entry = "${pkgs.markdownlint-cli2}/bin/markdownlint-cli2 --fix";
+              files = "\\.md$";
             };
             nixfmt.enable = true;
             ruff.enable = true;
