@@ -34,6 +34,22 @@ nix develop --command scripts/check-web.sh
 
 The web check script installs locked pnpm dependencies, runs ESLint, Prettier check, Vitest, type checking, a production build, and the Playwright smoke test.
 
+## Deployment
+
+Cloudflare Workers serves the production build from `web/dist`.
+
+```bash
+pnpm run build
+pnpm exec wrangler deploy
+```
+
+GitHub Actions deploys from `main` and uploads pull request previews. The workflows require these repository secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+Pull request preview comments assume the account's `workers.dev` subdomain is `hakula.workers.dev`. Override that with the `CLOUDFLARE_WORKERS_DEV_SUBDOMAIN` repository variable if needed.
+
 ## Player Tags
 
 Player tags are split into preflop and postflop labels. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model.

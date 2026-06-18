@@ -1,0 +1,40 @@
+name: Build web
+
+on:
+  workflow_call:
+    inputs:
+      upload-artifact:
+        description: Upload web/dist as a workflow artifact
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          install_options: --no-daemon
+
+      - name: Install dependencies
+        run: nix develop --command pnpm --dir web install --frozen-lockfile
+
+      - name: Build web
+        run: nix develop --command pnpm --dir web run build
+
+      - name: Upload artifact
+        if: ${{ inputs.upload-artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web/dist/
+          retention-days: 7
+          if-no-files-found: error
