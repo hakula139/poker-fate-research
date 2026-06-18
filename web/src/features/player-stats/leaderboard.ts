@@ -1,4 +1,4 @@
-import type { LeaderboardEntry } from './types';
+import type { LeaderboardEntry } from '@/types';
 
 export type PeriodLabels = {
   currentWeek: string;
@@ -37,12 +37,6 @@ export function periodLabel(period: string, labels: PeriodLabels = defaultPeriod
 
 export function leaderboardNameLabel(name: string, labels: LeaderboardNameLabels = {}): string {
   return labels[name] ?? name;
-}
-
-export function bestLeaderboardEntry(entries: LeaderboardEntry[]): LeaderboardEntry | undefined {
-  return entries
-    .filter((entry) => typeof entry.rank === 'number')
-    .sort((left, right) => Number(left.rank) - Number(right.rank))[0];
 }
 
 function orderIndex(values: string[], value: string): number {

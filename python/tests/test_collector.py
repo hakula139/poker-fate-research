@@ -1,29 +1,28 @@
 from __future__ import annotations
 
-from typing import cast
-
 import pytest
 
-from poker_fate_research.client import PokerFateClient
+from poker_fate_research.client import PostJsonClient
 from poker_fate_research.collector import fetch_player_snapshot, iter_leaderboard_pages
+from poker_fate_research.json_types import JsonObject
 from poker_fate_research.models import PlayerSeed
 
 
 class StubClient:
-    def __init__(self, responses: list[dict[str, object]]) -> None:
-        self.responses = responses
-        self.requests: list[tuple[str, dict[str, object]]] = []
+    def __init__(self, responses: list[JsonObject]) -> None:
+        self.responses: list[JsonObject] = responses
+        self.requests: list[tuple[str, JsonObject]] = []
 
     def post_json(
-        self, path: str, body: dict[str, object] | None, timeout: float = 20
-    ) -> dict[str, object]:
+        self, path: str, body: JsonObject | None, timeout: float = 20
+    ) -> JsonObject:
         del timeout
         self.requests.append((path, body or {}))
         return self.responses.pop(0)
 
 
-def client(responses: list[dict[str, object]]) -> PokerFateClient:
-    return cast(PokerFateClient, StubClient(responses))
+def client(responses: list[JsonObject]) -> PostJsonClient:
+    return StubClient(responses)
 
 
 def test_leaderboard_pages_reject_api_error() -> None:
@@ -61,7 +60,8 @@ def test_player_snapshot_rejects_missing_game_data_object() -> None:
 
 def test_player_snapshot_rejects_invalid_sng_list_shape() -> None:
     seed = PlayerSeed.from_uid(1001)
-    responses = [{'code': 0, 'data': {}} for _ in range(4)] + [{'code': 0, 'list': {}}]
+    game_response: JsonObject = {'code': 0, 'data': {}}
+    responses = [game_response for _ in range(4)] + [{'code': 0, 'list': {}}]
 
     with pytest.raises(RuntimeError, match="non-list field 'list'"):
         fetch_player_snapshot(
@@ -74,9 +74,8 @@ def test_player_snapshot_rejects_invalid_sng_list_shape() -> None:
 def test_player_snapshot_keeps_successful_responses() -> None:
     seed = PlayerSeed.from_uid(1001)
     seed.names.add('Player One')
-    responses = [{'code': 0, 'data': {'play_times': 1000}} for _ in range(4)] + [
-        {'code': 0, 'list': []}
-    ]
+    game_response: JsonObject = {'code': 0, 'data': {'play_times': 1000}}
+    responses = [game_response for _ in range(4)] + [{'code': 0, 'list': []}]
 
     snapshot = fetch_player_snapshot(client(responses), seed, sleep_seconds=0)
 

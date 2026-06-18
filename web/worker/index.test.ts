@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import worker from './index';
+import gameDataContract from '../tests/fixtures/official-game-data.json';
+
+import worker, { normalizeGame } from './index';
 
 type AssetMap = Record<string, unknown>;
 type WorkerEnv = Parameters<typeof worker.fetch>[1];
@@ -114,9 +116,6 @@ function createDb(fixture: DbFixture): WorkerEnv['DB'] {
             return Promise.resolve(
               snapshots.find((snapshot) => snapshot.id === snapshotId) ?? null,
             );
-          }
-          if (query.includes('SELECT id FROM snapshots LIMIT 1')) {
-            return Promise.resolve(snapshots[0] ?? null);
           }
           throw new Error(`Unexpected D1 first query: ${query}`);
         },
@@ -297,5 +296,13 @@ describe('worker API', () => {
     const result = await fetchJson('/api/snapshots', {}, { method: 'POST' });
 
     expect(result).toEqual({ body: { error: 'Method not allowed' }, status: 405 });
+  });
+});
+
+describe('normalizeGame', () => {
+  it('matches the shared official-game-data contract', () => {
+    expect(
+      normalizeGame(gameDataContract.gameType, gameDataContract.label, gameDataContract.raw),
+    ).toEqual(gameDataContract.normalized);
   });
 });

@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import cast
 
 from poker_fate_research.d1_export import write_snapshot_import_sql
 
 
-def register(subparsers: argparse._SubParsersAction) -> None:
+def register(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     parser = subparsers.add_parser(
         'd1-import-sql',
         help='Build D1 import SQL for a player snapshot',
@@ -19,5 +18,5 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
 
 def run_snapshot_import(args: argparse.Namespace) -> int:
-    write_snapshot_import_sql(cast(Path, args.snapshot), cast(Path, args.output))
+    write_snapshot_import_sql(args.snapshot, args.output)
     return 0

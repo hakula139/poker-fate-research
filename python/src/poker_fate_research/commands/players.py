@@ -4,7 +4,6 @@ import argparse
 import json
 import os
 from pathlib import Path
-from typing import cast
 
 from poker_fate_research.client import PokerFateClient
 from poker_fate_research.collector import collect_snapshot
@@ -14,7 +13,7 @@ from poker_fate_research.paths import repo_path
 from poker_fate_research.time import iso_now
 
 
-def register(subparsers: argparse._SubParsersAction) -> None:
+def register(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     parser = subparsers.add_parser(
         'players',
         help='Collect leaderboard player snapshots',
@@ -29,13 +28,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
 
 def config_from_args(args: argparse.Namespace) -> CollectorConfig:
-    output_dir = cast(Path | None, args.output_dir)
     return CollectorConfig(
-        base_host=cast(str, args.base_host),
-        output_dir=output_dir or repo_path('data', 'player-snapshots'),
-        page_size=cast(int, args.page_size),
-        sleep_seconds=cast(float, args.sleep_seconds),
-        max_players=cast(int | None, args.max_players),
+        base_host=args.base_host,
+        output_dir=args.output_dir or repo_path('data', 'player-snapshots'),
+        page_size=args.page_size,
+        sleep_seconds=args.sleep_seconds,
+        max_players=args.max_players,
     )
 
 

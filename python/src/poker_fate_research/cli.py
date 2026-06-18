@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 from poker_fate_research import commands
 
@@ -18,7 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return args.handler(args)
+    handler: Callable[[argparse.Namespace], int] = args.handler
+    return handler(args)
 
 
 if __name__ == '__main__':

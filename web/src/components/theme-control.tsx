@@ -1,10 +1,9 @@
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
 
-import { FieldLabelText } from '@/components/field-label';
+import { labelClass } from '@/components/field-label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { type ThemeMode, themeModeIds } from '@/features/theme/theme';
 import { useI18n } from '@/i18n';
-
-import { type ThemeMode, themeModeIds } from '../theme';
 
 const themeIcons = {
   system: MonitorIcon,
@@ -23,7 +22,7 @@ export function ThemeControl({
 
   return (
     <div className="grid gap-1.5">
-      <FieldLabelText>{t.controls.theme}</FieldLabelText>
+      <span className={labelClass}>{t.controls.theme}</span>
       <ToggleGroup
         type="single"
         value={themeMode}

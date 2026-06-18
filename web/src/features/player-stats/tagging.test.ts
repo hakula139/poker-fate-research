@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import type { GameStats } from '@/types';
+
 import {
   classifyPlayer,
   classifyPostflop,
@@ -8,7 +10,6 @@ import {
   preflopTagOrder,
   tagSortValue,
 } from './tagging';
-import type { GameStats } from './types';
 
 function stats(overrides: Partial<GameStats>): GameStats {
   return {

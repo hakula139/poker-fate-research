@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TextIO
 
-from poker_fate_research.client import PokerFateClient
+from poker_fate_research.client import PokerFateClient, PostJsonClient
 from poker_fate_research.constants import GAME_TYPES, LEADERBOARDS
 from poker_fate_research.json_types import JsonObject, json_int
 from poker_fate_research.models import (
@@ -47,7 +47,7 @@ def require_list_or_missing_field(path: str, response: JsonObject, key: str) -> 
 
 
 def iter_leaderboard_pages(
-    client: PokerFateClient,
+    client: PostJsonClient,
     page_size: int,
     sleep_seconds: float,
 ) -> Iterable[LeaderboardPage]:
@@ -82,7 +82,7 @@ def iter_leaderboard_pages(
 
 
 def fetch_player_snapshot(
-    client: PokerFateClient,
+    client: PostJsonClient,
     seed: PlayerSeed,
     sleep_seconds: float,
 ) -> PlayerSnapshot:
@@ -126,7 +126,7 @@ def write_jsonl_record(handle: TextIO, record: JsonObject) -> None:
 
 
 def collect_leaderboard_index(
-    client: PokerFateClient,
+    client: PostJsonClient,
     config: CollectorConfig,
     path: Path,
 ) -> LeaderboardIndex:
@@ -161,7 +161,7 @@ def collect_leaderboard_index(
 
 
 def collect_player_snapshots(
-    client: PokerFateClient,
+    client: PostJsonClient,
     config: CollectorConfig,
     players: Iterable[PlayerSeed],
     path: Path,

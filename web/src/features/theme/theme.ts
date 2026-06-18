@@ -1,4 +1,4 @@
-import { readString, storageKeys, writeString } from './storage';
+import { readString, storageKeys, writeString } from '@/storage';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 

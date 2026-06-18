@@ -1,29 +1,20 @@
 from __future__ import annotations
 
-import json
 import re
-from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+
+from poker_fate_research.json_types import (
+    JsonObject,
+    as_int,
+    as_list,
+    as_object,
+    as_str,
+    parse_json,
+)
+from poker_fate_research.time import iso_now
 
 
 SNAPSHOT_RE = re.compile(r'poker-fate-players-(?P<stamp>.+)\.jsonl$')
-
-
-def json_object(value: object) -> dict[str, Any]:
-    return value if isinstance(value, dict) else {}
-
-
-def int_value(value: object) -> int:
-    return value if isinstance(value, int) else 0
-
-
-def str_value(value: object) -> str:
-    return value if isinstance(value, str) else ''
-
-
-def list_value(value: object) -> list[Any]:
-    return value if isinstance(value, list) else []
 
 
 def snapshot_id(path: Path) -> str:
@@ -41,81 +32,78 @@ def display_stamp(stamp: str) -> str:
     return stamp
 
 
-def normalized_game(game_type: str, value: object) -> dict[str, Any]:
-    item = json_object(value)
-    data = json_object(json_object(item.get('response')).get('data'))
+def normalized_game(game_type: str, value: object) -> JsonObject:
+    item = as_object(value)
+    data = as_object(as_object(item.get('response')).get('data'))
     return {
         'gameType': int(game_type),
-        'label': str_value(item.get('label')),
-        'score': int_value(data.get('champion_points'))
-        or int_value(data.get('fire_power')),
-        'hands': int_value(data.get('play_times')),
-        'winHands': int_value(data.get('win_play_times')),
-        'rounds': int_value(data.get('round')),
-        'winRounds': int_value(data.get('win_round')),
-        'tourRounds': int_value(data.get('tour_round')),
-        'tourWinRounds': int_value(data.get('tour_win_round')),
-        'tourProfit': int_value(data.get('tour_profit')),
-        'tourMaxProfit': int_value(data.get('tour_max_profit')),
-        'profit': int_value(data.get('profit')),
-        'maxProfit': int_value(data.get('max_profit')),
-        'vpip': int_value(data.get('pool_entry_rate')),
-        'pfr': int_value(data.get('add_before_flipping_rate')),
-        'threeBet': int_value(data.get('three_bet_rate')),
-        'wtsd': int_value(data.get('show_hand_rate')),
-        'afq': int_value(data.get('active_rate')),
-        'cbet': int_value(data.get('c_bete_rate')),
+        'label': as_str(item.get('label')),
+        'score': as_int(data.get('champion_points')) or as_int(data.get('fire_power')),
+        'hands': as_int(data.get('play_times')),
+        'winHands': as_int(data.get('win_play_times')),
+        'rounds': as_int(data.get('round')),
+        'winRounds': as_int(data.get('win_round')),
+        'tourRounds': as_int(data.get('tour_round')),
+        'tourWinRounds': as_int(data.get('tour_win_round')),
+        'tourProfit': as_int(data.get('tour_profit')),
+        'tourMaxProfit': as_int(data.get('tour_max_profit')),
+        'profit': as_int(data.get('profit')),
+        'maxProfit': as_int(data.get('max_profit')),
+        'vpip': as_int(data.get('pool_entry_rate')),
+        'pfr': as_int(data.get('add_before_flipping_rate')),
+        'threeBet': as_int(data.get('three_bet_rate')),
+        'wtsd': as_int(data.get('show_hand_rate')),
+        'afq': as_int(data.get('active_rate')),
+        'cbet': as_int(data.get('c_bete_rate')),
     }
 
 
-def normalized_entry(value: object) -> dict[str, Any]:
-    entry = json_object(value)
+def normalized_entry(value: object) -> JsonObject:
+    entry = as_object(value)
     return {
-        'leaderboardId': int_value(entry.get('leaderboard_id')),
-        'leaderboardName': str_value(entry.get('leaderboard_name')),
-        'period': str_value(entry.get('period')),
+        'leaderboardId': as_int(entry.get('leaderboard_id')),
+        'leaderboardName': as_str(entry.get('leaderboard_name')),
+        'period': as_str(entry.get('period')),
         'rank': entry.get('rank'),
         'value': entry.get('value'),
         'gameType': entry.get('game_type'),
     }
 
 
-def normalized_player(line: str) -> dict[str, Any]:
-    record = json_object(json.loads(line))
-    names = [str(name) for name in list_value(record.get('names')) if name]
+def normalized_player(line: str) -> JsonObject:
+    record = as_object(parse_json(line))
+    names = [str(name) for name in as_list(record.get('names')) if name]
     games = {
         game_type: normalized_game(game_type, value)
-        for game_type, value in json_object(record.get('game_data')).items()
+        for game_type, value in as_object(record.get('game_data')).items()
     }
     return {
-        'uid': int_value(record.get('uid')),
-        'name': names[0] if names else str(int_value(record.get('uid'))),
+        'uid': as_int(record.get('uid')),
+        'name': names[0] if names else str(as_int(record.get('uid'))),
         'names': names,
         'leaderboardEntries': [
             normalized_entry(entry)
-            for entry in list_value(record.get('leaderboard_entries'))
+            for entry in as_list(record.get('leaderboard_entries'))
         ],
         'games': games,
-        'sngRecordCount': len(
-            list_value(json_object(record.get('sng_record')).get('list'))
-        ),
-        'fetchedAt': str_value(record.get('fetched_at')),
+        'sngRecordCount': len(as_list(as_object(record.get('sng_record')).get('list'))),
+        'fetchedAt': as_str(record.get('fetched_at')),
     }
 
 
-def build_snapshot(path: Path) -> dict[str, Any]:
-    players: list[dict[str, Any]] = []
+def build_snapshot(path: Path) -> JsonObject:
+    players: list[JsonObject] = []
     with path.open(encoding='utf-8') as handle:
         for line in handle:
             if line.strip():
                 players.append(normalized_player(line))
 
     stamp = snapshot_id(path)
-    players.sort(key=lambda player: player['uid'])
+    players.sort(key=lambda player: as_int(player['uid']))
     return {
         'id': stamp,
         'label': display_stamp(stamp),
         'source': str(path),
-        'generatedAt': datetime.now(UTC).isoformat(timespec='seconds'),
+        'generatedAt': iso_now(),
         'players': players,
     }

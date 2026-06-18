@@ -189,7 +189,7 @@ async function loginGuest(env: Env): Promise<string> {
   return authorization;
 }
 
-function normalizeGame(gameType: string, label: string, value: unknown) {
+export function normalizeGame(gameType: string, label: string, value: unknown) {
   const item = officialRecord(value);
   return {
     afq: officialInt(item.active_rate),
@@ -260,11 +260,11 @@ async function readD1SnapshotIndex(env: Env): Promise<SnapshotIndex | null> {
 
   const { results = [] } = await env.DB.prepare(
     `
-        SELECT id, label, source, generated_at, player_count
-        FROM snapshots
-        ORDER BY generated_at DESC
-        LIMIT 30
-      `,
+    SELECT id, label, source, generated_at, player_count
+    FROM snapshots
+    ORDER BY generated_at DESC
+    LIMIT 30
+    `,
   ).all<SnapshotRow>();
 
   if (results.length === 0) {
@@ -285,29 +285,25 @@ async function readD1Snapshot(env: Env, snapshotId: string): Promise<SnapshotRes
 
   const snapshot = await env.DB.prepare(
     `
-        SELECT id, label, source, generated_at, player_count
-        FROM snapshots
-        WHERE id = ?
-      `,
+    SELECT id, label, source, generated_at, player_count
+    FROM snapshots
+    WHERE id = ?
+    `,
   )
     .bind(snapshotId)
     .first<SnapshotRow>();
 
   if (!snapshot) {
-    const existingSnapshot = await env.DB.prepare('SELECT id FROM snapshots LIMIT 1').first();
-    if (!existingSnapshot) {
-      return null;
-    }
-    throw new ApiError(404, 'Snapshot not found');
+    return null;
   }
 
   const { results = [] } = await env.DB.prepare(
     `
-        SELECT player_json, leaderboard_entries_json, fetched_at
-        FROM snapshot_players
-        WHERE snapshot_id = ?
-        ORDER BY uid
-      `,
+    SELECT player_json, leaderboard_entries_json, fetched_at
+    FROM snapshot_players
+    WHERE snapshot_id = ?
+    ORDER BY uid
+    `,
   )
     .bind(snapshotId)
     .all<SnapshotPlayerRow>();
@@ -379,12 +375,12 @@ async function listD1CachedPlayerRows(env: Env): Promise<CachedPlayerRow[]> {
 
   const { results = [] } = await env.DB.prepare(
     `
-        SELECT player_cache.uid, player_cache.player_json, player_cache.expires_at, NULL AS alias
-        FROM player_cache
-        WHERE player_cache.expires_at >= ?
-        ORDER BY player_cache.fetched_at DESC
-        LIMIT ?
-      `,
+    SELECT player_cache.uid, player_cache.player_json, player_cache.expires_at, NULL AS alias
+    FROM player_cache
+    WHERE player_cache.expires_at >= ?
+    ORDER BY player_cache.fetched_at DESC
+    LIMIT ?
+    `,
   )
     .bind(isoNow(), cachedPlayerLimit)
     .all<CachedPlayerRow>();
@@ -400,18 +396,18 @@ async function searchD1CachedPlayerRows(env: Env, query: string): Promise<Cached
 
   const { results = [] } = await env.DB.prepare(
     `
-        SELECT
-          player_cache.uid,
-          player_cache.player_json,
-          player_cache.expires_at,
-          player_aliases.alias
-        FROM player_cache
-        LEFT JOIN player_aliases ON player_aliases.uid = player_cache.uid
-        WHERE CAST(player_cache.uid AS TEXT) = ?
-          OR player_aliases.alias LIKE ?
-        ORDER BY player_cache.fetched_at DESC
-        LIMIT ?
-      `,
+    SELECT
+      player_cache.uid,
+      player_cache.player_json,
+      player_cache.expires_at,
+      player_aliases.alias
+    FROM player_cache
+    LEFT JOIN player_aliases ON player_aliases.uid = player_cache.uid
+    WHERE CAST(player_cache.uid AS TEXT) = ?
+      OR player_aliases.alias LIKE ?
+    ORDER BY player_cache.fetched_at DESC
+    LIMIT ?
+    `,
   )
     .bind(trimmedQuery, `%${trimmedQuery}%`, searchResultLimit)
     .all<CachedPlayerRow>();
@@ -432,13 +428,13 @@ async function cachePlayer(
   const fetchedAt = officialString(player.fetchedAt) || isoNow();
   await env.DB.prepare(
     `
-      INSERT INTO player_cache (uid, player_json, source, fetched_at, expires_at)
-      VALUES (?, ?, ?, ?, ?)
-      ON CONFLICT(uid) DO UPDATE SET
-        player_json = excluded.player_json,
-        source = excluded.source,
-        fetched_at = excluded.fetched_at,
-        expires_at = excluded.expires_at
+    INSERT INTO player_cache (uid, player_json, source, fetched_at, expires_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(uid) DO UPDATE SET
+      player_json = excluded.player_json,
+      source = excluded.source,
+      fetched_at = excluded.fetched_at,
+      expires_at = excluded.expires_at
     `,
   )
     .bind(uid, JSON.stringify(player), source, fetchedAt, isoDaysFromNow(cacheTtlDays))
@@ -447,12 +443,12 @@ async function cachePlayer(
   for (const alias of aliasesForPlayer(player)) {
     await env.DB.prepare(
       `
-        INSERT INTO player_aliases (alias, uid, source, observed_at)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT(alias) DO UPDATE SET
-          uid = excluded.uid,
-          source = excluded.source,
-          observed_at = excluded.observed_at
+      INSERT INTO player_aliases (alias, uid, source, observed_at)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(alias) DO UPDATE SET
+        uid = excluded.uid,
+        source = excluded.source,
+        observed_at = excluded.observed_at
       `,
     )
       .bind(alias, uid, source, isoNow())
