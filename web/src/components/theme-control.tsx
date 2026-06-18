@@ -2,8 +2,8 @@ import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
 
 import { labelClass } from '@/components/field-label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { type ThemeMode, themeModeIds } from '@/features/theme/theme';
 import { useI18n } from '@/i18n';
-import { type ThemeMode, themeModeIds } from '@/theme';
 
 const themeIcons = {
   system: MonitorIcon,

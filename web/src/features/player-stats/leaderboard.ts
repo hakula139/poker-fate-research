@@ -1,4 +1,4 @@
-import type { LeaderboardEntry } from './types';
+import type { LeaderboardEntry } from '@/types';
 
 export type PeriodLabels = {
   currentWeek: string;

@@ -1,5 +1,6 @@
-import { tagSortValue } from '@/tagging';
 import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
+
+import { tagSortValue } from './tagging';
 
 export const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301'];
 

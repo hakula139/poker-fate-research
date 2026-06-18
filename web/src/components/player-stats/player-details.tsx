@@ -1,8 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  compareLeaderboardEntries,
+  leaderboardNameLabel,
+  periodLabel,
+} from '@/features/player-stats/leaderboard';
 import { getGameStats, scoreLabelKey } from '@/features/player-stats/model';
 import { useI18n } from '@/i18n';
-import { compareLeaderboardEntries, leaderboardNameLabel, periodLabel } from '@/leaderboard';
 import type { GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
 
 import { MetricTile } from './metric-tile';

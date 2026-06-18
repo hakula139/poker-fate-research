@@ -1,8 +1,8 @@
 import type { VariantProps } from 'class-variance-authority';
 
 import { Badge, type badgeVariants } from '@/components/ui/badge';
+import { classifyPlayer } from '@/features/player-stats/tagging';
 import { useI18n } from '@/i18n';
-import { classifyPlayer } from '@/tagging';
 import type { GameStats, PostflopTag, PreflopTag } from '@/types';
 
 type PlayerTag = PreflopTag | PostflopTag;

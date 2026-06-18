@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { getInitialTheme, type ThemeMode, writeThemeMode } from '@/theme';
+import { getInitialTheme, type ThemeMode, writeThemeMode } from './theme';
 
 export function useThemeMode() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);

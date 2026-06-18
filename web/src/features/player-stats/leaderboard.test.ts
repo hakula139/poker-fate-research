@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
+import type { LeaderboardEntry } from '@/types';
+
 import {
   compareLeaderboardEntries,
   leaderboardNameLabel,
   leaderboardNameOrder,
   periodLabel,
 } from './leaderboard';
-import type { LeaderboardEntry } from './types';
 
 function entry(rank: number | null, period: string, leaderboardName = 'Throne Points') {
   return {

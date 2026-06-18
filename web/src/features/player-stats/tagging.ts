@@ -1,4 +1,4 @@
-import type { GameStats, PlayerTags, PostflopTag, PreflopTag } from './types';
+import type { GameStats, PlayerTags, PostflopTag, PreflopTag } from '@/types';
 
 const MIN_HANDS = 500;
 
