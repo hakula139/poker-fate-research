@@ -28,6 +28,10 @@ python_version = "3.13"
 mypy_path = "src"
 strict = true
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
 [tool.ruff]
 target-version = "py313"
 line-length = 88

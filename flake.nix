@@ -77,15 +77,14 @@
         checks = {
           pre-commit = preCommitCheck;
           python-tests = pkgs.runCommand "python-tests" { nativeBuildInputs = [ pythonCheckEnv ]; } ''
-            cd ${./.}
-            export PYTHONPATH="$PWD/python/src"
-            pytest -q -o cache_dir="$TMPDIR/pytest-cache" python/tests
+            cd ${./.}/python
+            pytest -q -o cache_dir="$TMPDIR/pytest-cache"
             touch "$out"
           '';
           python-types = pkgs.runCommand "python-types" { nativeBuildInputs = [ pythonCheckEnv ]; } ''
-            cd ${./.}
+            cd ${./.}/python
             export MYPY_CACHE_DIR="$TMPDIR/mypy-cache"
-            mypy --config-file python/pyproject.toml python/src python/tests
+            mypy src tests
             touch "$out"
           '';
         };
