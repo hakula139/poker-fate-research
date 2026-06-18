@@ -15,7 +15,7 @@ from poker_fate_research.json_types import (
     json_str,
 )
 from poker_fate_research.models import PlayerSeed
-from poker_fate_research.web_data import normalized_player
+from poker_fate_research.player_normalization import normalized_player
 
 
 def lookup_request(query: str) -> JsonObject:

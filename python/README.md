@@ -1,6 +1,6 @@
 # Poker Fate Python Tools
 
-uv-managed Python package for collecting Poker Fate player snapshots and building website data.
+uv-managed Python package for collecting Poker Fate player snapshots and importing them into D1.
 
 Run these commands from the repository root.
 
@@ -12,13 +12,13 @@ Collect leaderboard player snapshots:
 uv --project python run poker-fate players
 ```
 
-Build static frontend data from collected snapshots:
+Build D1 import SQL from a collected snapshot:
 
 ```bash
-uv --project python run poker-fate web-data
+uv --project python run poker-fate d1-import-sql data/player-snapshots/poker-fate-players-20260618T010203Z.jsonl --output work/d1-import.sql
 ```
 
-The collector writes local JSONL snapshots under `data/player-snapshots/`. The website data builder writes generated JSON under `web/public/data/`. Both paths are ignored local artifacts.
+The collector writes local JSONL snapshots under `data/player-snapshots/`. D1 import SQL is written under `work/`. Both paths are ignored local artifacts.
 
 ## Checks
 

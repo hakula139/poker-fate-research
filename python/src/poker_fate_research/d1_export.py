@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from poker_fate_research.web_data import build_snapshot
+from poker_fate_research.player_normalization import build_snapshot
 
 
 def sql_literal(value: object) -> str:

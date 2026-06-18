@@ -1,6 +1,6 @@
 # Player Tagging
 
-This page records a first-pass player classification model for a future stats site. Treat these tags as heuristic labels, not objective judgments. The thresholds should be calibrated after collecting a larger Poker Fate sample.
+This page records the player classification model used by the stats site. Treat these tags as heuristic labels, not objective judgments. The thresholds should be calibrated after collecting a larger Poker Fate sample.
 
 ## Available Signals
 
@@ -37,7 +37,7 @@ Use a minimum hand threshold before assigning a preflop style. A conservative fi
 | VPIP `>= 40%`, PFR `>= 25%`, 3-Bet `>= 10%`       | `Maniac`          | Loose and over-aggressive preflop profile.                         |
 | VPIP `>= 40%`, PFR `>= 25%`, below maniac cutoff  | `LAG`             | Very loose and aggressive, but without the extra maniac signal.    |
 
-The v1 site should not emit `Unclassified` once a player passes the hand threshold. The 2026-06-12 Hold'em snapshot showed that fallthrough rows had enough data and mostly sat between the original TAG / LAG / loose-passive thresholds, so the model now uses explicit middle buckets instead of hiding those players behind an unknown label.
+Players above the hand threshold should always receive a preflop label. The middle buckets cover players between the tight-aggressive, loose-aggressive, and loose-passive shapes.
 
 ## Postflop Tags
 
