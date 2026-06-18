@@ -139,29 +139,11 @@ async function fetchJson(path: string, assets: AssetMap, init?: RequestInit, db?
 }
 
 describe('worker API', () => {
-  it('returns the generated snapshot index', async () => {
-    const index = {
-      generatedAt: '2026-06-18T00:00:00Z',
-      snapshots: [{ id: '2026-06-18', path: 'data/snapshots/2026-06-18.json' }],
-    };
+  it('returns an empty snapshot index when D1 has no snapshots', async () => {
+    const result = await fetchJson('/api/snapshots', {});
 
-    const result = await fetchJson('/api/snapshots', { '/data/snapshots.json': index });
-
-    expect(result).toEqual({ body: index, status: 200 });
-  });
-
-  it('returns a generated snapshot by id', async () => {
-    const snapshot = { id: '2026-06-18', players: [] };
-    const index = {
-      snapshots: [{ id: '2026-06-18', path: 'data/snapshots/2026-06-18.json' }],
-    };
-
-    const result = await fetchJson('/api/snapshots/2026-06-18', {
-      '/data/snapshots.json': index,
-      '/data/snapshots/2026-06-18.json': snapshot,
-    });
-
-    expect(result).toEqual({ body: snapshot, status: 200 });
+    expect(result.status).toBe(200);
+    expect(result.body).toMatchObject({ snapshots: [] });
   });
 
   it('returns a D1 snapshot index when the database has snapshots', async () => {
@@ -306,9 +288,7 @@ describe('worker API', () => {
   });
 
   it('rejects unknown snapshot ids', async () => {
-    const result = await fetchJson('/api/snapshots/missing', {
-      '/data/snapshots.json': { snapshots: [] },
-    });
+    const result = await fetchJson('/api/snapshots/missing', {});
 
     expect(result).toEqual({ body: { error: 'Snapshot not found' }, status: 404 });
   });

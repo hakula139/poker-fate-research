@@ -104,17 +104,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function assertSnapshotIndex(value: unknown): asserts value is SnapshotIndex {
-  if (!isRecord(value) || !Array.isArray(value.snapshots)) {
-    throw new ApiError(502, 'Snapshot index has an invalid shape.');
-  }
-  for (const item of value.snapshots) {
-    if (!isRecord(item) || typeof item.id !== 'string' || typeof item.path !== 'string') {
-      throw new ApiError(502, 'Snapshot index has an invalid shape.');
-    }
-  }
-}
-
 function parseStoredJson(value: string): unknown {
   try {
     return JSON.parse(value) as unknown;
@@ -533,23 +522,6 @@ async function searchPlayers(env: Env, query: string): Promise<unknown[]> {
   }
 }
 
-async function readAssetJson(env: Env, request: Request, path: string): Promise<unknown> {
-  const url = new URL(request.url);
-  url.pathname = path;
-  url.search = '';
-  const response = await env.ASSETS.fetch(new Request(url, request));
-  if (!response.ok) {
-    throw new ApiError(response.status, 'Generated data is unavailable.');
-  }
-  return response.json();
-}
-
-async function readSnapshotIndex(env: Env, request: Request): Promise<SnapshotIndex> {
-  const value = await readAssetJson(env, request, '/data/snapshots.json');
-  assertSnapshotIndex(value);
-  return value;
-}
-
 async function handleApiRequest(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
 
@@ -559,7 +531,7 @@ async function handleApiRequest(request: Request, env: Env): Promise<Response> {
 
   if (url.pathname === '/api/snapshots') {
     return jsonResponse(
-      (await readD1SnapshotIndex(env)) ?? (await readSnapshotIndex(env, request)),
+      (await readD1SnapshotIndex(env)) ?? { generatedAt: isoNow(), snapshots: [] },
     );
   }
 
@@ -580,12 +552,7 @@ async function handleApiRequest(request: Request, env: Env): Promise<Response> {
     if (d1Snapshot) {
       return jsonResponse(d1Snapshot);
     }
-    const index = await readSnapshotIndex(env, request);
-    const item = index.snapshots.find((snapshot) => snapshot.id === snapshotId);
-    if (!item) {
-      return jsonResponse({ error: 'Snapshot not found' }, { status: 404 });
-    }
-    return jsonResponse(await readAssetJson(env, request, `/${item.path}`));
+    return jsonResponse({ error: 'Snapshot not found' }, { status: 404 });
   }
 
   return jsonResponse({ error: 'Not found' }, { status: 404 });
