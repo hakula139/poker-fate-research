@@ -27,6 +27,7 @@ jobs:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_SHA: ${{ github.event.pull_request.head.sha }}
       WORKER_NAME: poker-fate-stats
+      WORKERS_DEV_SUBDOMAIN: hakula.workers.dev
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -73,8 +74,8 @@ jobs:
           test -n "$version_prefix"
           {
             echo "short_sha=${PR_SHA:0:7}"
-            echo "version_id=${version_id}"
-            echo "preview_alias=pr-${PR_NUMBER}"
+            echo "version_url=https://${version_prefix}-${WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}"
+            echo "alias_url=https://pr-${PR_NUMBER}-${WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}"
             echo "deploy_time=$(date -u +'%Y-%m-%d %H:%M UTC')"
           } >> "$GITHUB_OUTPUT"
 
@@ -83,24 +84,16 @@ jobs:
         with:
           header: preview-url
           message: |
-            ## Cloudflare Workers preview
+            ## ⚡ Cloudflare Workers preview
 
             <table>
               <tr>
-                <td><strong>Production URL</strong></td>
-                <td><a href="https://poker-fate-stats.hakula.xyz/">https://poker-fate-stats.hakula.xyz/</a></td>
+                <td><strong>Preview</strong></td>
+                <td><a href="${{ steps.meta.outputs.version_url }}">${{ steps.meta.outputs.version_url }}</a></td>
               </tr>
               <tr>
-                <td><strong>Worker</strong></td>
-                <td><code>${{ env.WORKER_NAME }}</code></td>
-              </tr>
-              <tr>
-                <td><strong>Version</strong></td>
-                <td><code>${{ steps.meta.outputs.version_id }}</code></td>
-              </tr>
-              <tr>
-                <td><strong>Alias</strong></td>
-                <td><code>${{ steps.meta.outputs.preview_alias }}</code></td>
+                <td><strong>Branch preview</strong></td>
+                <td><a href="${{ steps.meta.outputs.alias_url }}">${{ steps.meta.outputs.alias_url }}</a></td>
               </tr>
               <tr>
                 <td><strong>Commit</strong></td>
