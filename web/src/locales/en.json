@@ -38,7 +38,7 @@
     "20010103": "Friend-room Hold'em"
   },
   "summary": {
-    "players": "Snapshot players",
+    "players": "Loaded players",
     "sampleSnapshot": "Sample data",
     "visible": "Matching players",
     "snapshot": "Snapshot"
@@ -67,7 +67,7 @@
   "details": {
     "player": "Player",
     "selectPlayer": "Select a player",
-    "powerScore": "Power score",
+    "thronePoints": "Throne Points",
     "championPoints": "Champion points",
     "sngRecords": "SNG records",
     "leaderboardRanks": "Leaderboard ranks",

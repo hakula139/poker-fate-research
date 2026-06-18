@@ -35,7 +35,7 @@ export function useSnapshots() {
 
   const changeSnapshot = useCallback(async (item: SnapshotIndexItem) => {
     try {
-      const next = await loadSnapshot(item.path);
+      const next = await loadSnapshot(item.id);
       setSnapshot(next);
       setSnapshotId(next.id);
       setDataIssue(null);

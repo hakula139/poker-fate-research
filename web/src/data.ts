@@ -53,7 +53,14 @@ function assertPlayerSnapshot(value: unknown): asserts value is PlayerSnapshot {
   if (!isRecord(value) || !Array.isArray(value.players)) {
     throw new SnapshotLoadError('snapshotInvalid');
   }
-  for (const player of value.players) {
+  assertPlayerRecords(value.players);
+}
+
+function assertPlayerRecords(value: unknown): asserts value is PlayerSnapshot['players'] {
+  if (!Array.isArray(value)) {
+    throw new SnapshotLoadError('snapshotInvalid');
+  }
+  for (const player of value) {
     if (
       !isRecord(player) ||
       typeof player.uid !== 'number' ||
@@ -65,27 +72,39 @@ function assertPlayerSnapshot(value: unknown): asserts value is PlayerSnapshot {
   }
 }
 
+function mergePlayers(
+  players: PlayerSnapshot['players'],
+  cachedPlayers: PlayerSnapshot['players'],
+) {
+  const merged = new Map(players.map((player) => [player.uid, player]));
+  for (const player of cachedPlayers) {
+    merged.set(player.uid, merged.get(player.uid) ?? player);
+  }
+  return [...merged.values()];
+}
+
 export async function loadSnapshots(): Promise<SnapshotLoadResult> {
   try {
-    const indexResponse = await fetch('/data/snapshots.json');
+    const indexResponse = await fetch('/api/snapshots');
     if (!indexResponse.ok) {
       throw new SnapshotLoadError('indexUnavailable');
     }
-    const index = (await indexResponse.json()) as unknown;
+    const index = await indexResponse.json();
     assertSnapshotIndex(index);
     const latest = index.snapshots.at(-1);
     if (!latest) {
       throw new SnapshotLoadError('indexEmpty');
     }
-    const snapshotResponse = await fetch(`/${latest.path}`);
+    const snapshotResponse = await fetch(`/api/snapshots/${encodeURIComponent(latest.id)}`);
     if (!snapshotResponse.ok) {
       throw new SnapshotLoadError('snapshotUnavailable');
     }
-    const active = (await snapshotResponse.json()) as unknown;
+    const active = await snapshotResponse.json();
     assertPlayerSnapshot(active);
+    const cachedPlayers = await loadCachedPlayers();
     return {
       index,
-      active,
+      active: { ...active, players: mergePlayers(active.players, cachedPlayers) },
       source: 'generated',
       error: null,
     };
@@ -110,15 +129,48 @@ export async function loadSnapshots(): Promise<SnapshotLoadResult> {
   }
 }
 
-export async function loadSnapshot(path: string): Promise<PlayerSnapshot> {
-  if (!path) {
+export async function loadSnapshot(snapshotId: string): Promise<PlayerSnapshot> {
+  if (!snapshotId) {
     return sampleSnapshot;
   }
-  const response = await fetch(`/${path}`);
+  const response = await fetch(`/api/snapshots/${encodeURIComponent(snapshotId)}`);
   if (!response.ok) {
     throw new SnapshotLoadError('snapshotUnavailable');
   }
-  const snapshot = (await response.json()) as unknown;
+  const snapshot = await response.json();
   assertPlayerSnapshot(snapshot);
-  return snapshot;
+  const cachedPlayers = await loadCachedPlayers();
+  return { ...snapshot, players: mergePlayers(snapshot.players, cachedPlayers) };
+}
+
+async function loadCachedPlayers(): Promise<PlayerSnapshot['players']> {
+  try {
+    const response = await fetch('/api/players/cached');
+    if (!response.ok) {
+      return [];
+    }
+    const value = await response.json();
+    if (!isRecord(value)) {
+      return [];
+    }
+    const players = value.players;
+    assertPlayerRecords(players);
+    return players;
+  } catch {
+    return [];
+  }
+}
+
+export async function searchPlayers(query: string): Promise<PlayerSnapshot['players']> {
+  const response = await fetch(`/api/players/search?q=${encodeURIComponent(query)}`);
+  if (!response.ok) {
+    throw new SnapshotLoadError('snapshotUnavailable');
+  }
+  const value = await response.json();
+  if (!isRecord(value)) {
+    throw new SnapshotLoadError('snapshotInvalid');
+  }
+  const players = value.players;
+  assertPlayerRecords(players);
+  return players;
 }

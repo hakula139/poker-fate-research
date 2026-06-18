@@ -3,7 +3,7 @@ import type { GameStats, GameTypeId, PlayerRecord, SnapshotIndexItem } from '@/t
 
 export const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301'];
 
-export type ScoreLabelKey = 'powerScore' | 'championPoints';
+export type ScoreLabelKey = 'thronePoints' | 'championPoints';
 
 export type SortKey =
   | 'name'
@@ -27,7 +27,7 @@ export function getGameStats(player: PlayerRecord, gameType: GameTypeId): GameSt
 }
 
 export function scoreLabelKey(gameType: GameTypeId): ScoreLabelKey {
-  return gameType === '10050301' ? 'championPoints' : 'powerScore';
+  return gameType === '10050301' ? 'championPoints' : 'thronePoints';
 }
 
 export function snapshotDisplayLabel(

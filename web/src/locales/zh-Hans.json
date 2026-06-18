@@ -38,7 +38,7 @@
     "20010103": "好友房德州扑克"
   },
   "summary": {
-    "players": "快照玩家",
+    "players": "已载入玩家",
     "sampleSnapshot": "示例数据",
     "visible": "匹配玩家",
     "snapshot": "快照"
@@ -67,7 +67,7 @@
   "details": {
     "player": "玩家",
     "selectPlayer": "选择一个玩家",
-    "powerScore": "战力值",
+    "thronePoints": "王座积分",
     "championPoints": "冠军积分",
     "sngRecords": "SNG 记录",
     "leaderboardRanks": "排行榜排名",
