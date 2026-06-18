@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from poker_fate_research.player_normalization import build_snapshot
+from poker_fate_research.time import iso_format
 
 
 def sql_literal(value: object) -> str:
@@ -60,10 +61,8 @@ def cache_player_statements(
     if not isinstance(uid, int):
         raise ValueError('Cached player entries must have integer uid')
 
-    expires_at = (imported_at + timedelta(days=30)).isoformat(timespec='seconds')
-    fetched_at = str(
-        player.get('fetchedAt') or imported_at.isoformat(timespec='seconds')
-    )
+    expires_at = iso_format(imported_at + timedelta(days=30))
+    fetched_at = str(player.get('fetchedAt') or iso_format(imported_at))
     statements = [
         insert_statement(
             'player_cache',
@@ -84,7 +83,7 @@ def cache_player_statements(
                     'alias': alias,
                     'uid': uid,
                     'source': source,
-                    'observed_at': imported_at.isoformat(timespec='seconds'),
+                    'observed_at': iso_format(imported_at),
                 },
             )
         )
@@ -107,7 +106,7 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
                 'label': snapshot['label'],
                 'source': snapshot['source'],
                 'generated_at': generated_at,
-                'fetched_at': imported_at.isoformat(timespec='seconds'),
+                'fetched_at': iso_format(imported_at),
                 'player_count': len(players),
                 'leaderboard_row_count': sum(
                     len(player.get('leaderboardEntries', []))
@@ -127,9 +126,7 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
             raise ValueError('Snapshot player entries must have integer uid')
 
         leaderboard_entries = player.get('leaderboardEntries', [])
-        fetched_at = str(
-            player.get('fetchedAt') or imported_at.isoformat(timespec='seconds')
-        )
+        fetched_at = str(player.get('fetchedAt') or iso_format(imported_at))
         player_payload = {**player, 'leaderboardEntries': leaderboard_entries}
         lines.extend(
             [
@@ -155,7 +152,7 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
             ),
             (
                 'DELETE FROM player_cache WHERE expires_at < '
-                f'{sql_literal(imported_at.isoformat(timespec="seconds"))} '
+                f'{sql_literal(iso_format(imported_at))} '
                 'AND uid NOT IN (SELECT uid FROM snapshot_players);'
             ),
             '',
