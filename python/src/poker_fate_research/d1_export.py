@@ -96,7 +96,7 @@ def player_cache_import_sql(
     imported_at: datetime,
     source: str = 'lookup',
 ) -> str:
-    lines = ['BEGIN TRANSACTION;']
+    lines: list[str] = []
     for player in players:
         lines.extend(cache_player_statements(player, imported_at, source))
     lines.extend(
@@ -106,7 +106,6 @@ def player_cache_import_sql(
                 f'{sql_literal(imported_at.isoformat(timespec="seconds"))} '
                 'AND uid NOT IN (SELECT uid FROM snapshot_players);'
             ),
-            'COMMIT;',
             '',
         ]
     )
@@ -122,7 +121,6 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
         raise ValueError('Snapshot players must be a list')
 
     lines = [
-        'BEGIN TRANSACTION;',
         insert_statement(
             'snapshots',
             {
@@ -181,7 +179,6 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
                 f'{sql_literal(imported_at.isoformat(timespec="seconds"))} '
                 'AND uid NOT IN (SELECT uid FROM snapshot_players);'
             ),
-            'COMMIT;',
             '',
         ]
     )
