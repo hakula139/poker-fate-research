@@ -30,11 +30,8 @@ export function scoreLabelKey(gameType: GameTypeId): ScoreLabelKey {
   return gameType === '10050301' ? 'championPoints' : 'thronePoints';
 }
 
-export function snapshotDisplayLabel(
-  snapshot: Pick<SnapshotIndexItem, 'id' | 'label'>,
-  labels: { sampleSnapshot: string },
-): string {
-  return snapshot.id === 'sample' ? labels.sampleSnapshot : snapshot.label;
+export function snapshotDisplayLabel(snapshot: Pick<SnapshotIndexItem, 'label'>): string {
+  return snapshot.label;
 }
 
 function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): string | number {

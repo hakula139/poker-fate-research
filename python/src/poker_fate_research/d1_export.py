@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from poker_fate_research.web_data import build_snapshot
+from poker_fate_research.player_normalization import build_snapshot
 
 
 def sql_literal(value: object) -> str:
@@ -89,27 +89,6 @@ def cache_player_statements(
             )
         )
     return statements
-
-
-def player_cache_import_sql(
-    players: list[dict[str, Any]],
-    imported_at: datetime,
-    source: str = 'lookup',
-) -> str:
-    lines: list[str] = []
-    for player in players:
-        lines.extend(cache_player_statements(player, imported_at, source))
-    lines.extend(
-        [
-            (
-                'DELETE FROM player_cache WHERE expires_at < '
-                f'{sql_literal(imported_at.isoformat(timespec="seconds"))} '
-                'AND uid NOT IN (SELECT uid FROM snapshot_players);'
-            ),
-            '',
-        ]
-    )
-    return '\n'.join(lines)
 
 
 def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:

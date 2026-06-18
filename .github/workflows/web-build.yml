@@ -7,13 +7,6 @@ on:
         description: Upload web/dist as a workflow artifact
         type: boolean
         default: false
-      generate-data:
-        description: Collect fresh player snapshots and generate web data before building
-        type: boolean
-        default: false
-    secrets:
-      POKER_FATE_RESEARCH_DEVICE_TOKEN:
-        required: false
 
 permissions:
   contents: read
@@ -33,35 +26,6 @@ jobs:
 
       - name: Install dependencies
         run: nix develop --command pnpm --dir web install --frozen-lockfile
-
-      - name: Resolve generated data cache key
-        if: ${{ inputs.generate-data }}
-        id: data-cache-key
-        run: echo "date=$(date -u +'%Y%m%d')" >> "$GITHUB_OUTPUT"
-
-      - name: Restore generated web data
-        if: ${{ inputs.generate-data }}
-        id: data-cache
-        uses: actions/cache/restore@v5
-        with:
-          path: web/public/data
-          key: ${{ runner.os }}-web-data-${{ steps.data-cache-key.outputs.date }}-${{ hashFiles('python/src/**/*.py', 'python/pyproject.toml', 'python/uv.lock', '.github/workflows/web-build.yml') }}
-
-      - name: Generate web data
-        if: ${{ inputs.generate-data && steps.data-cache.outputs.cache-hit != 'true' }}
-        env:
-          POKER_FATE_RESEARCH_DEVICE_TOKEN: ${{ secrets.POKER_FATE_RESEARCH_DEVICE_TOKEN }}
-        run: |
-          test -n "$POKER_FATE_RESEARCH_DEVICE_TOKEN"
-          nix develop --command uv --project python run poker-fate players
-          nix develop --command uv --project python run poker-fate web-data
-
-      - name: Save generated web data
-        if: ${{ inputs.generate-data && steps.data-cache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v5
-        with:
-          path: web/public/data
-          key: ${{ steps.data-cache.outputs.cache-primary-key }}
 
       - name: Build web
         run: nix develop --command pnpm --dir web run build

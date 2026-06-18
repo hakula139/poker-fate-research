@@ -11,7 +11,7 @@ export type Messages = {
     eyebrow: string;
     title: string;
     loading: string;
-    sampleDataIssue: string;
+    dataUnavailable: string;
     snapshotDataIssue: string;
     dataIssues: {
       indexUnavailable: string;
@@ -39,7 +39,6 @@ export type Messages = {
   gameTypes: Record<GameTypeId, string>;
   summary: {
     players: string;
-    sampleSnapshot: string;
     visible: string;
     snapshot: string;
   };

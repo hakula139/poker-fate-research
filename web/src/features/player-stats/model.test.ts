@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { sampleSnapshot } from '@/fixtures/sampleData';
+import { sampleSnapshot } from '../../../tests/fixtures/sample-snapshot';
 
 import { filterAndSortPlayers, getGameStats, scoreLabelKey, snapshotDisplayLabel } from './model';
 
@@ -50,8 +50,6 @@ describe('player stats model', () => {
   it('keeps mode-specific display rules in the feature model', () => {
     expect(scoreLabelKey('10010101')).toBe('thronePoints');
     expect(scoreLabelKey('10050301')).toBe('championPoints');
-    expect(
-      snapshotDisplayLabel({ id: 'sample', label: 'Sample data' }, { sampleSnapshot: '示例数据' }),
-    ).toBe('示例数据');
+    expect(snapshotDisplayLabel({ label: '2026-06-18 01:02 UTC' })).toBe('2026-06-18 01:02 UTC');
   });
 });

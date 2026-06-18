@@ -1,21 +1,10 @@
 # Poker Fate Stats Web
 
-Local React website for browsing generated Poker Fate player snapshots.
+React website for browsing D1-backed Poker Fate player snapshots.
 
 ## Data
 
-From the repository root, collect player snapshots if needed, then generate frontend data:
-
-```bash
-uv --project python run poker-fate players
-uv --project python run poker-fate web-data
-```
-
-The collector needs the dedicated guest research credential described in [`../docs/research/player-discovery.md`](../docs/research/player-discovery.md).
-
-The app reads generated JSON from `web/public/data/`. Those files are local artifacts and are not committed. If generated data is missing, the app falls back to committed sample data and marks that state in the UI.
-
-Daily JSONL snapshots can be added under `data/player-snapshots/` and regenerated with the same command from the repository root.
+The app reads snapshots and searched-player cache entries through Worker API routes backed by Cloudflare D1. Daily collection and D1 import are handled by GitHub Actions. Local test fixtures live under `web/tests/fixtures/`.
 
 ## Development
 
@@ -45,13 +34,13 @@ pnpm exec wrangler deploy
 
 Production URL: <https://poker-fate-stats.hakula.xyz/>
 
-GitHub Actions deploys from `main` and uploads pull request previews. The workflows require these repository secrets:
+GitHub Actions deploys from `main`, uploads pull request previews, and runs daily D1 imports. The workflows require these repository secrets:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 - `POKER_FATE_RESEARCH_DEVICE_TOKEN`
 
-Production deploys collect a fresh player snapshot before building. Pull request previews build without live collection and fall back to sample data when generated JSON is absent.
+Production and pull request deploys build the Worker artifact. The scheduled data workflow owns snapshot collection and D1 import.
 
 ## Player Tags
 

@@ -1,4 +1,4 @@
-import type { PlayerSnapshot } from '../types';
+import type { PlayerSnapshot } from '../../src/types';
 
 export const sampleSnapshot: PlayerSnapshot = {
   id: 'sample',

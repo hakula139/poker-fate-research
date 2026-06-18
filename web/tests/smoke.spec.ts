@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { sampleSnapshot } from '../src/fixtures/sampleData';
+import { sampleSnapshot } from './fixtures/sample-snapshot';
 
 test('loads generated player stats and filters players', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('poker-fate.locale', 'en');
   });
-  await page.route('**/data/snapshots.json', async (route) => {
+  await page.route('**/api/snapshots', async (route) => {
     await route.fulfill({
       contentType: 'application/json',
       json: {
@@ -17,13 +17,13 @@ test('loads generated player stats and filters players', async ({ page }) => {
             label: sampleSnapshot.label,
             playerCount: sampleSnapshot.players.length,
             source: sampleSnapshot.source,
-            path: 'data/snapshots/sample.json',
+            path: 'api/snapshots/sample',
           },
         ],
       },
     });
   });
-  await page.route('**/data/snapshots/sample.json', async (route) => {
+  await page.route('**/api/snapshots/sample', async (route) => {
     await route.fulfill({
       contentType: 'application/json',
       json: sampleSnapshot,

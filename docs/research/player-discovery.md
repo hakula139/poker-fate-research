@@ -109,6 +109,16 @@ For a low-volume protocol check, use `--max-players 2`. That still fetches leade
 
 Reusable API client, model, and collection helpers live under `python/src/poker_fate_research/`. Run the collector through the uv-managed console script so imports and tool versions stay consistent.
 
+## D1 Import
+
+The website reads snapshots from Cloudflare D1 through Worker API routes. Convert a collected player JSONL snapshot into D1 SQL with:
+
+```bash
+uv --project python run poker-fate d1-import-sql data/player-snapshots/poker-fate-players-20260618T010203Z.jsonl --output work/d1-import.sql
+```
+
+GitHub Actions runs the daily collector and imports the generated SQL into the `poker-fate-stats` D1 database. Deploy workflows build and publish the Worker.
+
 ## Stats Enrichment
 
 Leaderboard `uid` values can be passed directly to `POST /player/gameData`, using the same profile-stat endpoint documented in `api-inventory.md`.

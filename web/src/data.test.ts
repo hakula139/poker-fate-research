@@ -20,26 +20,26 @@ function requestUrl(input: RequestInfo | URL): string {
 }
 
 describe('loadSnapshots', () => {
-  it('reports sample fallback when generated data is unavailable', async () => {
+  it('reports unavailable data when the snapshot index cannot be loaded', async () => {
     globalThis.fetch = vi.fn(() => Promise.resolve(new Response(null, { status: 404 })));
 
     const result = await loadSnapshots();
 
-    expect(result.source).toBe('sample');
     expect(result.error).toBe('indexUnavailable');
-    expect(result.active.id).toBe('sample');
+    expect(result.active.players).toEqual([]);
+    expect(result.index.snapshots).toEqual([]);
   });
 
-  it('reports sample fallback when generated data has an invalid shape', async () => {
+  it('reports unavailable data when the snapshot index has an invalid shape', async () => {
     globalThis.fetch = vi.fn(() =>
       Promise.resolve(Response.json({ generatedAt: '2026-06-12T08:50:28Z' })),
     );
 
     const result = await loadSnapshots();
 
-    expect(result.source).toBe('sample');
     expect(result.error).toBe('indexInvalid');
-    expect(result.active.id).toBe('sample');
+    expect(result.active.players).toEqual([]);
+    expect(result.index.snapshots).toEqual([]);
   });
 
   it('merges cached players into generated snapshots', async () => {
