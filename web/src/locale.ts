@@ -67,7 +67,7 @@ export type Messages = {
   details: {
     player: string;
     selectPlayer: string;
-    powerScore: string;
+    thronePoints: string;
     championPoints: string;
     sngRecords: string;
     leaderboardRanks: string;

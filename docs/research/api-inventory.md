@@ -113,7 +113,7 @@ Response fields used by the profile UI:
 | Field                      | Meaning                                                            |
 | -------------------------- | ------------------------------------------------------------------ |
 | `game_type`                | Game type returned by the API                                      |
-| `fire_power`               | Hold'em / Omaha score shown on lobby-game tabs                     |
+| `fire_power`               | Throne Points shown on Hold'em / Omaha profile tabs                |
 | `champion_points`          | SNG score shown on the SNG tab                                     |
 | `play_times`               | Hands played                                                       |
 | `win_play_times`           | Hands won                                                          |

@@ -48,7 +48,7 @@ describe('player stats model', () => {
   });
 
   it('keeps mode-specific display rules in the feature model', () => {
-    expect(scoreLabelKey('10010101')).toBe('powerScore');
+    expect(scoreLabelKey('10010101')).toBe('thronePoints');
     expect(scoreLabelKey('10050301')).toBe('championPoints');
     expect(
       snapshotDisplayLabel({ id: 'sample', label: 'Sample data' }, { sampleSnapshot: '示例数据' }),
