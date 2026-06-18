@@ -61,3 +61,46 @@ def test_snapshot_import_sql_loads_snapshot_into_schema(tmp_path: Path) -> None:
         "SELECT uid FROM player_aliases WHERE alias = 'O''Malley'"
     ).fetchone()
     assert alias == (101,)
+
+
+def test_snapshot_import_sql_accepts_normalized_snapshot_json(tmp_path: Path) -> None:
+    snapshot_path = tmp_path / '20260618T010203Z.json'
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                'id': '20260618T010203Z',
+                'label': '2026-06-18 01:02 UTC',
+                'source': 'test',
+                'generatedAt': '2026-06-18T01:02:03+00:00',
+                'players': [
+                    {
+                        'uid': 101,
+                        'name': 'Hakula',
+                        'names': ['Hakula'],
+                        'leaderboardEntries': [],
+                        'games': {},
+                        'sngRecordCount': 0,
+                        'fetchedAt': '2026-06-18T01:03:00+00:00',
+                    }
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding='utf-8',
+    )
+
+    sql = snapshot_import_sql(
+        snapshot_path,
+        datetime(2026, 6, 18, 2, 0, tzinfo=UTC),
+    )
+
+    connection = sqlite3.connect(':memory:')
+    migration = find_repo_root(Path.cwd()) / 'web/migrations/0001_player_data.sql'
+    connection.executescript(migration.read_text(encoding='utf-8'))
+    connection.executescript(sql)
+
+    cached_player = connection.execute(
+        'SELECT uid FROM player_cache WHERE uid = 101'
+    ).fetchone()
+    assert cached_player == (101,)

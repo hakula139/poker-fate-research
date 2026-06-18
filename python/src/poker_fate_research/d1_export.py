@@ -42,11 +42,81 @@ def player_aliases(player: dict[str, Any]) -> list[str]:
     return sorted(aliases)
 
 
+def load_snapshot(snapshot_path: Path) -> dict[str, Any]:
+    if snapshot_path.suffix == '.json':
+        snapshot = json.loads(snapshot_path.read_text(encoding='utf-8'))
+        if not isinstance(snapshot, dict):
+            raise ValueError('Snapshot JSON must be an object')
+        return snapshot
+    return build_snapshot(snapshot_path)
+
+
+def cache_player_statements(
+    player: dict[str, Any],
+    imported_at: datetime,
+    source: str,
+) -> list[str]:
+    uid = player.get('uid')
+    if not isinstance(uid, int):
+        raise ValueError('Cached player entries must have integer uid')
+
+    expires_at = (imported_at + timedelta(days=30)).isoformat(timespec='seconds')
+    fetched_at = str(
+        player.get('fetchedAt') or imported_at.isoformat(timespec='seconds')
+    )
+    statements = [
+        insert_statement(
+            'player_cache',
+            {
+                'uid': uid,
+                'player_json': json_text(player),
+                'source': source,
+                'fetched_at': fetched_at,
+                'expires_at': expires_at,
+            },
+        )
+    ]
+    for alias in player_aliases(player):
+        statements.append(
+            insert_statement(
+                'player_aliases',
+                {
+                    'alias': alias,
+                    'uid': uid,
+                    'source': source,
+                    'observed_at': imported_at.isoformat(timespec='seconds'),
+                },
+            )
+        )
+    return statements
+
+
+def player_cache_import_sql(
+    players: list[dict[str, Any]],
+    imported_at: datetime,
+    source: str = 'lookup',
+) -> str:
+    lines = ['BEGIN TRANSACTION;']
+    for player in players:
+        lines.extend(cache_player_statements(player, imported_at, source))
+    lines.extend(
+        [
+            (
+                'DELETE FROM player_cache WHERE expires_at < '
+                f'{sql_literal(imported_at.isoformat(timespec="seconds"))} '
+                'AND uid NOT IN (SELECT uid FROM snapshot_players);'
+            ),
+            'COMMIT;',
+            '',
+        ]
+    )
+    return '\n'.join(lines)
+
+
 def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
-    snapshot = build_snapshot(snapshot_path)
+    snapshot = load_snapshot(snapshot_path)
     snapshot_id = str(snapshot['id'])
     generated_at = str(snapshot['generatedAt'])
-    expires_at = (imported_at + timedelta(days=30)).isoformat(timespec='seconds')
     players = snapshot['players']
     if not isinstance(players, list):
         raise ValueError('Snapshot players must be a list')
@@ -96,31 +166,9 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
                         'fetched_at': fetched_at,
                     },
                 ),
-                insert_statement(
-                    'player_cache',
-                    {
-                        'uid': uid,
-                        'player_json': json_text(player_payload),
-                        'source': 'snapshot',
-                        'fetched_at': fetched_at,
-                        'expires_at': expires_at,
-                    },
-                ),
+                *cache_player_statements(player_payload, imported_at, 'snapshot'),
             ]
         )
-
-        for alias in player_aliases(player):
-            lines.append(
-                insert_statement(
-                    'player_aliases',
-                    {
-                        'alias': alias,
-                        'uid': uid,
-                        'source': 'snapshot',
-                        'observed_at': imported_at.isoformat(timespec='seconds'),
-                    },
-                )
-            )
 
     lines.extend(
         [
