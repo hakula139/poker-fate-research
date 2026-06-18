@@ -27,7 +27,6 @@ jobs:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_SHA: ${{ github.event.pull_request.head.sha }}
       WORKER_NAME: poker-fate-stats
-      WORKERS_DEV_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_DEV_SUBDOMAIN || 'hakula.workers.dev' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -67,14 +66,16 @@ jobs:
       - name: Extract preview metadata
         id: meta
         env:
-          UPLOAD_OUTPUT: ${{ steps.upload.outputs.command-output }}
+          DEPLOYMENT_URL: ${{ steps.upload.outputs.deployment-url }}
         run: |
-          version_id=$(awk '/Worker Version ID:/ {print $NF; exit}' <<<"$UPLOAD_OUTPUT")
-          version_prefix="${version_id:0:8}"
+          version_url="${DEPLOYMENT_URL%/}"
+          preview_host="${version_url#https://}"
+          preview_host="${preview_host%%/*}"
+          preview_suffix="${preview_host#*-}"
           {
             echo "short_sha=${PR_SHA:0:7}"
-            echo "version_url=https://${version_prefix}-${WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}"
-            echo "alias_url=https://pr-${PR_NUMBER}-${WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}"
+            echo "version_url=${version_url}"
+            echo "alias_url=https://pr-${PR_NUMBER}-${preview_suffix}"
             echo "deploy_time=$(date -u +'%Y-%m-%d %H:%M UTC')"
           } >> "$GITHUB_OUTPUT"
 

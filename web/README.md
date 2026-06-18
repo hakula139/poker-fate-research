@@ -48,8 +48,6 @@ GitHub Actions deploys from `main` and uploads pull request previews. The workfl
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
-Pull request preview comments assume the account's `workers.dev` subdomain is `hakula.workers.dev`. Override that with the `CLOUDFLARE_WORKERS_DEV_SUBDOMAIN` repository variable if needed.
-
 ## Player Tags
 
 Player tags are split into preflop and postflop labels. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model.
