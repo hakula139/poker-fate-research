@@ -28,24 +28,16 @@ jobs:
       PR_SHA: ${{ github.event.pull_request.head.sha }}
       WORKER_NAME: poker-fate-stats
       WORKERS_DEV_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_DEV_SUBDOMAIN || 'hakula.workers.dev' }}
-      CLOUDFLARE_CONFIGURED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
-      - name: Skip preview deploy
-        if: env.CLOUDFLARE_CONFIGURED != 'true'
-        run: echo "Cloudflare preview skipped because CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not configured."
-
       - name: Checkout
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         uses: actions/checkout@v6
 
       - name: Set up pnpm
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         uses: pnpm/action-setup@v5
         with:
           version: 11.1.3
 
       - name: Set up Node.js
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
@@ -53,14 +45,12 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
 
       - name: Download web artifact
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         uses: actions/download-artifact@v4
         with:
           name: web-dist
           path: web/dist/
 
       - name: Upload preview version
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         id: upload
         uses: cloudflare/wrangler-action@v4
         with:
@@ -75,7 +65,6 @@ jobs:
             --message "PR #${{ env.PR_NUMBER }} @ ${{ env.PR_SHA }}"
 
       - name: Extract preview metadata
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         id: meta
         env:
           UPLOAD_OUTPUT: ${{ steps.upload.outputs.command-output }}
@@ -90,7 +79,6 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Comment preview
-        if: env.CLOUDFLARE_CONFIGURED == 'true'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: preview-url
