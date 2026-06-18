@@ -16,7 +16,6 @@ jobs:
     uses: ./.github/workflows/web-build.yml
     with:
       upload-artifact: true
-      generate-data: false
 
   deploy:
     needs: build
