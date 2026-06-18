@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { gameTypeIds, snapshotDisplayLabel } from '@/features/player-stats/model';
+import { gameTypeIds } from '@/features/player-stats/model';
 import { usePlayerStatsView } from '@/features/player-stats/use-player-stats-view';
 import { useSnapshots } from '@/features/player-stats/use-snapshots';
 import { useThemeMode } from '@/features/theme/use-theme-mode';
@@ -78,7 +78,7 @@ export function PlayerStatsPage() {
                       key={item.id}
                       value={item.id}
                     >
-                      {snapshotDisplayLabel(item)} · {format.integer(item.playerCount)}
+                      {item.label} · {format.integer(item.playerCount)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -137,7 +137,7 @@ export function PlayerStatsPage() {
           />
           <SummaryCard
             label={t.summary.snapshot}
-            value={snapshotDisplayLabel(snapshot)}
+            value={snapshot.label}
           />
         </section>
 

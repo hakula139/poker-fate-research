@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { sampleSnapshot } from '../../../tests/fixtures/sample-snapshot';
 
-import { filterAndSortPlayers, getGameStats, scoreLabelKey, snapshotDisplayLabel } from './model';
+import { filterAndSortPlayers, getGameStats, scoreLabelKey } from './model';
 
 describe('player stats model', () => {
   it('filters by player UID and sorts by selected game stats', () => {
@@ -50,6 +50,5 @@ describe('player stats model', () => {
   it('keeps mode-specific display rules in the feature model', () => {
     expect(scoreLabelKey('10010101')).toBe('thronePoints');
     expect(scoreLabelKey('10050301')).toBe('championPoints');
-    expect(snapshotDisplayLabel({ label: '2026-06-18 01:02 UTC' })).toBe('2026-06-18 01:02 UTC');
   });
 });
