@@ -1,14 +1,55 @@
 type Env = {
   ASSETS: Fetcher;
+  DB?: Database;
+};
+
+type Database = {
+  prepare(query: string): DatabaseStatement;
+};
+
+type DatabaseResult<Row> = {
+  results?: Row[];
+};
+
+type DatabaseStatement = {
+  all<Row>(): Promise<DatabaseResult<Row>>;
+  bind(...values: unknown[]): DatabaseStatement;
+  first<Row>(): Promise<Row | null>;
 };
 
 type SnapshotIndexItem = {
   id: string;
+  label?: string;
   path: string;
+  playerCount?: number;
+  source?: string;
 };
 
 type SnapshotIndex = {
+  generatedAt?: string;
   snapshots: SnapshotIndexItem[];
+};
+
+type SnapshotRow = {
+  generated_at: string;
+  id: string;
+  label: string;
+  player_count: number;
+  source: string;
+};
+
+type SnapshotPlayerRow = {
+  fetched_at: string;
+  leaderboard_entries_json: string;
+  player_json: string;
+};
+
+type SnapshotResponse = {
+  generatedAt: string;
+  id: string;
+  label: string;
+  players: unknown[];
+  source: string;
 };
 
 class ApiError extends Error {
@@ -41,6 +82,107 @@ function assertSnapshotIndex(value: unknown): asserts value is SnapshotIndex {
   }
 }
 
+function parseStoredJson(value: string): unknown {
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    throw new ApiError(502, 'Stored player data has an invalid shape.');
+  }
+}
+
+function snapshotItemFromRow(row: SnapshotRow): SnapshotIndexItem {
+  return {
+    id: row.id,
+    label: row.label,
+    path: `api/snapshots/${encodeURIComponent(row.id)}`,
+    playerCount: row.player_count,
+    source: row.source,
+  };
+}
+
+async function readD1SnapshotIndex(env: Env): Promise<SnapshotIndex | null> {
+  if (!env.DB) {
+    return null;
+  }
+
+  const { results = [] } = await env.DB.prepare(
+    `
+        SELECT id, label, source, generated_at, player_count
+        FROM snapshots
+        ORDER BY generated_at DESC
+        LIMIT 30
+      `,
+  ).all<SnapshotRow>();
+
+  if (results.length === 0) {
+    return null;
+  }
+
+  const newestSnapshot = results[0];
+  return {
+    generatedAt: newestSnapshot.generated_at,
+    snapshots: [...results].reverse().map(snapshotItemFromRow),
+  };
+}
+
+async function readD1Snapshot(env: Env, snapshotId: string): Promise<SnapshotResponse | null> {
+  if (!env.DB) {
+    return null;
+  }
+
+  const snapshot = await env.DB.prepare(
+    `
+        SELECT id, label, source, generated_at, player_count
+        FROM snapshots
+        WHERE id = ?
+      `,
+  )
+    .bind(snapshotId)
+    .first<SnapshotRow>();
+
+  if (!snapshot) {
+    const existingSnapshot = await env.DB.prepare('SELECT id FROM snapshots LIMIT 1').first();
+    if (!existingSnapshot) {
+      return null;
+    }
+    throw new ApiError(404, 'Snapshot not found');
+  }
+
+  const { results = [] } = await env.DB.prepare(
+    `
+        SELECT player_json, leaderboard_entries_json, fetched_at
+        FROM snapshot_players
+        WHERE snapshot_id = ?
+        ORDER BY uid
+      `,
+  )
+    .bind(snapshotId)
+    .all<SnapshotPlayerRow>();
+
+  const players = results.map((row) => {
+    const player = parseStoredJson(row.player_json);
+    if (!isRecord(player)) {
+      throw new ApiError(502, 'Stored player data has an invalid shape.');
+    }
+    if (!Array.isArray(player.leaderboardEntries)) {
+      return {
+        ...player,
+        fetchedAt: row.fetched_at,
+        leaderboardEntries: parseStoredJson(row.leaderboard_entries_json),
+      };
+    }
+    return player;
+  });
+
+  return {
+    id: snapshot.id,
+    label: snapshot.label,
+    source: snapshot.source,
+    generatedAt: snapshot.generated_at,
+    players,
+  };
+}
+
 async function readAssetJson(env: Env, request: Request, path: string): Promise<unknown> {
   const url = new URL(request.url);
   url.pathname = path;
@@ -66,12 +208,18 @@ async function handleApiRequest(request: Request, env: Env): Promise<Response> {
   }
 
   if (url.pathname === '/api/snapshots') {
-    return jsonResponse(await readSnapshotIndex(env, request));
+    return jsonResponse(
+      (await readD1SnapshotIndex(env)) ?? (await readSnapshotIndex(env, request)),
+    );
   }
 
   const snapshotMatch = /^\/api\/snapshots\/([^/]+)$/.exec(url.pathname);
   if (snapshotMatch) {
     const snapshotId = decodeURIComponent(snapshotMatch[1]);
+    const d1Snapshot = await readD1Snapshot(env, snapshotId);
+    if (d1Snapshot) {
+      return jsonResponse(d1Snapshot);
+    }
     const index = await readSnapshotIndex(env, request);
     const item = index.snapshots.find((snapshot) => snapshot.id === snapshotId);
     if (!item) {
