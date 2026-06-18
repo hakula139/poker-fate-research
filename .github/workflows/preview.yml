@@ -63,19 +63,32 @@ jobs:
             --preview-alias pr-${{ env.PR_NUMBER }}
             --message "PR #${{ env.PR_NUMBER }} @ ${{ env.PR_SHA }}"
 
+      - name: Fetch workers.dev subdomain
+        id: workers-subdomain
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          response=$(curl --fail-with-body --silent --show-error \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/subdomain" \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+          subdomain=$(jq -r '.result.subdomain // empty' <<<"$response")
+          test -n "$subdomain"
+          echo "subdomain=${subdomain}" >> "$GITHUB_OUTPUT"
+
       - name: Extract preview metadata
         id: meta
         env:
-          DEPLOYMENT_URL: ${{ steps.upload.outputs.deployment-url }}
+          UPLOAD_OUTPUT: ${{ steps.upload.outputs.command-output }}
+          WORKERS_DEV_SUBDOMAIN: ${{ steps.workers-subdomain.outputs.subdomain }}
         run: |
-          version_url="${DEPLOYMENT_URL%/}"
-          preview_host="${version_url#https://}"
-          preview_host="${preview_host%%/*}"
-          preview_suffix="${preview_host#*-}"
+          version_id=$(awk '/Worker Version ID:/ {print $NF; exit}' <<<"$UPLOAD_OUTPUT")
+          version_prefix="${version_id:0:8}"
+          test -n "$version_prefix"
           {
             echo "short_sha=${PR_SHA:0:7}"
-            echo "version_url=${version_url}"
-            echo "alias_url=https://pr-${PR_NUMBER}-${preview_suffix}"
+            echo "version_url=https://${version_prefix}-${WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}.workers.dev"
+            echo "alias_url=https://pr-${PR_NUMBER}-${WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}.workers.dev"
             echo "deploy_time=$(date -u +'%Y-%m-%d %H:%M UTC')"
           } >> "$GITHUB_OUTPUT"
 
