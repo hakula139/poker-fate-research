@@ -77,9 +77,39 @@ export default tseslint.config(
     },
   },
   {
+    files: ['worker/**/*.ts'],
+    ignores: ['worker/**/*.test.ts'],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.es2025,
+        ...globals.worker,
+      },
+      parserOptions: {
+        project: './tsconfig.eslint.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      'simple-import-sort': simpleImportSort,
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      'simple-import-sort/exports': 'error',
+      'simple-import-sort/imports': ['error', { groups: importSortGroups }],
+    },
+  },
+  {
     files: [
       'src/**/*.test.{ts,tsx}',
       'tests/**/*.{ts,tsx}',
+      'worker/**/*.test.ts',
       '*.config.ts',
       'playwright.config.ts',
       'vite.config.ts',

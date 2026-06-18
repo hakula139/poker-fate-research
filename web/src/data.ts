@@ -67,21 +67,21 @@ function assertPlayerSnapshot(value: unknown): asserts value is PlayerSnapshot {
 
 export async function loadSnapshots(): Promise<SnapshotLoadResult> {
   try {
-    const indexResponse = await fetch('/data/snapshots.json');
+    const indexResponse = await fetch('/api/snapshots');
     if (!indexResponse.ok) {
       throw new SnapshotLoadError('indexUnavailable');
     }
-    const index = (await indexResponse.json()) as unknown;
+    const index = await indexResponse.json();
     assertSnapshotIndex(index);
     const latest = index.snapshots.at(-1);
     if (!latest) {
       throw new SnapshotLoadError('indexEmpty');
     }
-    const snapshotResponse = await fetch(`/${latest.path}`);
+    const snapshotResponse = await fetch(`/api/snapshots/${encodeURIComponent(latest.id)}`);
     if (!snapshotResponse.ok) {
       throw new SnapshotLoadError('snapshotUnavailable');
     }
-    const active = (await snapshotResponse.json()) as unknown;
+    const active = await snapshotResponse.json();
     assertPlayerSnapshot(active);
     return {
       index,
@@ -110,15 +110,15 @@ export async function loadSnapshots(): Promise<SnapshotLoadResult> {
   }
 }
 
-export async function loadSnapshot(path: string): Promise<PlayerSnapshot> {
-  if (!path) {
+export async function loadSnapshot(snapshotId: string): Promise<PlayerSnapshot> {
+  if (!snapshotId) {
     return sampleSnapshot;
   }
-  const response = await fetch(`/${path}`);
+  const response = await fetch(`/api/snapshots/${encodeURIComponent(snapshotId)}`);
   if (!response.ok) {
     throw new SnapshotLoadError('snapshotUnavailable');
   }
-  const snapshot = (await response.json()) as unknown;
+  const snapshot = await response.json();
   assertPlayerSnapshot(snapshot);
   return snapshot;
 }

@@ -12,6 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "types": ["@cloudflare/workers-types", "node"],
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -21,5 +22,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "tests", "vite.config.ts", "playwright.config.ts"]
+  "include": ["src", "tests", "worker", "vite.config.ts", "playwright.config.ts"]
 }
