@@ -1,0 +1,12 @@
+{
+  "include": ["python/src", "python/tests"],
+  "extraPaths": ["python/src"],
+  "venvPath": "python",
+  "venv": ".venv",
+  "pythonVersion": "3.13",
+  "typeCheckingMode": "recommended",
+  "reportAny": false,
+  "reportImplicitStringConcatenation": false,
+  "reportPrivateUsage": false,
+  "reportUnusedCallResult": false
+}

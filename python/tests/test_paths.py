@@ -9,24 +9,23 @@ from poker_fate_research.commands.players import config_from_args
 from poker_fate_research.paths import find_repo_root, repo_path
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
 def test_find_repo_root_from_package_subdir() -> None:
-    repo_root = Path.cwd().resolve()
-    assert find_repo_root(repo_root / 'python') == repo_root
+    assert find_repo_root(REPO_ROOT / 'python') == REPO_ROOT
 
 
 def test_repo_path_resolves_from_subdir(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.chdir(Path.cwd() / 'python')
+    monkeypatch.chdir(REPO_ROOT / 'python')
 
-    assert (
-        repo_path('data', 'player-snapshots')
-        == Path.cwd().parent / 'data/player-snapshots'
-    )
+    assert repo_path('data', 'player-snapshots') == REPO_ROOT / 'data/player-snapshots'
 
 
 def test_players_default_output_dir_uses_repo_root(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.chdir(Path.cwd() / 'python')
+    monkeypatch.chdir(REPO_ROOT / 'python')
     args = argparse.Namespace(
         base_host='https://example.invalid/',
         output_dir=None,
@@ -37,7 +36,7 @@ def test_players_default_output_dir_uses_repo_root(
 
     config = config_from_args(args)
 
-    assert config.output_dir == Path.cwd().parent / 'data/player-snapshots'
+    assert config.output_dir == REPO_ROOT / 'data/player-snapshots'
 
 
 def test_explicit_players_output_dir_is_preserved() -> None:
