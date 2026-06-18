@@ -142,17 +142,18 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
             ]
         )
 
+    retained = '(SELECT id FROM snapshots ORDER BY generated_at DESC LIMIT 30)'
+    expired_cache = (
+        'SELECT uid FROM player_cache '
+        f'WHERE expires_at < {sql_literal(iso_format(imported_at))} '
+        'AND uid NOT IN (SELECT uid FROM snapshot_players)'
+    )
     lines.extend(
         [
-            (
-                'DELETE FROM snapshots WHERE id NOT IN '
-                '(SELECT id FROM snapshots ORDER BY generated_at DESC LIMIT 30);'
-            ),
-            (
-                'DELETE FROM player_cache WHERE expires_at < '
-                f'{sql_literal(iso_format(imported_at))} '
-                'AND uid NOT IN (SELECT uid FROM snapshot_players);'
-            ),
+            f'DELETE FROM snapshot_players WHERE snapshot_id NOT IN {retained};',
+            f'DELETE FROM snapshots WHERE id NOT IN {retained};',
+            f'DELETE FROM player_aliases WHERE uid IN ({expired_cache});',
+            f'DELETE FROM player_cache WHERE uid IN ({expired_cache});',
             '',
         ]
     )
