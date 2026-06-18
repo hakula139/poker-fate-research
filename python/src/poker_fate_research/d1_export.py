@@ -3,8 +3,16 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
 
+from poker_fate_research.json_types import (
+    JsonObject,
+    as_int,
+    as_list,
+    as_str,
+    expect_object,
+    json_object_list,
+    parse_json,
+)
 from poker_fate_research.player_normalization import build_snapshot
 from poker_fate_research.time import iso_format
 
@@ -33,36 +41,30 @@ def insert_statement(table: str, values: dict[str, object]) -> str:
     )
 
 
-def player_aliases(player: dict[str, Any]) -> list[str]:
-    names = player.get('names')
-    if not isinstance(names, list):
-        names = []
-    aliases = {
-        name for name in [player.get('name'), *names] if isinstance(name, str) and name
-    }
+def player_aliases(player: JsonObject) -> list[str]:
+    candidates = [player.get('name'), *as_list(player.get('names'))]
+    aliases = {name for name in candidates if isinstance(name, str) and name}
     return sorted(aliases)
 
 
-def load_snapshot(snapshot_path: Path) -> dict[str, Any]:
+def load_snapshot(snapshot_path: Path) -> JsonObject:
     if snapshot_path.suffix == '.json':
-        snapshot = json.loads(snapshot_path.read_text(encoding='utf-8'))
-        if not isinstance(snapshot, dict):
-            raise ValueError('Snapshot JSON must be an object')
-        return snapshot
+        parsed = parse_json(snapshot_path.read_text(encoding='utf-8'))
+        return expect_object(parsed, 'Snapshot JSON must be an object')
     return build_snapshot(snapshot_path)
 
 
 def cache_player_statements(
-    player: dict[str, Any],
+    player: JsonObject,
     imported_at: datetime,
     source: str,
 ) -> list[str]:
-    uid = player.get('uid')
-    if not isinstance(uid, int):
-        raise ValueError('Cached player entries must have integer uid')
+    uid = as_int(player.get('uid'))
+    if uid <= 0:
+        raise ValueError('Cached player entries must have a positive integer uid')
 
     expires_at = iso_format(imported_at + timedelta(days=30))
-    fetched_at = str(player.get('fetchedAt') or iso_format(imported_at))
+    fetched_at = as_str(player.get('fetchedAt')) or iso_format(imported_at)
     statements = [
         insert_statement(
             'player_cache',
@@ -92,26 +94,21 @@ def cache_player_statements(
 
 def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
     snapshot = load_snapshot(snapshot_path)
-    snapshot_id = str(snapshot['id'])
-    generated_at = str(snapshot['generatedAt'])
-    players = snapshot['players']
-    if not isinstance(players, list):
-        raise ValueError('Snapshot players must be a list')
+    snapshot_id = as_str(snapshot.get('id'))
+    players = json_object_list(snapshot.get('players'))
 
     lines = [
         insert_statement(
             'snapshots',
             {
                 'id': snapshot_id,
-                'label': snapshot['label'],
-                'source': snapshot['source'],
-                'generated_at': generated_at,
+                'label': as_str(snapshot.get('label')),
+                'source': as_str(snapshot.get('source')),
+                'generated_at': as_str(snapshot.get('generatedAt')),
                 'fetched_at': iso_format(imported_at),
                 'player_count': len(players),
                 'leaderboard_row_count': sum(
-                    len(player.get('leaderboardEntries', []))
-                    for player in players
-                    if isinstance(player, dict)
+                    len(as_list(player.get('leaderboardEntries'))) for player in players
                 ),
             },
         ),
@@ -119,15 +116,16 @@ def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
     ]
 
     for player in players:
-        if not isinstance(player, dict):
-            raise ValueError('Snapshot player entries must be objects')
-        uid = player.get('uid')
-        if not isinstance(uid, int):
-            raise ValueError('Snapshot player entries must have integer uid')
+        uid = as_int(player.get('uid'))
+        if uid <= 0:
+            raise ValueError('Snapshot player entries must have a positive integer uid')
 
-        leaderboard_entries = player.get('leaderboardEntries', [])
-        fetched_at = str(player.get('fetchedAt') or iso_format(imported_at))
-        player_payload = {**player, 'leaderboardEntries': leaderboard_entries}
+        leaderboard_entries = as_list(player.get('leaderboardEntries'))
+        fetched_at = as_str(player.get('fetchedAt')) or iso_format(imported_at)
+        player_payload: JsonObject = {
+            **player,
+            'leaderboardEntries': leaderboard_entries,
+        }
         lines.extend(
             [
                 insert_statement(

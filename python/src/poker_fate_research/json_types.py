@@ -1,10 +1,23 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
 from typing import cast
 
 
 type JsonObject = dict[str, object]
+
+
+def parse_json(text: str) -> object:
+    """Parse JSON text into an untyped value for explicit narrowing."""
+    return cast(object, json.loads(text))
+
+
+def expect_object(value: object, message: str) -> JsonObject:
+    """Narrow a JSON value to an object, raising ``ValueError`` otherwise."""
+    if isinstance(value, dict):
+        return cast(JsonObject, value)
+    raise ValueError(message)
 
 
 def json_int(data: JsonObject, key: str) -> int:

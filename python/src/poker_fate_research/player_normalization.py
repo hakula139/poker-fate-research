@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
-from typing import Any
 
-from poker_fate_research.json_types import as_int, as_list, as_object, as_str
+from poker_fate_research.json_types import (
+    JsonObject,
+    as_int,
+    as_list,
+    as_object,
+    as_str,
+    parse_json,
+)
 from poker_fate_research.time import iso_now
 
 
@@ -27,7 +32,7 @@ def display_stamp(stamp: str) -> str:
     return stamp
 
 
-def normalized_game(game_type: str, value: object) -> dict[str, Any]:
+def normalized_game(game_type: str, value: object) -> JsonObject:
     item = as_object(value)
     data = as_object(as_object(item.get('response')).get('data'))
     return {
@@ -53,7 +58,7 @@ def normalized_game(game_type: str, value: object) -> dict[str, Any]:
     }
 
 
-def normalized_entry(value: object) -> dict[str, Any]:
+def normalized_entry(value: object) -> JsonObject:
     entry = as_object(value)
     return {
         'leaderboardId': as_int(entry.get('leaderboard_id')),
@@ -65,8 +70,8 @@ def normalized_entry(value: object) -> dict[str, Any]:
     }
 
 
-def normalized_player(line: str) -> dict[str, Any]:
-    record = as_object(json.loads(line))
+def normalized_player(line: str) -> JsonObject:
+    record = as_object(parse_json(line))
     names = [str(name) for name in as_list(record.get('names')) if name]
     games = {
         game_type: normalized_game(game_type, value)
@@ -86,15 +91,15 @@ def normalized_player(line: str) -> dict[str, Any]:
     }
 
 
-def build_snapshot(path: Path) -> dict[str, Any]:
-    players: list[dict[str, Any]] = []
+def build_snapshot(path: Path) -> JsonObject:
+    players: list[JsonObject] = []
     with path.open(encoding='utf-8') as handle:
         for line in handle:
             if line.strip():
                 players.append(normalized_player(line))
 
     stamp = snapshot_id(path)
-    players.sort(key=lambda player: player['uid'])
+    players.sort(key=lambda player: as_int(player['uid']))
     return {
         'id': stamp,
         'label': display_stamp(stamp),
