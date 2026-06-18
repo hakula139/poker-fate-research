@@ -115,9 +115,6 @@ function createDb(fixture: DbFixture): WorkerEnv['DB'] {
               snapshots.find((snapshot) => snapshot.id === snapshotId) ?? null,
             );
           }
-          if (query.includes('SELECT id FROM snapshots LIMIT 1')) {
-            return Promise.resolve(snapshots[0] ?? null);
-          }
           throw new Error(`Unexpected D1 first query: ${query}`);
         },
         run() {

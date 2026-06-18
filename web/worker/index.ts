@@ -294,11 +294,7 @@ async function readD1Snapshot(env: Env, snapshotId: string): Promise<SnapshotRes
     .first<SnapshotRow>();
 
   if (!snapshot) {
-    const existingSnapshot = await env.DB.prepare('SELECT id FROM snapshots LIMIT 1').first();
-    if (!existingSnapshot) {
-      return null;
-    }
-    throw new ApiError(404, 'Snapshot not found');
+    return null;
   }
 
   const { results = [] } = await env.DB.prepare(
