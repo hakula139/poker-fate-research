@@ -5,6 +5,7 @@ cachix
 cbet
 direnv
 envrc
+esbuild
 findutils
 Hakula
 HOLDEM
@@ -35,4 +36,5 @@ venv
 vite
 VPIP
 WTSD
+workerd
 XXTEA
