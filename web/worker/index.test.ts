@@ -5,8 +5,16 @@ import worker from './index';
 type AssetMap = Record<string, unknown>;
 type WorkerEnv = Parameters<typeof worker.fetch>[1];
 type DbFixture = {
+  cachedPlayers?: CachedPlayerFixture[];
   players?: Record<string, SnapshotPlayerFixture[]>;
   snapshots?: SnapshotFixture[];
+};
+type CachedPlayerFixture = {
+  alias: string;
+  expires_at: string;
+  fetched_at: string;
+  player_json: string;
+  uid: number;
 };
 type SnapshotFixture = {
   generated_at: string;
@@ -41,6 +49,7 @@ function createEnv(assets: AssetMap, db?: WorkerEnv['DB']): WorkerEnv {
 }
 
 function createDb(fixture: DbFixture): WorkerEnv['DB'] {
+  const cachedPlayers = fixture.cachedPlayers ?? [];
   const snapshots = fixture.snapshots ?? [];
   const players = fixture.players ?? {};
 
@@ -60,6 +69,39 @@ function createDb(fixture: DbFixture): WorkerEnv['DB'] {
             const snapshotId = String(values[0]);
             return Promise.resolve({ results: players[snapshotId] ?? [] });
           }
+          if (query.includes('FROM player_cache') && query.includes('expires_at >=')) {
+            const now = String(values[0]);
+            return Promise.resolve({
+              results: cachedPlayers
+                .filter((player) => player.expires_at >= now)
+                .sort((left, right) => right.fetched_at.localeCompare(left.fetched_at))
+                .map((player) => ({
+                  alias: null,
+                  expires_at: player.expires_at,
+                  player_json: player.player_json,
+                  uid: player.uid,
+                })),
+            });
+          }
+          if (query.includes('FROM player_cache')) {
+            const exactQuery = String(values[0]);
+            const likeQuery = String(values[1]).replaceAll('%', '').toLowerCase();
+            return Promise.resolve({
+              results: cachedPlayers
+                .filter(
+                  (player) =>
+                    String(player.uid) === exactQuery ||
+                    player.alias.toLowerCase().includes(likeQuery),
+                )
+                .sort((left, right) => right.fetched_at.localeCompare(left.fetched_at))
+                .map((player) => ({
+                  alias: player.alias,
+                  expires_at: player.expires_at,
+                  player_json: player.player_json,
+                  uid: player.uid,
+                })),
+            });
+          }
           throw new Error(`Unexpected D1 all query: ${query}`);
         },
         bind(...nextValues: unknown[]) {
@@ -77,6 +119,9 @@ function createDb(fixture: DbFixture): WorkerEnv['DB'] {
             return Promise.resolve(snapshots[0] ?? null);
           }
           throw new Error(`Unexpected D1 first query: ${query}`);
+        },
+        run() {
+          return Promise.resolve({});
         },
       };
     },
@@ -214,6 +259,50 @@ describe('worker API', () => {
       },
       status: 200,
     });
+  });
+
+  it('returns cached D1 players by alias search', async () => {
+    const player = { games: {}, name: 'Hakula', uid: 10410931 };
+    const result = await fetchJson(
+      '/api/players/search?q=hakula',
+      {},
+      undefined,
+      createDb({
+        cachedPlayers: [
+          {
+            alias: 'Hakula',
+            expires_at: '2026-06-19T01:00:00Z',
+            fetched_at: '2026-06-18T01:00:00Z',
+            player_json: JSON.stringify(player),
+            uid: 10410931,
+          },
+        ],
+      }),
+    );
+
+    expect(result).toEqual({ body: { players: [player] }, status: 200 });
+  });
+
+  it('returns unexpired cached D1 players for initial hydration', async () => {
+    const player = { games: {}, name: 'Hakula', uid: 10410931 };
+    const result = await fetchJson(
+      '/api/players/cached',
+      {},
+      undefined,
+      createDb({
+        cachedPlayers: [
+          {
+            alias: 'Hakula',
+            expires_at: '9999-06-19T01:00:00Z',
+            fetched_at: '2026-06-18T01:00:00Z',
+            player_json: JSON.stringify(player),
+            uid: 10410931,
+          },
+        ],
+      }),
+    );
+
+    expect(result).toEqual({ body: { players: [player] }, status: 200 });
   });
 
   it('rejects unknown snapshot ids', async () => {

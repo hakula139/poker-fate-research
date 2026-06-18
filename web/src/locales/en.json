@@ -38,7 +38,7 @@
     "20010103": "Friend-room Hold'em"
   },
   "summary": {
-    "players": "Snapshot players",
+    "players": "Loaded players",
     "sampleSnapshot": "Sample data",
     "visible": "Matching players",
     "snapshot": "Snapshot"

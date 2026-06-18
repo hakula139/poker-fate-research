@@ -10,5 +10,10 @@ binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = ["/api/*"]
 
+[[d1_databases]]
+binding = "DB"
+database_name = "poker-fate-stats"
+database_id = "683c995d-799a-4f33-9200-6003fb4f22f7"
+
 [observability.logs]
 enabled = true
