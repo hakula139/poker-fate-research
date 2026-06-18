@@ -87,6 +87,10 @@ jobs:
 
             <table>
               <tr>
+                <td><strong>Production URL</strong></td>
+                <td><a href="https://poker-fate-stats.hakula.xyz/">https://poker-fate-stats.hakula.xyz/</a></td>
+              </tr>
+              <tr>
                 <td><strong>Worker</strong></td>
                 <td><code>${{ env.WORKER_NAME }}</code></td>
               </tr>
