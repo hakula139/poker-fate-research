@@ -19,6 +19,7 @@ mult
 nixfmt
 nixos
 nixpkgs
+NOCASE
 numtide
 PFR
 pkgs
