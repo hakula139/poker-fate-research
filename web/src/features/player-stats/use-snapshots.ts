@@ -11,7 +11,7 @@ import type { PlayerSnapshot, SnapshotIndex, SnapshotIndexItem } from '@/types';
 export type DataIssue =
   | {
       code: SnapshotLoadErrorCode;
-      kind: 'sampleFallback';
+      kind: 'snapshotLoad';
     }
   | {
       code: SnapshotLoadErrorCode;
@@ -25,11 +25,11 @@ export function useSnapshots() {
   const [dataIssue, setDataIssue] = useState<DataIssue | null>(null);
 
   useEffect(() => {
-    void loadSnapshots().then(({ index, active, source, error }) => {
+    void loadSnapshots().then(({ index, active, error }) => {
       setSnapshotIndex(index);
       setSnapshot(active);
       setSnapshotId(active.id);
-      setDataIssue(source === 'sample' && error ? { kind: 'sampleFallback', code: error } : null);
+      setDataIssue(error ? { kind: 'snapshotLoad', code: error } : null);
     });
   }, []);
 

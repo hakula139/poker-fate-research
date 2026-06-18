@@ -78,7 +78,7 @@ export function PlayerStatsPage() {
                       key={item.id}
                       value={item.id}
                     >
-                      {snapshotDisplayLabel(item, t.summary)} · {format.integer(item.playerCount)}
+                      {snapshotDisplayLabel(item)} · {format.integer(item.playerCount)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -137,13 +137,13 @@ export function PlayerStatsPage() {
           />
           <SummaryCard
             label={t.summary.snapshot}
-            value={snapshotDisplayLabel(snapshot, t.summary)}
+            value={snapshotDisplayLabel(snapshot)}
           />
         </section>
 
         {dataIssue ? (
           <p className="border-warning bg-warning/10 text-warning-foreground mb-4 rounded-md border px-3 py-2 text-sm">
-            {dataIssue.kind === 'sampleFallback' ? t.app.sampleDataIssue : t.app.snapshotDataIssue}{' '}
+            {dataIssue.kind === 'snapshotLoad' ? t.app.dataUnavailable : t.app.snapshotDataIssue}{' '}
             {t.app.dataIssues[dataIssue.code]}
           </p>
         ) : null}

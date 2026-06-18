@@ -1,7 +1,5 @@
-import { sampleSnapshot } from './fixtures/sampleData';
 import type { PlayerSnapshot, SnapshotIndex } from './types';
 
-export type SnapshotLoadSource = 'generated' | 'sample';
 export type SnapshotLoadErrorCode =
   | 'indexUnavailable'
   | 'indexInvalid'
@@ -13,8 +11,15 @@ export type SnapshotLoadErrorCode =
 export type SnapshotLoadResult = {
   index: SnapshotIndex;
   active: PlayerSnapshot;
-  source: SnapshotLoadSource;
   error: SnapshotLoadErrorCode | null;
+};
+
+const emptySnapshot: PlayerSnapshot = {
+  id: '',
+  label: '',
+  source: 'd1',
+  generatedAt: '',
+  players: [],
 };
 
 class SnapshotLoadError extends Error {
@@ -105,25 +110,15 @@ export async function loadSnapshots(): Promise<SnapshotLoadResult> {
     return {
       index,
       active: { ...active, players: mergePlayers(active.players, cachedPlayers) },
-      source: 'generated',
       error: null,
     };
   } catch (error) {
     return {
       index: {
-        generatedAt: sampleSnapshot.generatedAt,
-        snapshots: [
-          {
-            id: sampleSnapshot.id,
-            label: sampleSnapshot.label,
-            playerCount: sampleSnapshot.players.length,
-            source: sampleSnapshot.source,
-            path: '',
-          },
-        ],
+        generatedAt: '',
+        snapshots: [],
       },
-      active: sampleSnapshot,
-      source: 'sample',
+      active: emptySnapshot,
       error: snapshotLoadErrorCode(error),
     };
   }
@@ -131,7 +126,7 @@ export async function loadSnapshots(): Promise<SnapshotLoadResult> {
 
 export async function loadSnapshot(snapshotId: string): Promise<PlayerSnapshot> {
   if (!snapshotId) {
-    return sampleSnapshot;
+    throw new SnapshotLoadError('snapshotUnavailable');
   }
   const response = await fetch(`/api/snapshots/${encodeURIComponent(snapshotId)}`);
   if (!response.ok) {

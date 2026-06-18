@@ -3,10 +3,10 @@
     "eyebrow": "Poker Fate research",
     "title": "Player stats",
     "loading": "Loading player stats",
-    "sampleDataIssue": "Using sample data because generated snapshots could not be loaded.",
+    "dataUnavailable": "Player data could not be loaded.",
     "snapshotDataIssue": "The selected snapshot could not be loaded.",
     "dataIssues": {
-      "indexUnavailable": "Generate website data to view collected players.",
+      "indexUnavailable": "Check the database connection and try again.",
       "indexInvalid": "The snapshot index is not in the expected format.",
       "indexEmpty": "The snapshot index does not list any snapshots.",
       "snapshotUnavailable": "The selected snapshot file could not be loaded.",
@@ -39,7 +39,6 @@
   },
   "summary": {
     "players": "Loaded players",
-    "sampleSnapshot": "Sample data",
     "visible": "Matching players",
     "snapshot": "Snapshot"
   },
