@@ -77,15 +77,15 @@ function assertPlayerRecords(value: unknown): asserts value is PlayerSnapshot['p
   }
 }
 
-function mergePlayers(
-  players: PlayerSnapshot['players'],
-  cachedPlayers: PlayerSnapshot['players'],
-) {
-  const merged = new Map(players.map((player) => [player.uid, player]));
-  for (const player of cachedPlayers) {
-    merged.set(player.uid, merged.get(player.uid) ?? player);
+export function mergePlayersByUid(
+  primary: PlayerSnapshot['players'],
+  extra: PlayerSnapshot['players'],
+): PlayerSnapshot['players'] {
+  const byUid = new Map(primary.map((player) => [player.uid, player]));
+  for (const player of extra) {
+    byUid.set(player.uid, byUid.get(player.uid) ?? player);
   }
-  return [...merged.values()];
+  return [...byUid.values()];
 }
 
 export async function loadSnapshots(): Promise<SnapshotLoadResult> {
@@ -109,7 +109,7 @@ export async function loadSnapshots(): Promise<SnapshotLoadResult> {
     const cachedPlayers = await loadCachedPlayers();
     return {
       index,
-      active: { ...active, players: mergePlayers(active.players, cachedPlayers) },
+      active: { ...active, players: mergePlayersByUid(active.players, cachedPlayers) },
       error: null,
     };
   } catch (error) {
@@ -135,7 +135,7 @@ export async function loadSnapshot(snapshotId: string): Promise<PlayerSnapshot> 
   const snapshot = await response.json();
   assertPlayerSnapshot(snapshot);
   const cachedPlayers = await loadCachedPlayers();
-  return { ...snapshot, players: mergePlayers(snapshot.players, cachedPlayers) };
+  return { ...snapshot, players: mergePlayersByUid(snapshot.players, cachedPlayers) };
 }
 
 async function loadCachedPlayers(): Promise<PlayerSnapshot['players']> {

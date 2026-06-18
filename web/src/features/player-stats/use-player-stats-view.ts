@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { searchPlayers } from '@/data';
+import { mergePlayersByUid, searchPlayers } from '@/data';
 import type { GameTypeId, PlayerRecord } from '@/types';
 
 import { filterAndSortPlayers, type SortKey, type SortState } from './model';
@@ -12,13 +12,10 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
 
-  const loadedPlayers = useMemo(() => {
-    const playerByUid = new Map(players.map((player) => [player.uid, player]));
-    for (const player of searchedPlayers) {
-      playerByUid.set(player.uid, playerByUid.get(player.uid) ?? player);
-    }
-    return [...playerByUid.values()];
-  }, [players, searchedPlayers]);
+  const loadedPlayers = useMemo(
+    () => mergePlayersByUid(players, searchedPlayers),
+    [players, searchedPlayers],
+  );
 
   const filteredPlayers = useMemo(() => {
     return filterAndSortPlayers({
