@@ -189,7 +189,7 @@ async function loginGuest(env: Env): Promise<string> {
   return authorization;
 }
 
-function normalizeGame(gameType: string, label: string, value: unknown) {
+export function normalizeGame(gameType: string, label: string, value: unknown) {
   const item = officialRecord(value);
   return {
     afq: officialInt(item.active_rate),
