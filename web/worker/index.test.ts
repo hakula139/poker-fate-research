@@ -252,7 +252,7 @@ describe('worker API', () => {
         cachedPlayers: [
           {
             alias: 'Hakula',
-            expires_at: '2026-06-19T01:00:00Z',
+            expires_at: '9999-06-19T01:00:00Z',
             fetched_at: '2026-06-18T01:00:00Z',
             player_json: JSON.stringify(player),
             uid: 10410931,
