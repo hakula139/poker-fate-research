@@ -51,9 +51,7 @@ test('loads generated player stats and filters players', async ({ page }) => {
   await expect(page.getByText('#1')).toBeVisible();
   await expect(page.getByText('Current week').first()).toBeVisible();
 
-  const omaha = page.getByRole('radio', { name: 'Omaha' });
-  await omaha.click();
-  await expect(omaha).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('radio', { name: 'Omaha' })).toHaveCount(0);
 
   await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveClass(/dark/);

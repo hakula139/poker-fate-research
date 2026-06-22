@@ -2,9 +2,8 @@ import type { GameStats, GameTypeId, PlayerRecord } from '@/types';
 
 import { tagSortValue } from './tagging';
 
-export const gameTypeIds: GameTypeId[] = ['10010101', '10020101', '10050301'];
-
-export type ScoreLabelKey = 'thronePoints' | 'championPoints';
+export const HOLDEM_GAME_TYPE: GameTypeId = '10010101';
+export const HOLDEM_GAME_TYPE_NUMERIC = Number(HOLDEM_GAME_TYPE);
 
 export type SortKey =
   | 'name'
@@ -23,16 +22,12 @@ export type SortState = {
   direction: 'asc' | 'desc';
 };
 
-export function getGameStats(player: PlayerRecord, gameType: GameTypeId): GameStats | undefined {
-  return player.games[gameType];
+export function getGameStats(player: PlayerRecord): GameStats | undefined {
+  return player.games[HOLDEM_GAME_TYPE];
 }
 
-export function scoreLabelKey(gameType: GameTypeId): ScoreLabelKey {
-  return gameType === '10050301' ? 'championPoints' : 'thronePoints';
-}
-
-function sortValue(player: PlayerRecord, gameType: GameTypeId, key: SortKey): string | number {
-  const stats = getGameStats(player, gameType);
+function sortValue(player: PlayerRecord, key: SortKey): string | number {
+  const stats = getGameStats(player);
   if (key === 'name') {
     return player.name.toLowerCase();
   }
@@ -62,21 +57,15 @@ export function playerMatchesQuery(player: PlayerRecord, query: string): boolean
 }
 
 export function filterAndSortPlayers({
-  gameType,
   players,
   query,
   sort,
 }: {
-  gameType: GameTypeId;
   players: PlayerRecord[];
   query: string;
   sort: SortState;
 }): PlayerRecord[] {
   return [...players.filter((player) => playerMatchesQuery(player, query))].sort((left, right) =>
-    compareSortValues(
-      sortValue(left, gameType, sort.key),
-      sortValue(right, gameType, sort.key),
-      sort.direction,
-    ),
+    compareSortValues(sortValue(left, sort.key), sortValue(right, sort.key), sort.direction),
   );
 }

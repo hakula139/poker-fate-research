@@ -14,7 +14,7 @@ import {
 import { getGameStats, type SortKey, type SortState } from '@/features/player-stats/model';
 import { useI18n } from '@/i18n';
 import { cn } from '@/lib/utils';
-import type { GameTypeId, PlayerRecord } from '@/types';
+import type { PlayerRecord } from '@/types';
 
 import { StatLabel } from './stat-label';
 import { statsPanelClass } from './styles';
@@ -77,14 +77,12 @@ function ariaSort(sort: SortState, key: SortKey): AriaAttributes['aria-sort'] {
 
 export function PlayerTable({
   players,
-  gameType,
   selectedUid,
   sort,
   onSort,
   onSelect,
 }: {
   players: PlayerRecord[];
-  gameType: GameTypeId;
   selectedUid: number | null;
   sort: SortState;
   onSort: (key: SortKey) => void;
@@ -198,7 +196,7 @@ export function PlayerTable({
         <TableBody>
           {players.length ? (
             players.map((player) => {
-              const stats = getGameStats(player, gameType);
+              const stats = getGameStats(player);
               const selected = selectedUid === player.uid;
               const fullProfit = format.profit(stats?.profit);
               return (

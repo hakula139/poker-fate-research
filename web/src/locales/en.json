@@ -19,8 +19,7 @@
     "theme": "Theme",
     "snapshot": "Snapshot",
     "search": "Search",
-    "searchPlaceholder": "Name or UID",
-    "gameType": "Game type"
+    "searchPlaceholder": "Name or UID"
   },
   "languages": {
     "en": "English",
@@ -30,12 +29,6 @@
     "system": "System",
     "light": "Light",
     "dark": "Dark"
-  },
-  "gameTypes": {
-    "10010101": "Hold'em",
-    "10020101": "Omaha",
-    "10050301": "SNG",
-    "20010103": "Friend-room Hold'em"
   },
   "summary": {
     "players": "Loaded players",
@@ -53,7 +46,7 @@
     "afq": "AFq",
     "cbet": "C-Bet",
     "tag": "Tag",
-    "noPlayers": "No players match this search and game type"
+    "noPlayers": "No players match this search"
   },
   "statDescriptions": {
     "vpip": "Voluntarily put money in pot",
@@ -66,11 +59,9 @@
   "details": {
     "player": "Player",
     "thronePoints": "Throne Points",
-    "championPoints": "Champion points",
-    "sngRecords": "SNG records",
     "leaderboardRanks": "Leaderboard ranks",
     "noLeaderboardRows": "No leaderboard rows",
-    "noMatchingPlayer": "No players match this search and game type",
+    "noMatchingPlayer": "No players match this search",
     "value": "Value"
   },
   "periods": {

@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { mergePlayersByUid, searchPlayers } from '@/data';
-import type { GameTypeId, PlayerRecord } from '@/types';
+import type { PlayerRecord } from '@/types';
 
 import { filterAndSortPlayers, type SortKey, type SortState } from './model';
 
 export function usePlayerStatsView(players: PlayerRecord[]) {
   const [query, setQuery] = useState('');
-  const [gameType, setGameType] = useState<GameTypeId>('10010101');
   const [searchedPlayers, setSearchedPlayers] = useState<PlayerRecord[]>([]);
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
@@ -19,12 +18,11 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
 
   const filteredPlayers = useMemo(() => {
     return filterAndSortPlayers({
-      gameType,
       players: loadedPlayers,
       query,
       sort,
     });
-  }, [gameType, loadedPlayers, query, sort]);
+  }, [loadedPlayers, query, sort]);
 
   useEffect(() => {
     const trimmedQuery = query.trim();
@@ -76,12 +74,10 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
 
   return {
     filteredPlayers,
-    gameType,
     loadedPlayers,
     query,
     selectedPlayer,
     selectedUid,
-    setGameType,
     setQuery,
     setSelectedUid,
     sort,
