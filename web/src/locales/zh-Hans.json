@@ -4,20 +4,15 @@
     "title": "玩家数据",
     "loading": "正在加载玩家数据",
     "dataUnavailable": "无法加载玩家数据。",
-    "snapshotDataIssue": "无法加载所选快照。",
     "dataIssues": {
-      "indexUnavailable": "请检查数据库连接后重试。",
-      "indexInvalid": "快照索引格式不符合预期。",
-      "indexEmpty": "快照索引中没有任何快照。",
-      "snapshotUnavailable": "无法加载所选快照文件。",
-      "snapshotInvalid": "所选快照格式不符合预期。",
+      "unavailable": "请检查数据库连接后重试。",
+      "invalid": "玩家数据格式不符合预期。",
       "unknown": "请检查生成的数据文件后重试。"
     }
   },
   "controls": {
     "language": "语言",
     "theme": "主题",
-    "snapshot": "快照",
     "search": "搜索",
     "searchPlaceholder": "名称或 UID"
   },
@@ -33,7 +28,7 @@
   "summary": {
     "players": "已载入玩家",
     "visible": "匹配玩家",
-    "snapshot": "快照"
+    "updated": "更新于"
   },
   "table": {
     "player": "玩家",
@@ -46,6 +41,7 @@
     "afq": "AFq",
     "cbet": "C-Bet",
     "tag": "标签",
+    "updated": "更新于",
     "noPlayers": "没有匹配当前搜索的玩家"
   },
   "statDescriptions": {
@@ -62,6 +58,7 @@
     "leaderboardRanks": "排行榜排名",
     "noLeaderboardRows": "没有排行榜记录",
     "noMatchingPlayer": "没有匹配当前搜索的玩家",
+    "updated": "更新于",
     "value": "数值"
   },
   "periods": {

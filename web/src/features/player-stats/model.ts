@@ -15,7 +15,8 @@ export type SortKey =
   | 'wtsd'
   | 'afq'
   | 'cbet'
-  | 'tag';
+  | 'tag'
+  | 'updated';
 
 export type SortState = {
   key: SortKey;
@@ -30,6 +31,9 @@ function sortValue(player: PlayerRecord, key: SortKey): string | number {
   const stats = getGameStats(player);
   if (key === 'name') {
     return player.name.toLowerCase();
+  }
+  if (key === 'updated') {
+    return player.fetchedAt;
   }
   if (key === 'tag') {
     return tagSortValue(stats);

@@ -8,26 +8,18 @@ import { labelClass } from '@/components/player-stats/styles';
 import { SummaryCard } from '@/components/player-stats/summary-card';
 import { ThemeControl } from '@/components/theme-control';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { usePlayerStatsView } from '@/features/player-stats/use-player-stats-view';
-import { useSnapshots } from '@/features/player-stats/use-snapshots';
+import { usePlayers } from '@/features/player-stats/use-players';
 import { useThemeMode } from '@/features/theme/use-theme-mode';
 import { useI18n } from '@/i18n';
 
 export function PlayerStatsPage() {
   const { format, t } = useI18n();
   const { setThemeMode, themeMode } = useThemeMode();
-  const { changeSnapshot, dataIssue, loading, snapshot, snapshotId, snapshotIndex } =
-    useSnapshots();
-  const view = usePlayerStatsView(snapshot?.players ?? []);
+  const { dataIssue, loading, players, updatedAt } = usePlayers();
+  const view = usePlayerStatsView(players);
 
-  if (loading || !snapshot || !snapshotIndex) {
+  if (loading) {
     return (
       <main className="bg-background text-muted-foreground grid min-h-screen place-items-center">
         {t.app.loading}
@@ -45,42 +37,12 @@ export function PlayerStatsPage() {
               {t.app.title}
             </h1>
           </div>
-          <div className="grid gap-3 sm:grid-cols-[auto_auto_260px] sm:items-end">
+          <div className="grid gap-3 sm:grid-cols-[auto_auto] sm:items-end">
             <LanguageControl />
             <ThemeControl
               themeMode={themeMode}
               onThemeModeChange={setThemeMode}
             />
-            <div className="grid gap-1.5">
-              <FieldLabel htmlFor="snapshot">{t.controls.snapshot}</FieldLabel>
-              <Select
-                value={snapshotId}
-                onValueChange={(value) => {
-                  const item = snapshotIndex.snapshots.find((candidate) => candidate.id === value);
-                  if (item) {
-                    void changeSnapshot(item);
-                    view.setSelectedUid(null);
-                  }
-                }}
-              >
-                <SelectTrigger
-                  id="snapshot"
-                  className="w-full"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {snapshotIndex.snapshots.map((item) => (
-                    <SelectItem
-                      key={item.id}
-                      value={item.id}
-                    >
-                      {item.label} · {format.integer(item.playerCount)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </section>
 
@@ -113,15 +75,14 @@ export function PlayerStatsPage() {
             value={format.integer(view.filteredPlayers.length)}
           />
           <SummaryCard
-            label={t.summary.snapshot}
-            value={snapshot.label}
+            label={t.summary.updated}
+            value={updatedAt ? format.relativeTime(updatedAt) : '-'}
           />
         </section>
 
         {dataIssue ? (
           <p className="border-warning bg-warning/10 text-warning-foreground mb-4 rounded-md border px-3 py-2 text-sm">
-            {dataIssue.kind === 'snapshotLoad' ? t.app.dataUnavailable : t.app.snapshotDataIssue}{' '}
-            {t.app.dataIssues[dataIssue.code]}
+            {t.app.dataUnavailable} {t.app.dataIssues[dataIssue.code]}
           </p>
         ) : null}
 

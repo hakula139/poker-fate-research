@@ -60,6 +60,12 @@ export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) 
         <span className={labelClass}>{t.details.player}</span>
         <CardTitle className="text-2xl wrap-anywhere">{player.name}</CardTitle>
         <p className="text-muted-foreground text-xs">{player.uid}</p>
+        <p
+          className="text-muted-foreground text-xs"
+          title={format.dateTime(player.fetchedAt)}
+        >
+          {t.details.updated}: {format.relativeTime(player.fetchedAt)}
+        </p>
         <TagGroup stats={stats} />
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">

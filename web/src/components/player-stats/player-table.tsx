@@ -20,7 +20,7 @@ import { StatLabel } from './stat-label';
 import { statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
 
-const tableColumnCount = 10;
+const tableColumnCount = 11;
 const playerColumnClass = 'w-[150px] max-w-[150px] min-w-[150px]';
 const columnWidths = [
   '150px',
@@ -33,6 +33,7 @@ const columnWidths = [
   '62px',
   '68px',
   '166px',
+  '104px',
 ];
 
 function SortButton({
@@ -154,12 +155,13 @@ export function PlayerTable({
       ariaLabel: `${t.table.cbet}, ${t.statDescriptions.cbet}`,
     },
     { key: 'tag', label: t.table.tag, ariaLabel: t.table.tag },
+    { key: 'updated', label: t.table.updated, ariaLabel: t.table.updated },
   ];
 
   return (
     <Card className={`overflow-hidden ${statsPanelClass}`}>
       <Table
-        className="w-full min-w-[860px] table-fixed text-sm [&_td]:px-2 [&_th]:px-2"
+        className="w-full min-w-[960px] table-fixed text-sm [&_td]:px-2 [&_th]:px-2"
         containerClassName="max-h-[560px] lg:h-full lg:max-h-none"
       >
         <colgroup>
@@ -249,6 +251,12 @@ export function PlayerTable({
                   <TableCell>{format.rate(stats?.cbet)}</TableCell>
                   <TableCell className="whitespace-normal">
                     <TagGroup stats={stats} />
+                  </TableCell>
+                  <TableCell
+                    className="text-muted-foreground text-xs"
+                    title={format.dateTime(player.fetchedAt)}
+                  >
+                    {format.relativeTime(player.fetchedAt)}
                   </TableCell>
                 </TableRow>
               );
