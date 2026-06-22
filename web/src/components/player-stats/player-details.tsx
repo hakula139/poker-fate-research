@@ -69,7 +69,7 @@ export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) 
         <TagGroup stats={stats} />
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
           <MetricTile
             label={t.table.hands}
             value={format.integer(stats?.hands)}
@@ -84,7 +84,7 @@ export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) 
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
           {statMetrics.map((metric) => (
             <MetricTile
               key={metric.id}
