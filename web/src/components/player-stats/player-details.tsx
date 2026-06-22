@@ -70,7 +70,7 @@ export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) 
           />
           <MetricTile
             label={t.table.profit}
-            value={format.profit(stats?.profit)}
+            value={format.compactProfit(stats?.profit)}
           />
           <MetricTile
             label={t.details.thronePoints}
