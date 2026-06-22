@@ -34,6 +34,8 @@ pypi
 pytest
 rdkey
 statix
+upsert
+upserts
 venv
 vite
 VPIP

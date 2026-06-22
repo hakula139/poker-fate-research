@@ -4,7 +4,7 @@ React website for browsing D1-backed Poker Fate player snapshots.
 
 ## Data
 
-The app reads snapshots and searched-player cache entries through Worker API routes backed by Cloudflare D1. Daily collection and D1 import are handled by GitHub Actions. Local test fixtures live under `web/tests/fixtures/`.
+The app reads a single unified player table through Worker API routes backed by Cloudflare D1. GitHub Actions refreshes that table daily from the official leaderboards, and a direct search adds or refreshes an individual player when its data is more than one day old. Local test fixtures live under `web/tests/fixtures/`.
 
 ## Development
 
@@ -40,7 +40,7 @@ GitHub Actions deploys from `main`, uploads pull request previews, and runs dail
 - `CLOUDFLARE_ACCOUNT_ID`
 - `POKER_FATE_RESEARCH_DEVICE_TOKEN`
 
-Production and pull request deploys build the Worker artifact. The scheduled data workflow owns snapshot collection and D1 import.
+Production and pull request deploys build the Worker artifact. The scheduled data workflow owns daily player collection and D1 import.
 
 ## Player Tags
 

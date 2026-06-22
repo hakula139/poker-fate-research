@@ -2,15 +2,15 @@
 
 Research workspace, collector, D1 import pipeline, and player stats website for Poker Fate profile data.
 
-The repo keeps the confirmed API findings, the snapshot collector, D1 schema and import tooling, and the frontend source. Large binaries, decoded client output, raw API responses, local snapshots, and credentials stay out of git.
+The repo keeps the confirmed API findings, the player collector, D1 schema and import tooling, and the frontend source. Large binaries, decoded client output, raw API responses, local datasets, and credentials stay out of git.
 
 ## Current Result
 
-The main output is a D1-backed website for browsing collected leaderboard player snapshots. It supports snapshot selection, player search, sortable stats, player details, dark mode, and English / Simplified Chinese UI.
+The main output is a D1-backed website for browsing collected Poker Fate player stats. It supports player search, sortable stats, player details, per-player update times, dark mode, and English / Simplified Chinese UI.
 
 The website surface is Texas Hold'em only. Player classification is split into preflop and postflop tags tuned for 6-max Hold'em. The collector still fetches Omaha and SNG profile data from the official API, but those modes are not exposed in the UI; see [`docs/research/player-tagging.md`](docs/research/player-tagging.md) for the reason.
 
-Daily snapshots are collected by GitHub Actions and imported into Cloudflare D1. Direct player searches can cache players outside the leaderboard into the same database.
+A single unified player table is refreshed daily by GitHub Actions from the official leaderboards. A direct player search adds or refreshes that player in the same table when its data is more than one day old, so every player carries a one-day freshness cache. Players with no Texas Hold'em hands are removed and hidden from search.
 
 ## Project Layout
 

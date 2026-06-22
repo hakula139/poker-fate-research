@@ -99,11 +99,11 @@ uv --project python run poker-fate players
 
 Output files:
 
-| File pattern                                      | Contents                                                                                   |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `poker-fate-leaderboards-*.jsonl`                 | One `leaderboard_page` record per fetched `/activity/rankingList` page.                    |
-| `poker-fate-players-*.jsonl`                      | One `player_snapshot` record per discovered UID, enriched with profile stats and SNG data. |
-| `poker-fate-snapshot-*.metadata.json`             | Snapshot paths, leaderboard summaries, fetched row counts, and guest UID.                  |
+| File pattern                          | Contents                                                                                   |
+| ------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `poker-fate-leaderboards-*.jsonl`     | One `leaderboard_page` record per fetched `/activity/rankingList` page.                    |
+| `poker-fate-players-*.jsonl`          | One `player_snapshot` record per discovered UID, enriched with profile stats and SNG data. |
+| `poker-fate-snapshot-*.metadata.json` | Snapshot paths, leaderboard summaries, fetched row counts, and guest UID.                  |
 
 For a low-volume protocol check, use `--max-players 2`. That still fetches leaderboard pages but only enriches the first two discovered UIDs.
 
@@ -111,13 +111,15 @@ Reusable API client, model, and collection helpers live under `python/src/poker_
 
 ## D1 Import
 
-The website reads snapshots from Cloudflare D1 through Worker API routes. Convert a collected player JSONL snapshot into D1 SQL with:
+The website reads a single unified `players` table from Cloudflare D1 through Worker API routes. Convert a collected player JSONL file into D1 import SQL with:
 
 ```bash
 uv --project python run poker-fate d1-import-sql data/player-snapshots/poker-fate-players-20260618T010203Z.jsonl --output work/d1-import.sql
 ```
 
-GitHub Actions runs the daily collector and imports the generated SQL into the `poker-fate-stats` D1 database. Deploy workflows build and publish the Worker.
+The import upserts each player into the `players` table and records the fetch time used for the one-day search cache. Players with no Texas Hold'em (`10010101`) hands are skipped on insert and removed from the table, so the website surface never lists empty profiles.
+
+GitHub Actions runs the daily collector and imports the generated SQL into the `poker-fate-stats` D1 database. A direct player search refreshes an individual player when their stored data is more than one day old. Deploy workflows build and publish the Worker.
 
 ## Stats Enrichment
 
