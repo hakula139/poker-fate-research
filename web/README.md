@@ -42,6 +42,17 @@ GitHub Actions deploys from `main`, uploads pull request previews, and runs dail
 
 Production and pull request deploys build the Worker artifact. The scheduled data workflow owns daily player collection and D1 import.
 
+## Preview environment
+
+Pull request previews run as a separate `preview` Wrangler environment (`poker-fate-stats-preview`) bound to its own D1 database, so previews never read or write production data. The preview workflow applies the same migrations to the preview database and uploads a per-PR versioned preview URL. The preview Worker has its own `POKER_FATE_RESEARCH_DEVICE_TOKEN` secret so live search works there too.
+
+The preview database is seeded from `seeds/preview-players.json`. Re-apply the seed after a destructive schema change with:
+
+```bash
+uv --project python run poker-fate d1-import-sql web/seeds/preview-players.json --output work/preview-seed.sql
+pnpm --dir web exec wrangler d1 execute poker-fate-stats-preview --env preview --remote --file=../work/preview-seed.sql
+```
+
 ## Player Tags
 
 Player tags are split into preflop and postflop labels. The website surface is Texas Hold'em only; Omaha and SNG profile data is still collected through the API but not rendered. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model and the reasons Omaha and SNG are not surfaced today.
