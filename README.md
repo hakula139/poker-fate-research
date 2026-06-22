@@ -6,21 +6,21 @@ The repo keeps the confirmed API findings, the snapshot collector, D1 schema and
 
 ## Current Result
 
-The main output is a D1-backed website for browsing collected leaderboard player snapshots. It supports snapshot selection, game-mode filtering, player search, sortable stats, player details, dark mode, and English / Simplified Chinese UI.
+The main output is a D1-backed website for browsing collected leaderboard player snapshots. It supports snapshot selection, player search, sortable stats, player details, dark mode, and English / Simplified Chinese UI.
 
-Player classification is split into preflop and postflop tags. The current thresholds are tuned for 6-max Hold'em, which is the main mode this project uses.
+The website surface is Texas Hold'em only. Player classification is split into preflop and postflop tags tuned for 6-max Hold'em. The collector still fetches Omaha and SNG profile data from the official API, but those modes are not exposed in the UI; see [`docs/research/player-tagging.md`](docs/research/player-tagging.md) for the reason.
 
 Daily snapshots are collected by GitHub Actions and imported into Cloudflare D1. Direct player searches can cache players outside the leaderboard into the same database.
 
 ## Project Layout
 
-| Path                         | Purpose                                                       |
-| ---------------------------- | ------------------------------------------------------------- |
-| [`python/`](python/)         | Python package for the collector and D1 import CLI            |
-| [`web/`](web/)               | React player stats website                                    |
-| [`docs/`](docs/)             | Research notes, API findings, APK provenance, and tag model   |
-| [`artifacts/`](artifacts/)   | Ignored local APK / binary downloads with tracked metadata    |
-| `data/`, `work/`             | Ignored local snapshots, API responses, and scratch output    |
+| Path                       | Purpose                                                     |
+| -------------------------- | ----------------------------------------------------------- |
+| [`python/`](python/)       | Python package for the collector and D1 import CLI          |
+| [`web/`](web/)             | React player stats website                                  |
+| [`docs/`](docs/)           | Research notes, API findings, APK provenance, and tag model |
+| [`artifacts/`](artifacts/) | Ignored local APK / binary downloads with tracked metadata  |
+| `data/`, `work/`           | Ignored local snapshots, API responses, and scratch output  |
 
 ## Documentation
 

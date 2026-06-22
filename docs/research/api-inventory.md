@@ -108,6 +108,8 @@ Profile game types:
 | SNG Hold'em         | `SNG_HOLDEM_GAME`    | `10050301` |
 | Friend-room Hold'em | `FRIEND_HOLDEM_GAME` | `20010103` |
 
+All four game types are observed official API surfaces. The collector currently fetches profile stats for each of them and stores them in D1, but the public website surfaces Texas Hold'em (`10010101`) only. See [Player Tagging](player-tagging.md) for why Omaha and SNG are not surfaced today.
+
 Response fields used by the profile UI:
 
 | Field                      | Meaning                                                            |

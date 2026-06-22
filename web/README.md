@@ -44,4 +44,4 @@ Production and pull request deploys build the Worker artifact. The scheduled dat
 
 ## Player Tags
 
-Player tags are split into preflop and postflop labels. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model.
+Player tags are split into preflop and postflop labels. The website surface is Texas Hold'em only; Omaha and SNG profile data is still collected through the API but not rendered. See [`../docs/research/player-tagging.md`](../docs/research/player-tagging.md) for the current tagging model and the reasons Omaha and SNG are not surfaced today.
