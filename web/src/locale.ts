@@ -1,6 +1,6 @@
 import enMessages from './locales/en.json';
 import zhHansMessages from './locales/zh-Hans.json';
-import type { GameTypeId, PostflopTag, PreflopTag } from './types';
+import type { PostflopTag, PreflopTag } from './types';
 
 export type Locale = 'en' | 'zh-Hans';
 
@@ -28,7 +28,6 @@ export type Messages = {
     snapshot: string;
     search: string;
     searchPlaceholder: string;
-    gameType: string;
   };
   languages: Record<Locale, string>;
   themes: {
@@ -36,7 +35,6 @@ export type Messages = {
     light: string;
     dark: string;
   };
-  gameTypes: Record<GameTypeId, string>;
   summary: {
     players: string;
     visible: string;
@@ -66,8 +64,6 @@ export type Messages = {
   details: {
     player: string;
     thronePoints: string;
-    championPoints: string;
-    sngRecords: string;
     leaderboardRanks: string;
     noLeaderboardRows: string;
     noMatchingPlayer: string;

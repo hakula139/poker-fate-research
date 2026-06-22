@@ -5,9 +5,9 @@ import {
   leaderboardNameLabel,
   periodLabel,
 } from '@/features/player-stats/leaderboard';
-import { getGameStats, scoreLabelKey } from '@/features/player-stats/model';
+import { getGameStats, HOLDEM_GAME_TYPE_NUMERIC } from '@/features/player-stats/model';
 import { useI18n } from '@/i18n';
-import type { GameTypeId, LeaderboardEntry, PlayerRecord } from '@/types';
+import type { LeaderboardEntry, PlayerRecord } from '@/types';
 
 import { MetricTile } from './metric-tile';
 import { StatLabel, type StatLabelId } from './stat-label';
@@ -24,13 +24,7 @@ function PeriodBadge({ entry }: { entry: LeaderboardEntry }) {
   );
 }
 
-export function PlayerDetails({
-  player,
-  gameType,
-}: {
-  player: PlayerRecord | undefined;
-  gameType: GameTypeId;
-}) {
+export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) {
   const { format, t } = useI18n();
 
   if (!player) {
@@ -42,8 +36,7 @@ export function PlayerDetails({
       </Card>
     );
   }
-  const stats = getGameStats(player, gameType);
-  const selectedGameType = Number(gameType);
+  const stats = getGameStats(player);
   const statMetrics: { id: StatLabelId; label: string; value: number | undefined }[] = [
     { id: 'vpip', label: t.table.vpip, value: stats?.vpip },
     { id: 'pfr', label: t.table.pfr, value: stats?.pfr },
@@ -53,7 +46,9 @@ export function PlayerDetails({
     { id: 'cbet', label: t.table.cbet, value: stats?.cbet },
   ];
   const entries = [...player.leaderboardEntries]
-    .filter((entry) => typeof entry.rank === 'number' && entry.gameType === selectedGameType)
+    .filter(
+      (entry) => typeof entry.rank === 'number' && entry.gameType === HOLDEM_GAME_TYPE_NUMERIC,
+    )
     .sort(compareLeaderboardEntries)
     .slice(0, 6);
 
@@ -68,7 +63,7 @@ export function PlayerDetails({
         <TagGroup stats={stats} />
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           <MetricTile
             label={t.table.hands}
             value={format.integer(stats?.hands)}
@@ -78,12 +73,8 @@ export function PlayerDetails({
             value={format.profit(stats?.profit)}
           />
           <MetricTile
-            label={t.details[scoreLabelKey(gameType)]}
+            label={t.details.thronePoints}
             value={format.integer(stats?.score)}
-          />
-          <MetricTile
-            label={t.details.sngRecords}
-            value={format.integer(player.sngRecordCount)}
           />
         </div>
 

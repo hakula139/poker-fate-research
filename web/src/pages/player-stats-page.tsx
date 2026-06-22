@@ -15,13 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { gameTypeIds } from '@/features/player-stats/model';
 import { usePlayerStatsView } from '@/features/player-stats/use-player-stats-view';
 import { useSnapshots } from '@/features/player-stats/use-snapshots';
 import { useThemeMode } from '@/features/theme/use-theme-mode';
 import { useI18n } from '@/i18n';
-import type { GameTypeId } from '@/types';
 
 export function PlayerStatsPage() {
   const { format, t } = useI18n();
@@ -104,26 +101,6 @@ export function PlayerStatsPage() {
               />
             </div>
           </div>
-          <ToggleGroup
-            type="single"
-            value={view.gameType}
-            onValueChange={(value) => {
-              if (value) {
-                view.setGameType(value as GameTypeId);
-              }
-            }}
-            className="flex w-fit flex-wrap justify-start justify-self-start lg:justify-self-end"
-            aria-label={t.controls.gameType}
-          >
-            {gameTypeIds.map((gameTypeId) => (
-              <ToggleGroupItem
-                value={gameTypeId}
-                key={gameTypeId}
-              >
-                {t.gameTypes[gameTypeId]}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
         </section>
 
         <section className="my-3 grid gap-3 md:grid-cols-3">
@@ -151,16 +128,12 @@ export function PlayerStatsPage() {
         <section className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_340px]">
           <PlayerTable
             players={view.filteredPlayers}
-            gameType={view.gameType}
             selectedUid={view.selectedPlayer?.uid ?? null}
             sort={view.sort}
             onSort={view.changeSort}
             onSelect={view.setSelectedUid}
           />
-          <PlayerDetails
-            player={view.selectedPlayer}
-            gameType={view.gameType}
-          />
+          <PlayerDetails player={view.selectedPlayer} />
         </section>
       </div>
     </main>

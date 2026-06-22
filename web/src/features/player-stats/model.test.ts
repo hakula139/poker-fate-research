@@ -2,53 +2,39 @@ import { describe, expect, it } from 'vitest';
 
 import { sampleSnapshot } from '../../../tests/fixtures/sample-snapshot';
 
-import { filterAndSortPlayers, getGameStats, scoreLabelKey } from './model';
+import { filterAndSortPlayers, getGameStats, HOLDEM_GAME_TYPE } from './model';
 
 describe('player stats model', () => {
-  it('filters by player UID and sorts by selected game stats', () => {
+  it("exposes Texas Hold'em as the only supported game type", () => {
+    expect(HOLDEM_GAME_TYPE).toBe('10010101');
+  });
+
+  it("filters by player UID and sorts by Hold'em stats", () => {
     const players = filterAndSortPlayers({
-      gameType: '10010101',
       players: sampleSnapshot.players,
       query: '10410931',
       sort: { key: 'profit', direction: 'desc' },
     });
 
     expect(players.map((player) => player.uid)).toEqual([10410931]);
-    expect(getGameStats(players[0], '10010101')?.profit).toBe(94114872);
+    expect(getGameStats(players[0])?.profit).toBe(94114872);
   });
 
-  it('sorts missing stats after real stats in descending numeric sorts', () => {
-    const holdemStats = getGameStats(sampleSnapshot.players[1], '10010101');
-    if (!holdemStats) {
-      throw new Error('sample player is missing Holdem stats');
-    }
-    const playersWithMixedOmahaStats = [
+  it("sorts missing Hold'em stats after real stats in descending numeric sorts", () => {
+    const playersWithMixedHoldemStats = [
       sampleSnapshot.players[0],
       {
         ...sampleSnapshot.players[1],
-        games: {
-          ...sampleSnapshot.players[1].games,
-          '10020101': {
-            ...holdemStats,
-            gameType: 10020101,
-            hands: 7,
-          },
-        },
+        games: {},
       },
     ];
 
     const players = filterAndSortPlayers({
-      gameType: '10020101',
-      players: playersWithMixedOmahaStats,
+      players: playersWithMixedHoldemStats,
       query: '',
       sort: { key: 'hands', direction: 'desc' },
     });
 
-    expect(players.map((player) => player.uid)).toEqual([10720217, 10410931]);
-  });
-
-  it('keeps mode-specific display rules in the feature model', () => {
-    expect(scoreLabelKey('10010101')).toBe('thronePoints');
-    expect(scoreLabelKey('10050301')).toBe('championPoints');
+    expect(players.map((player) => player.uid)).toEqual([10410931, 10720217]);
   });
 });

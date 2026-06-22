@@ -19,8 +19,7 @@
     "theme": "主题",
     "snapshot": "快照",
     "search": "搜索",
-    "searchPlaceholder": "名称或 UID",
-    "gameType": "模式"
+    "searchPlaceholder": "名称或 UID"
   },
   "languages": {
     "en": "English",
@@ -30,12 +29,6 @@
     "system": "跟随系统",
     "light": "浅色",
     "dark": "深色"
-  },
-  "gameTypes": {
-    "10010101": "德州扑克",
-    "10020101": "奥马哈",
-    "10050301": "SNG",
-    "20010103": "好友房德州扑克"
   },
   "summary": {
     "players": "已载入玩家",
@@ -53,7 +46,7 @@
     "afq": "AFq",
     "cbet": "C-Bet",
     "tag": "标签",
-    "noPlayers": "没有匹配当前搜索和模式的玩家"
+    "noPlayers": "没有匹配当前搜索的玩家"
   },
   "statDescriptions": {
     "vpip": "主动入池率",
@@ -66,11 +59,9 @@
   "details": {
     "player": "玩家",
     "thronePoints": "王座积分",
-    "championPoints": "冠军积分",
-    "sngRecords": "SNG 记录",
     "leaderboardRanks": "排行榜排名",
     "noLeaderboardRows": "没有排行榜记录",
-    "noMatchingPlayer": "没有匹配当前搜索和模式的玩家",
+    "noMatchingPlayer": "没有匹配当前搜索的玩家",
     "value": "数值"
   },
   "periods": {
