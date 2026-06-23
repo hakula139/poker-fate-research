@@ -41,25 +41,9 @@ export type PlayerRecord = {
   fetchedAt: string;
 };
 
-export type PlayerSnapshot = {
-  id: string;
-  label: string;
-  source: string;
-  generatedAt: string;
+export type PlayerDataset = {
   players: PlayerRecord[];
-};
-
-export type SnapshotIndexItem = {
-  id: string;
-  label: string;
-  playerCount: number;
-  source: string;
-  path: string;
-};
-
-export type SnapshotIndex = {
-  generatedAt: string;
-  snapshots: SnapshotIndexItem[];
+  updatedAt: string;
 };
 
 export type PreflopTag =

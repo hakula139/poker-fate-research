@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { loadSnapshots, searchPlayers } from './data';
+import { loadPlayers, searchPlayers } from './data';
 
 const originalFetch = globalThis.fetch;
 
@@ -19,69 +19,41 @@ function requestUrl(input: RequestInfo | URL): string {
   return input;
 }
 
-describe('loadSnapshots', () => {
-  it('reports unavailable data when the snapshot index cannot be loaded', async () => {
+describe('loadPlayers', () => {
+  it('reports unavailable data when the players endpoint cannot be loaded', async () => {
     globalThis.fetch = vi.fn(() => Promise.resolve(new Response(null, { status: 404 })));
 
-    const result = await loadSnapshots();
+    const result = await loadPlayers();
 
-    expect(result.error).toBe('indexUnavailable');
-    expect(result.active.players).toEqual([]);
-    expect(result.index.snapshots).toEqual([]);
+    expect(result.error).toBe('unavailable');
+    expect(result.players).toEqual([]);
+    expect(result.updatedAt).toBe('');
   });
 
-  it('reports unavailable data when the snapshot index has an invalid shape', async () => {
+  it('reports invalid data when the players payload has an unexpected shape', async () => {
+    globalThis.fetch = vi.fn(() => Promise.resolve(Response.json({ players: [{ uid: 'nope' }] })));
+
+    const result = await loadPlayers();
+
+    expect(result.error).toBe('invalid');
+    expect(result.players).toEqual([]);
+  });
+
+  it('loads the unified player dataset and update time', async () => {
     globalThis.fetch = vi.fn(() =>
-      Promise.resolve(Response.json({ generatedAt: '2026-06-12T08:50:28Z' })),
+      Promise.resolve(
+        Response.json({
+          players: [{ games: {}, name: 'Hakula', uid: 10410931 }],
+          updatedAt: '2026-06-18T00:00:00Z',
+        }),
+      ),
     );
 
-    const result = await loadSnapshots();
+    const result = await loadPlayers();
 
-    expect(result.error).toBe('indexInvalid');
-    expect(result.active.players).toEqual([]);
-    expect(result.index.snapshots).toEqual([]);
-  });
-
-  it('merges cached players into generated snapshots', async () => {
-    globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
-      const url = requestUrl(input);
-      if (url === '/api/snapshots') {
-        return Promise.resolve(
-          Response.json({
-            snapshots: [
-              {
-                id: 'latest',
-                label: 'Latest',
-                path: 'api/snapshots/latest',
-                playerCount: 1,
-                source: 'test',
-              },
-            ],
-          }),
-        );
-      }
-      if (url === '/api/snapshots/latest') {
-        return Promise.resolve(
-          Response.json({
-            generatedAt: '2026-06-18T00:00:00Z',
-            id: 'latest',
-            label: 'Latest',
-            players: [{ games: {}, name: 'Leaderboard', uid: 1 }],
-            source: 'test',
-          }),
-        );
-      }
-      if (url === '/api/players/cached') {
-        return Promise.resolve(
-          Response.json({ players: [{ games: {}, name: 'Hakula', uid: 10410931 }] }),
-        );
-      }
-      return Promise.resolve(new Response(null, { status: 404 }));
-    });
-
-    const result = await loadSnapshots();
-
-    expect(result.active.players.map((player) => player.uid)).toEqual([1, 10410931]);
+    expect(result.error).toBeNull();
+    expect(result.players.map((player) => player.uid)).toEqual([10410931]);
+    expect(result.updatedAt).toBe('2026-06-18T00:00:00Z');
   });
 });
 

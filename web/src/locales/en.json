@@ -4,20 +4,15 @@
     "title": "Player stats",
     "loading": "Loading player stats",
     "dataUnavailable": "Player data could not be loaded.",
-    "snapshotDataIssue": "The selected snapshot could not be loaded.",
     "dataIssues": {
-      "indexUnavailable": "Check the database connection and try again.",
-      "indexInvalid": "The snapshot index is not in the expected format.",
-      "indexEmpty": "The snapshot index does not list any snapshots.",
-      "snapshotUnavailable": "The selected snapshot file could not be loaded.",
-      "snapshotInvalid": "The selected snapshot is not in the expected format.",
+      "unavailable": "Check the database connection and try again.",
+      "invalid": "The player data is not in the expected format.",
       "unknown": "Check the generated data files and try again."
     }
   },
   "controls": {
     "language": "Language",
     "theme": "Theme",
-    "snapshot": "Snapshot",
     "search": "Search",
     "searchPlaceholder": "Name or UID"
   },
@@ -33,7 +28,7 @@
   "summary": {
     "players": "Loaded players",
     "visible": "Matching players",
-    "snapshot": "Snapshot"
+    "updated": "Updated"
   },
   "table": {
     "player": "Player",
@@ -46,6 +41,7 @@
     "afq": "AFq",
     "cbet": "C-Bet",
     "tag": "Tag",
+    "updated": "Updated",
     "noPlayers": "No players match this search"
   },
   "statDescriptions": {
@@ -62,6 +58,7 @@
     "leaderboardRanks": "Leaderboard ranks",
     "noLeaderboardRows": "No leaderboard rows",
     "noMatchingPlayer": "No players match this search",
+    "updated": "Updated",
     "value": "Value"
   },
   "periods": {

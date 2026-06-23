@@ -32,4 +32,17 @@ describe('createFormatters', () => {
     expect(format.profit(1234567)).toBe('+1,234,567');
     expect(format.compactProfit(1234567)).toBe('+123.46万');
   });
+
+  it('renders human-friendly relative times against a reference instant', () => {
+    const now = Date.parse('2026-06-22T00:00:00Z');
+
+    expect(en.relativeTime('2026-06-20T00:00:00Z', now)).toBe('2 days ago');
+    expect(en.relativeTime('2026-06-21T22:00:00Z', now)).toBe('2 hours ago');
+  });
+
+  it('renders missing or unparsable timestamps as dashes', () => {
+    expect(en.relativeTime(undefined)).toBe('-');
+    expect(en.relativeTime('not-a-timestamp')).toBe('-');
+    expect(en.dateTime(null)).toBe('-');
+  });
 });

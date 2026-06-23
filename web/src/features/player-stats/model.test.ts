@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { sampleSnapshot } from '../../../tests/fixtures/sample-snapshot';
+import { samplePlayers } from '../../../tests/fixtures/sample-snapshot';
 
 import { filterAndSortPlayers, getGameStats, HOLDEM_GAME_TYPE } from './model';
 
@@ -11,7 +11,7 @@ describe('player stats model', () => {
 
   it("filters by player UID and sorts by Hold'em stats", () => {
     const players = filterAndSortPlayers({
-      players: sampleSnapshot.players,
+      players: samplePlayers,
       query: '10410931',
       sort: { key: 'profit', direction: 'desc' },
     });
@@ -22,9 +22,9 @@ describe('player stats model', () => {
 
   it("sorts missing Hold'em stats after real stats in descending numeric sorts", () => {
     const playersWithMixedHoldemStats = [
-      sampleSnapshot.players[0],
+      samplePlayers[0],
       {
-        ...sampleSnapshot.players[1],
+        ...samplePlayers[1],
         games: {},
       },
     ];

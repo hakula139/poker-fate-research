@@ -1,32 +1,18 @@
 import { expect, test } from '@playwright/test';
 
-import { sampleSnapshot } from './fixtures/sample-snapshot';
+import { samplePlayers, sampleUpdatedAt } from './fixtures/sample-snapshot';
 
 test('loads generated player stats and filters players', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('poker-fate.locale', 'en');
   });
-  await page.route('**/api/snapshots', async (route) => {
+  await page.route('**/api/players', async (route) => {
     await route.fulfill({
       contentType: 'application/json',
       json: {
-        generatedAt: sampleSnapshot.generatedAt,
-        snapshots: [
-          {
-            id: sampleSnapshot.id,
-            label: sampleSnapshot.label,
-            playerCount: sampleSnapshot.players.length,
-            source: sampleSnapshot.source,
-            path: 'api/snapshots/sample',
-          },
-        ],
+        players: samplePlayers,
+        updatedAt: sampleUpdatedAt,
       },
-    });
-  });
-  await page.route('**/api/snapshots/sample', async (route) => {
-    await route.fulfill({
-      contentType: 'application/json',
-      json: sampleSnapshot,
     });
   });
 
@@ -34,7 +20,6 @@ test('loads generated player stats and filters players', async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: 'Player stats' })).toBeVisible();
   await expect(page.locator('tbody tr')).not.toHaveCount(0);
-  await expect(page.getByText('Sample data').first()).toBeVisible();
 
   const firstUid = await page
     .locator('tbody tr')

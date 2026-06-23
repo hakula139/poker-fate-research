@@ -12,13 +12,13 @@ Collect leaderboard player snapshots:
 uv --project python run poker-fate players
 ```
 
-Build D1 import SQL from a collected snapshot:
+Build D1 import SQL from a collected player file:
 
 ```bash
 uv --project python run poker-fate d1-import-sql data/player-snapshots/poker-fate-players-20260618T010203Z.jsonl --output work/d1-import.sql
 ```
 
-The collector writes local JSONL snapshots under `data/player-snapshots/`. D1 import SQL is written under `work/`. Both paths are ignored local artifacts.
+The import upserts players into the unified `players` table and skips players with no Texas Hold'em hands. The collector writes local JSONL files under `data/player-snapshots/`. D1 import SQL is written under `work/`. Both paths are ignored local artifacts.
 
 ## Checks
 

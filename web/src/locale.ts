@@ -12,20 +12,15 @@ export type Messages = {
     title: string;
     loading: string;
     dataUnavailable: string;
-    snapshotDataIssue: string;
     dataIssues: {
-      indexUnavailable: string;
-      indexInvalid: string;
-      indexEmpty: string;
-      snapshotUnavailable: string;
-      snapshotInvalid: string;
+      unavailable: string;
+      invalid: string;
       unknown: string;
     };
   };
   controls: {
     language: string;
     theme: string;
-    snapshot: string;
     search: string;
     searchPlaceholder: string;
   };
@@ -38,7 +33,7 @@ export type Messages = {
   summary: {
     players: string;
     visible: string;
-    snapshot: string;
+    updated: string;
   };
   table: {
     player: string;
@@ -51,6 +46,7 @@ export type Messages = {
     afq: string;
     cbet: string;
     tag: string;
+    updated: string;
     noPlayers: string;
   };
   statDescriptions: {
@@ -67,6 +63,7 @@ export type Messages = {
     leaderboardRanks: string;
     noLeaderboardRows: string;
     noMatchingPlayer: string;
+    updated: string;
     value: string;
   };
   periods: {

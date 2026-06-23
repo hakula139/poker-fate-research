@@ -3,10 +3,12 @@ import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 
 const baseHost = 'https://ga-foreign.poker-fate.com';
 const loginVerifySalt = 'ba2798edafa12f3ae08822a3203158cb';
-const cachedPlayerLimit = 1000;
+const playerLimit = 1000;
 const searchResultLimit = 20;
 const officialLookupLimit = 5;
-const cacheTtlDays = 30;
+const cacheFreshnessDays = 1;
+const holdemGameType = '10010101';
+const holdemHandsPath = `$.games."${holdemGameType}".hands`;
 const gameTypes = [
   ['10010101', "Hold'em lobby"],
   ['10020101', 'Omaha lobby'],
@@ -35,46 +37,22 @@ type DatabaseStatement = {
   run(): Promise<unknown>;
 };
 
-type SnapshotIndexItem = {
-  id: string;
-  label?: string;
-  path: string;
-  playerCount?: number;
-  source?: string;
-};
-
-type SnapshotIndex = {
-  generatedAt?: string;
-  snapshots: SnapshotIndexItem[];
-};
-
-type SnapshotRow = {
-  generated_at: string;
-  id: string;
-  label: string;
-  player_count: number;
-  source: string;
-};
-
-type SnapshotPlayerRow = {
+type PlayerRow = {
   fetched_at: string;
-  leaderboard_entries_json: string;
-  player_json: string;
-};
-
-type CachedPlayerRow = {
-  alias: string | null;
-  expires_at: string;
   player_json: string;
   uid: number;
 };
 
-type SnapshotResponse = {
-  generatedAt: string;
-  id: string;
-  label: string;
+type CachedPlayerRow = {
+  alias: string | null;
+  fetched_at: string;
+  player_json: string;
+  uid: number;
+};
+
+type PlayersResponse = {
   players: unknown[];
-  source: string;
+  updatedAt: string;
 };
 
 class ApiError extends Error {
@@ -90,8 +68,8 @@ function isoNow(): string {
   return new Date().toISOString();
 }
 
-function isoDaysFromNow(days: number): string {
-  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 function jsonResponse(value: unknown, init?: ResponseInit) {
@@ -112,6 +90,14 @@ function parseStoredJson(value: string): unknown {
   }
 }
 
+function parseStoredPlayer(value: string): Record<string, unknown> {
+  const player = parseStoredJson(value);
+  if (!isRecord(player)) {
+    throw new ApiError(502, 'Stored player data has an invalid shape.');
+  }
+  return player;
+}
+
 function officialInt(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0;
 }
@@ -126,6 +112,15 @@ function officialList(value: unknown): unknown[] {
 
 function officialRecord(value: unknown): Record<string, unknown> {
   return isRecord(value) ? value : {};
+}
+
+function holdemHands(player: unknown): number {
+  const games = officialRecord(officialRecord(player).games);
+  return officialInt(officialRecord(games[holdemGameType]).hands);
+}
+
+function hasHoldemHands(player: unknown): boolean {
+  return holdemHands(player) > 0;
 }
 
 function assertOfficialSuccess(
@@ -243,95 +238,6 @@ async function fetchOfficialPlayer(
   };
 }
 
-function snapshotItemFromRow(row: SnapshotRow): SnapshotIndexItem {
-  return {
-    id: row.id,
-    label: row.label,
-    path: `api/snapshots/${encodeURIComponent(row.id)}`,
-    playerCount: row.player_count,
-    source: row.source,
-  };
-}
-
-async function readD1SnapshotIndex(env: Env): Promise<SnapshotIndex | null> {
-  if (!env.DB) {
-    return null;
-  }
-
-  const { results = [] } = await env.DB.prepare(
-    `
-    SELECT id, label, source, generated_at, player_count
-    FROM snapshots
-    ORDER BY generated_at DESC
-    LIMIT 30
-    `,
-  ).all<SnapshotRow>();
-
-  if (results.length === 0) {
-    return null;
-  }
-
-  const newestSnapshot = results[0];
-  return {
-    generatedAt: newestSnapshot.generated_at,
-    snapshots: [...results].reverse().map(snapshotItemFromRow),
-  };
-}
-
-async function readD1Snapshot(env: Env, snapshotId: string): Promise<SnapshotResponse | null> {
-  if (!env.DB) {
-    return null;
-  }
-
-  const snapshot = await env.DB.prepare(
-    `
-    SELECT id, label, source, generated_at, player_count
-    FROM snapshots
-    WHERE id = ?
-    `,
-  )
-    .bind(snapshotId)
-    .first<SnapshotRow>();
-
-  if (!snapshot) {
-    return null;
-  }
-
-  const { results = [] } = await env.DB.prepare(
-    `
-    SELECT player_json, leaderboard_entries_json, fetched_at
-    FROM snapshot_players
-    WHERE snapshot_id = ?
-    ORDER BY uid
-    `,
-  )
-    .bind(snapshotId)
-    .all<SnapshotPlayerRow>();
-
-  const players = results.map((row) => {
-    const player = parseStoredJson(row.player_json);
-    if (!isRecord(player)) {
-      throw new ApiError(502, 'Stored player data has an invalid shape.');
-    }
-    if (!Array.isArray(player.leaderboardEntries)) {
-      return {
-        ...player,
-        fetchedAt: row.fetched_at,
-        leaderboardEntries: parseStoredJson(row.leaderboard_entries_json),
-      };
-    }
-    return player;
-  });
-
-  return {
-    id: snapshot.id,
-    label: snapshot.label,
-    source: snapshot.source,
-    generatedAt: snapshot.generated_at,
-    players,
-  };
-}
-
 function aliasesForPlayer(player: Record<string, unknown>): string[] {
   const names: unknown[] = Array.isArray(player.names) ? player.names : [];
   return [player.name, ...names].flatMap((name) =>
@@ -350,17 +256,13 @@ function uniqueCachedPlayers(rows: CachedPlayerRow[]): CachedPlayerRow[] {
 }
 
 function cachedRowsToPlayers(rows: CachedPlayerRow[]): unknown[] {
-  return uniqueCachedPlayers(rows).map((row) => {
-    const player = parseStoredJson(row.player_json);
-    if (!isRecord(player)) {
-      throw new ApiError(502, 'Stored player data has an invalid shape.');
-    }
-    return player;
-  });
+  return uniqueCachedPlayers(rows)
+    .map((row) => parseStoredPlayer(row.player_json))
+    .filter((player) => hasHoldemHands(player));
 }
 
-function isCacheFresh(row: CachedPlayerRow, now: string): boolean {
-  return row.expires_at >= now;
+function isCacheFresh(row: CachedPlayerRow, freshnessThreshold: string): boolean {
+  return row.fetched_at >= freshnessThreshold;
 }
 
 function isDirectCacheHit(row: CachedPlayerRow, query: string): boolean {
@@ -368,24 +270,27 @@ function isDirectCacheHit(row: CachedPlayerRow, query: string): boolean {
   return String(row.uid) === normalizedQuery || row.alias?.toLowerCase() === normalizedQuery;
 }
 
-async function listD1CachedPlayerRows(env: Env): Promise<CachedPlayerRow[]> {
+async function listD1Players(env: Env): Promise<PlayersResponse> {
   if (!env.DB) {
-    return [];
+    return { players: [], updatedAt: '' };
   }
 
   const { results = [] } = await env.DB.prepare(
     `
-    SELECT player_cache.uid, player_cache.player_json, player_cache.expires_at, NULL AS alias
-    FROM player_cache
-    WHERE player_cache.expires_at >= ?
-    ORDER BY player_cache.fetched_at DESC
+    SELECT uid, player_json, fetched_at
+    FROM players
+    WHERE COALESCE(json_extract(player_json, '${holdemHandsPath}'), 0) > 0
+    ORDER BY fetched_at DESC
     LIMIT ?
     `,
   )
-    .bind(isoNow(), cachedPlayerLimit)
-    .all<CachedPlayerRow>();
+    .bind(playerLimit)
+    .all<PlayerRow>();
 
-  return results;
+  return {
+    players: results.map((row) => parseStoredPlayer(row.player_json)),
+    updatedAt: results[0]?.fetched_at ?? '',
+  };
 }
 
 async function searchD1CachedPlayerRows(env: Env, query: string): Promise<CachedPlayerRow[]> {
@@ -397,15 +302,15 @@ async function searchD1CachedPlayerRows(env: Env, query: string): Promise<Cached
   const { results = [] } = await env.DB.prepare(
     `
     SELECT
-      player_cache.uid,
-      player_cache.player_json,
-      player_cache.expires_at,
+      players.uid,
+      players.player_json,
+      players.fetched_at,
       player_aliases.alias
-    FROM player_cache
-    LEFT JOIN player_aliases ON player_aliases.uid = player_cache.uid
-    WHERE CAST(player_cache.uid AS TEXT) = ?
+    FROM players
+    LEFT JOIN player_aliases ON player_aliases.uid = players.uid
+    WHERE CAST(players.uid AS TEXT) = ?
       OR player_aliases.alias LIKE ?
-    ORDER BY player_cache.fetched_at DESC
+    ORDER BY players.fetched_at DESC
     LIMIT ?
     `,
   )
@@ -415,32 +320,52 @@ async function searchD1CachedPlayerRows(env: Env, query: string): Promise<Cached
   return results;
 }
 
+async function existingLeaderboardEntries(env: Env, uid: number): Promise<unknown[]> {
+  if (!env.DB) {
+    return [];
+  }
+  const existing = await env.DB.prepare('SELECT player_json FROM players WHERE uid = ?')
+    .bind(uid)
+    .first<{ player_json: string }>();
+  if (!existing) {
+    return [];
+  }
+  const player = parseStoredPlayer(existing.player_json);
+  const entries = player.leaderboardEntries;
+  return Array.isArray(entries) ? (entries as unknown[]) : [];
+}
+
 async function cachePlayer(
   env: Env,
   player: Record<string, unknown>,
   source: string,
-): Promise<void> {
+): Promise<Record<string, unknown>> {
   const uid = officialInt(player.uid);
-  if (!env.DB || uid <= 0) {
-    return;
+  if (!env.DB || uid <= 0 || !hasHoldemHands(player)) {
+    return player;
   }
 
-  const fetchedAt = officialString(player.fetchedAt) || isoNow();
+  const rawEntries = player.leaderboardEntries;
+  const incomingEntries: unknown[] = Array.isArray(rawEntries) ? (rawEntries as unknown[]) : [];
+  const leaderboardEntries =
+    incomingEntries.length > 0 ? incomingEntries : await existingLeaderboardEntries(env, uid);
+  const stored: Record<string, unknown> = { ...player, leaderboardEntries };
+  const fetchedAt = officialString(stored.fetchedAt) || isoNow();
+
   await env.DB.prepare(
     `
-    INSERT INTO player_cache (uid, player_json, source, fetched_at, expires_at)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO players (uid, player_json, source, fetched_at)
+    VALUES (?, ?, ?, ?)
     ON CONFLICT(uid) DO UPDATE SET
       player_json = excluded.player_json,
       source = excluded.source,
-      fetched_at = excluded.fetched_at,
-      expires_at = excluded.expires_at
+      fetched_at = excluded.fetched_at
     `,
   )
-    .bind(uid, JSON.stringify(player), source, fetchedAt, isoDaysFromNow(cacheTtlDays))
+    .bind(uid, JSON.stringify(stored), source, fetchedAt)
     .run();
 
-  for (const alias of aliasesForPlayer(player)) {
+  for (const alias of aliasesForPlayer(stored)) {
     await env.DB.prepare(
       `
       INSERT INTO player_aliases (alias, uid, source, observed_at)
@@ -454,6 +379,8 @@ async function cachePlayer(
       .bind(alias, uid, source, isoNow())
       .run();
   }
+
+  return stored;
 }
 
 async function lookupOfficialPlayers(env: Env, query: string): Promise<unknown[]> {
@@ -484,10 +411,11 @@ async function lookupOfficialPlayers(env: Env, query: string): Promise<unknown[]
     }
   }
 
+  const stored: unknown[] = [];
   for (const player of players) {
-    await cachePlayer(env, player, 'lookup');
+    stored.push(await cachePlayer(env, player, 'lookup'));
   }
-  return players;
+  return stored.filter((player) => hasHoldemHands(player));
 }
 
 async function searchPlayers(env: Env, query: string): Promise<unknown[]> {
@@ -496,12 +424,12 @@ async function searchPlayers(env: Env, query: string): Promise<unknown[]> {
     return [];
   }
 
-  const now = isoNow();
+  const freshnessThreshold = isoDaysAgo(cacheFreshnessDays);
   const cachedRows = await searchD1CachedPlayerRows(env, trimmedQuery);
   const directStaleHit = cachedRows.some(
-    (row) => isDirectCacheHit(row, trimmedQuery) && !isCacheFresh(row, now),
+    (row) => isDirectCacheHit(row, trimmedQuery) && !isCacheFresh(row, freshnessThreshold),
   );
-  const freshRows = cachedRows.filter((row) => isCacheFresh(row, now));
+  const freshRows = cachedRows.filter((row) => isCacheFresh(row, freshnessThreshold));
 
   if (freshRows.length > 0 && !directStaleHit) {
     return cachedRowsToPlayers(freshRows);
@@ -525,30 +453,14 @@ async function handleApiRequest(request: Request, env: Env): Promise<Response> {
     return jsonResponse({ error: 'Method not allowed' }, { status: 405 });
   }
 
-  if (url.pathname === '/api/snapshots') {
-    return jsonResponse(
-      (await readD1SnapshotIndex(env)) ?? { generatedAt: isoNow(), snapshots: [] },
-    );
+  if (url.pathname === '/api/players') {
+    return jsonResponse(await listD1Players(env));
   }
 
   if (url.pathname === '/api/players/search') {
     return jsonResponse({
       players: await searchPlayers(env, url.searchParams.get('q') ?? ''),
     });
-  }
-
-  if (url.pathname === '/api/players/cached') {
-    return jsonResponse({ players: cachedRowsToPlayers(await listD1CachedPlayerRows(env)) });
-  }
-
-  const snapshotMatch = /^\/api\/snapshots\/([^/]+)$/.exec(url.pathname);
-  if (snapshotMatch) {
-    const snapshotId = decodeURIComponent(snapshotMatch[1]);
-    const d1Snapshot = await readD1Snapshot(env, snapshotId);
-    if (d1Snapshot) {
-      return jsonResponse(d1Snapshot);
-    }
-    return jsonResponse({ error: 'Snapshot not found' }, { status: 404 });
   }
 
   return jsonResponse({ error: 'Not found' }, { status: 404 });

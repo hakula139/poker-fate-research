@@ -3,12 +3,23 @@ import type { Locale } from './locale';
 export type NumberFormatters = {
   compactInteger: (value: number | undefined | null) => string;
   compactProfit: (value: number | undefined) => string;
+  dateTime: (value: string | undefined | null) => string;
   integer: (value: number | undefined | null) => string;
   profit: (value: number | undefined) => string;
   rate: (rate: number | undefined) => string;
+  relativeTime: (value: string | undefined | null, now?: number) => string;
 };
 
 const missingValue = '-';
+
+const relativeUnits: [Intl.RelativeTimeFormatUnit, number][] = [
+  ['year', 31_536_000],
+  ['month', 2_592_000],
+  ['week', 604_800],
+  ['day', 86_400],
+  ['hour', 3_600],
+  ['minute', 60],
+];
 
 export function createFormatters(locale: Locale): NumberFormatters {
   const compactIntegerFormatter = new Intl.NumberFormat(locale, {
@@ -21,6 +32,11 @@ export function createFormatters(locale: Locale): NumberFormatters {
     minimumFractionDigits: 2,
     style: 'percent',
   });
+  const dateTimeFormatter = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+  const relativeTimeFormatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
   function integer(value: number | undefined | null): string {
     if (value === undefined || value === null) {
@@ -59,5 +75,30 @@ export function createFormatters(locale: Locale): NumberFormatters {
     return rateFormatter.format(rateValue / 10000);
   }
 
-  return { compactInteger, compactProfit, integer, profit, rate };
+  function dateTime(value: string | undefined | null): string {
+    if (!value) {
+      return missingValue;
+    }
+    const timestamp = Date.parse(value);
+    return Number.isNaN(timestamp) ? missingValue : dateTimeFormatter.format(timestamp);
+  }
+
+  function relativeTime(value: string | undefined | null, now = Date.now()): string {
+    if (!value) {
+      return missingValue;
+    }
+    const timestamp = Date.parse(value);
+    if (Number.isNaN(timestamp)) {
+      return missingValue;
+    }
+    const diffSeconds = Math.round((timestamp - now) / 1000);
+    for (const [unit, secondsInUnit] of relativeUnits) {
+      if (Math.abs(diffSeconds) >= secondsInUnit) {
+        return relativeTimeFormatter.format(Math.round(diffSeconds / secondsInUnit), unit);
+      }
+    }
+    return relativeTimeFormatter.format(diffSeconds, 'second');
+  }
+
+  return { compactInteger, compactProfit, dateTime, integer, profit, rate, relativeTime };
 }

@@ -43,6 +43,16 @@ jobs:
           name: web-dist
           path: web/dist/
 
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          workingDirectory: web
+          wranglerVersion: '4.101.0'
+          command: d1 migrations apply poker-fate-stats --remote
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:

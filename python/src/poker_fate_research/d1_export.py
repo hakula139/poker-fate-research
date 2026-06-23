@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 from poker_fate_research.json_types import (
     JsonObject,
     as_int,
     as_list,
+    as_object,
     as_str,
     expect_object,
     json_object_list,
@@ -15,6 +16,14 @@ from poker_fate_research.json_types import (
 )
 from poker_fate_research.player_normalization import build_snapshot
 from poker_fate_research.time import iso_format
+
+
+HOLDEM_GAME_TYPE = '10010101'
+
+EMPTY_PLAYER_PREDICATE = (
+    'COALESCE(json_extract(player_json, '
+    f'\'$.games."{HOLDEM_GAME_TYPE}".hands\'), 0) = 0'
+)
 
 
 def sql_literal(value: object) -> str:
@@ -47,122 +56,72 @@ def player_aliases(player: JsonObject) -> list[str]:
     return sorted(aliases)
 
 
-def load_snapshot(snapshot_path: Path) -> JsonObject:
+def holdem_hands(player: JsonObject) -> int:
+    games = as_object(player.get('games'))
+    return as_int(as_object(games.get(HOLDEM_GAME_TYPE)).get('hands'))
+
+
+def load_players(snapshot_path: Path) -> list[JsonObject]:
     if snapshot_path.suffix == '.json':
         parsed = parse_json(snapshot_path.read_text(encoding='utf-8'))
-        return expect_object(parsed, 'Snapshot JSON must be an object')
-    return build_snapshot(snapshot_path)
+        snapshot = expect_object(parsed, 'Snapshot JSON must be an object')
+    else:
+        snapshot = build_snapshot(snapshot_path)
+    return json_object_list(snapshot.get('players'))
 
 
-def cache_player_statements(
-    player: JsonObject,
+def player_import_sql(
+    snapshot_path: Path,
     imported_at: datetime,
-    source: str,
-) -> list[str]:
-    uid = as_int(player.get('uid'))
-    if uid <= 0:
-        raise ValueError('Cached player entries must have a positive integer uid')
+    source: str = 'leaderboard',
+) -> str:
+    lines: list[str] = []
+    for player in load_players(snapshot_path):
+        uid = as_int(player.get('uid'))
+        if uid <= 0:
+            raise ValueError('Player entries must have a positive integer uid')
+        if holdem_hands(player) <= 0:
+            continue
 
-    expires_at = iso_format(imported_at + timedelta(days=30))
-    fetched_at = as_str(player.get('fetchedAt')) or iso_format(imported_at)
-    statements = [
-        insert_statement(
-            'player_cache',
-            {
-                'uid': uid,
-                'player_json': json_text(player),
-                'source': source,
-                'fetched_at': fetched_at,
-                'expires_at': expires_at,
-            },
-        )
-    ]
-    for alias in player_aliases(player):
-        statements.append(
+        fetched_at = as_str(player.get('fetchedAt')) or iso_format(imported_at)
+        lines.append(
             insert_statement(
-                'player_aliases',
+                'players',
                 {
-                    'alias': alias,
                     'uid': uid,
+                    'player_json': json_text(player),
                     'source': source,
-                    'observed_at': iso_format(imported_at),
+                    'fetched_at': fetched_at,
                 },
             )
         )
-    return statements
-
-
-def snapshot_import_sql(snapshot_path: Path, imported_at: datetime) -> str:
-    snapshot = load_snapshot(snapshot_path)
-    snapshot_id = as_str(snapshot.get('id'))
-    players = json_object_list(snapshot.get('players'))
-
-    lines = [
-        insert_statement(
-            'snapshots',
-            {
-                'id': snapshot_id,
-                'label': as_str(snapshot.get('label')),
-                'source': as_str(snapshot.get('source')),
-                'generated_at': as_str(snapshot.get('generatedAt')),
-                'fetched_at': iso_format(imported_at),
-                'player_count': len(players),
-                'leaderboard_row_count': sum(
-                    len(as_list(player.get('leaderboardEntries'))) for player in players
-                ),
-            },
-        ),
-        f'DELETE FROM snapshot_players WHERE snapshot_id = {sql_literal(snapshot_id)};',
-    ]
-
-    for player in players:
-        uid = as_int(player.get('uid'))
-        if uid <= 0:
-            raise ValueError('Snapshot player entries must have a positive integer uid')
-
-        leaderboard_entries = as_list(player.get('leaderboardEntries'))
-        fetched_at = as_str(player.get('fetchedAt')) or iso_format(imported_at)
-        player_payload: JsonObject = {
-            **player,
-            'leaderboardEntries': leaderboard_entries,
-        }
-        lines.extend(
-            [
+        for alias in player_aliases(player):
+            lines.append(
                 insert_statement(
-                    'snapshot_players',
+                    'player_aliases',
                     {
-                        'snapshot_id': snapshot_id,
+                        'alias': alias,
                         'uid': uid,
-                        'player_json': json_text(player_payload),
-                        'leaderboard_entries_json': json_text(leaderboard_entries),
-                        'fetched_at': fetched_at,
+                        'source': source,
+                        'observed_at': iso_format(imported_at),
                     },
-                ),
-                *cache_player_statements(player_payload, imported_at, 'snapshot'),
-            ]
-        )
+                )
+            )
 
-    retained = '(SELECT id FROM snapshots ORDER BY generated_at DESC LIMIT 30)'
-    expired_cache = (
-        'SELECT uid FROM player_cache '
-        f'WHERE expires_at < {sql_literal(iso_format(imported_at))} '
-        'AND uid NOT IN (SELECT uid FROM snapshot_players)'
-    )
     lines.extend(
         [
-            f'DELETE FROM snapshot_players WHERE snapshot_id NOT IN {retained};',
-            f'DELETE FROM snapshots WHERE id NOT IN {retained};',
-            f'DELETE FROM player_aliases WHERE uid IN ({expired_cache});',
-            f'DELETE FROM player_cache WHERE uid IN ({expired_cache});',
+            'DELETE FROM player_aliases WHERE uid IN '
+            f'(SELECT uid FROM players WHERE {EMPTY_PLAYER_PREDICATE});',
+            f'DELETE FROM players WHERE {EMPTY_PLAYER_PREDICATE};',
             '',
         ]
     )
     return '\n'.join(lines)
 
 
-def write_snapshot_import_sql(snapshot_path: Path, output_path: Path) -> None:
+def write_player_import_sql(snapshot_path: Path, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        snapshot_import_sql(snapshot_path, datetime.now(UTC)),
+        player_import_sql(snapshot_path, datetime.now(UTC)),
         encoding='utf-8',
     )
