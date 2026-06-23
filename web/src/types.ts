@@ -31,6 +31,31 @@ export type GameStats = {
   cbet: number;
 };
 
+export type CommunityTag =
+  | 'Bluff-heavy'
+  | 'Tilts easily'
+  | 'Hero caller'
+  | 'Slow-roller'
+  | 'Limper'
+  | 'Friendly'
+  | 'Overfolds'
+  | 'Min-raiser'
+  | 'Blind stealer'
+  | 'Bumhunter'
+  | 'Promo hunter'
+  | 'Donk bettor';
+
+export type CommunityTagCount = {
+  tag: CommunityTag;
+  count: number;
+};
+
+export type CommunityTagVote = {
+  tag: CommunityTag;
+  count: number;
+  mine: boolean;
+};
+
 export type PlayerRecord = {
   uid: number;
   name: string;
@@ -39,6 +64,7 @@ export type PlayerRecord = {
   games: Partial<Record<GameTypeId, GameStats>>;
   sngRecordCount: number;
   fetchedAt: string;
+  communityTags?: CommunityTagCount[];
 };
 
 export type PlayerDataset = {
