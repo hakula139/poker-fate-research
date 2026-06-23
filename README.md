@@ -10,7 +10,7 @@ The main output is a D1-backed website for browsing collected Poker Fate player 
 
 The website surface is Texas Hold'em only. Player classification is split into preflop and postflop tags tuned for 6-max Hold'em. The collector still fetches Omaha and SNG profile data from the official API, but those modes are not exposed in the UI; see [`docs/research/player-tagging.md`](docs/research/player-tagging.md) for the reason.
 
-A single unified player table is refreshed daily by GitHub Actions from the official leaderboards. A direct player search adds or refreshes that player in the same table when its data is more than one day old, so every player carries a one-day freshness cache. Players with no Texas Hold'em hands are removed and hidden from search.
+A single unified player table is refreshed daily by GitHub Actions from the official leaderboards. Searching for or opening a player refreshes that player in the same table when its data is more than one hour old, so every player carries a one-hour freshness cache. Players with no Texas Hold'em hands are removed and hidden from search.
 
 ## Project Layout
 
