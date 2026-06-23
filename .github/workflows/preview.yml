@@ -45,7 +45,7 @@ jobs:
           cache-dependency-path: web/pnpm-lock.yaml
 
       - name: Download web artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-dist
           path: web/dist/
@@ -91,7 +91,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Comment preview
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: preview-url
           message: |
