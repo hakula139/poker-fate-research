@@ -428,7 +428,7 @@ describe('community tags', () => {
     const body = result.body as { tags: TagVote[] };
 
     expect(result.status).toBe(200);
-    expect(body.tags).toHaveLength(12);
+    expect(body.tags).toHaveLength(11);
     expect(body.tags.every((tag) => tag.count === 0 && !tag.mine)).toBe(true);
   });
 

@@ -25,12 +25,11 @@ const communityTags = [
   'Hero caller',
   'Slow-roller',
   'Limper',
-  'Friendly',
   'Overfolds',
+  'Overplays',
   'Min-raiser',
   'Blind stealer',
   'Bumhunter',
-  'Promo hunter',
   'Donk bettor',
 ] as const;
 const communityTagSet = new Set<string>(communityTags);

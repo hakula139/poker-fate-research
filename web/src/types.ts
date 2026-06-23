@@ -37,12 +37,11 @@ export type CommunityTag =
   | 'Hero caller'
   | 'Slow-roller'
   | 'Limper'
-  | 'Friendly'
   | 'Overfolds'
+  | 'Overplays'
   | 'Min-raiser'
   | 'Blind stealer'
   | 'Bumhunter'
-  | 'Promo hunter'
   | 'Donk bettor';
 
 export type CommunityTagCount = {

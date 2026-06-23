@@ -98,17 +98,16 @@
     "hint": "点击添加或取消你的判断。当至少 10 名玩家认同后，标签会公开显示。"
   },
   "communityTags": {
-    "Bluff-heavy": "诈唬狂",
-    "Tilts easily": "易上头",
-    "Hero caller": "英雄跟注",
-    "Slow-roller": "慢摇",
-    "Limper": "跛入",
-    "Friendly": "友善",
+    "Bluff-heavy": "喜欢偷鸡",
+    "Tilts easily": "容易上头",
+    "Hero caller": "喜欢抓诈唬",
+    "Slow-roller": "经常慢摊牌",
+    "Limper": "喜欢平跟",
     "Overfolds": "过度弃牌",
-    "Min-raiser": "最小加注",
-    "Blind stealer": "偷盲",
-    "Bumhunter": "猎鱼",
-    "Promo hunter": "羊毛党",
-    "Donk bettor": "驴式下注"
+    "Overplays": "高估牌力",
+    "Min-raiser": "喜欢迷你加注",
+    "Blind stealer": "喜欢偷盲",
+    "Bumhunter": "喜欢捕鱼",
+    "Donk bettor": "喜欢领打"
   }
 }

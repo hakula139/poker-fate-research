@@ -112,20 +112,19 @@ A community tag is private until it earns agreement. The table and details panel
 
 Preset community tags:
 
-| Tag             | 中文     | Read                                                            |
-| --------------- | -------- | --------------------------------------------------------------- |
-| `Bluff-heavy`   | 诈唬狂   | Bets and raises as bluffs more than the board justifies.        |
-| `Tilts easily`  | 易上头   | Decisions degrade after losses or bad beats.                    |
-| `Hero caller`   | 英雄跟注 | Makes thin bluff-catching calls against big bets.               |
-| `Slow-roller`   | 慢摇     | Stalls before showing the winning hand; poor etiquette.         |
-| `Limper`        | 跛入     | Enters pots by calling the big blind instead of raising.        |
-| `Friendly`      | 友善     | Pleasant or soft at the table.                                  |
-| `Overfolds`     | 过度弃牌 | Folds too often to aggression.                                  |
-| `Min-raiser`    | 最小加注 | Defaults to minimum-size raises.                                |
-| `Blind stealer` | 偷盲     | Attacks the blinds frequently from late position.               |
-| `Bumhunter`     | 猎鱼     | Seeks out and table-selects weaker players.                     |
-| `Promo hunter`  | 羊毛党   | Plays mainly to farm bonuses and promotions.                    |
-| `Donk bettor`   | 驴式下注 | Leads into the previous-street aggressor while out of position. |
+| Tag             | 中文         | Read                                                            |
+| --------------- | ------------ | --------------------------------------------------------------- |
+| `Bluff-heavy`   | 喜欢偷鸡     | Bets and raises as bluffs more than the board justifies.        |
+| `Tilts easily`  | 容易上头     | Decisions degrade after losses or bad beats.                    |
+| `Hero caller`   | 喜欢抓诈唬   | Makes thin bluff-catching calls against big bets.               |
+| `Slow-roller`   | 经常慢摊牌   | Stalls before showing the winning hand; poor etiquette.         |
+| `Limper`        | 喜欢平跟     | Enters pots by calling the big blind instead of raising.        |
+| `Overfolds`     | 过度弃牌     | Folds too often to aggression.                                  |
+| `Overplays`     | 高估牌力     | Overvalues one pair or medium-strength hands and rarely folds.  |
+| `Min-raiser`    | 喜欢迷你加注 | Defaults to minimum-size raises.                                |
+| `Blind stealer` | 喜欢偷盲     | Attacks the blinds frequently from late position.               |
+| `Bumhunter`     | 喜欢捕鱼     | Seeks out and table-selects weaker players.                     |
+| `Donk bettor`   | 喜欢领打     | Leads into the previous-street aggressor while out of position. |
 
 ### Trust model
 

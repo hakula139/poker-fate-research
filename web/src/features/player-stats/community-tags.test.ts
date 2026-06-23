@@ -10,12 +10,11 @@ describe('community tag presets', () => {
       'Hero caller',
       'Slow-roller',
       'Limper',
-      'Friendly',
       'Overfolds',
+      'Overplays',
       'Min-raiser',
       'Blind stealer',
       'Bumhunter',
-      'Promo hunter',
       'Donk bettor',
     ]);
     expect(new Set(communityTagOrder).size).toBe(communityTagOrder.length);
