@@ -16,6 +16,25 @@ const gameTypes = [
   ['20010103', "Friend-room Hold'em"],
 ] as const;
 
+const communityTagThreshold = 10;
+const communityVoteRateLimitPerHour = 60;
+const communityVoteSalt = 'poker-fate.community-vote';
+const communityTags = [
+  'Bluff-heavy',
+  'Tilts easily',
+  'Hero caller',
+  'Slow-roller',
+  'Limper',
+  'Friendly',
+  'Overfolds',
+  'Min-raiser',
+  'Blind stealer',
+  'Bumhunter',
+  'Promo hunter',
+  'Donk bettor',
+] as const;
+const communityTagSet = new Set<string>(communityTags);
+
 type Env = {
   ASSETS: Fetcher;
   DB?: Database;
@@ -53,6 +72,23 @@ type CachedPlayerRow = {
 type PlayersResponse = {
   players: unknown[];
   updatedAt: string;
+};
+
+type CommunityCountRow = {
+  uid: number;
+  tag: string;
+  count: number;
+};
+
+type CommunityTagCount = {
+  tag: string;
+  count: number;
+};
+
+type CommunityTagVote = {
+  tag: string;
+  count: number;
+  mine: boolean;
 };
 
 class ApiError extends Error {
@@ -287,8 +323,11 @@ async function listD1Players(env: Env): Promise<PlayersResponse> {
     .bind(playerLimit)
     .all<PlayerRow>();
 
+  const players = results.map((row) => parseStoredPlayer(row.player_json));
+  attachCommunityTags(players, await communityTagCountsAll(env));
+
   return {
-    players: results.map((row) => parseStoredPlayer(row.player_json)),
+    players,
     updatedAt: results[0]?.fetched_at ?? '',
   };
 }
@@ -466,26 +505,257 @@ async function searchPlayers(env: Env, query: string): Promise<unknown[]> {
   }
 }
 
-async function handleApiRequest(request: Request, env: Env): Promise<Response> {
-  const url = new URL(request.url);
+function currentHourWindow(): string {
+  return isoNow().slice(0, 13);
+}
 
-  if (request.method !== 'GET') {
-    return jsonResponse({ error: 'Method not allowed' }, { status: 405 });
+async function hashIp(ip: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', utf8ToBytes(ip + communityVoteSalt));
+  return bytesToHex(new Uint8Array(digest));
+}
+
+async function withinRateLimit(env: Env, ip: string): Promise<boolean> {
+  if (!env.DB) {
+    return false;
   }
 
-  if (url.pathname === '/api/players') {
+  const ipHash = await hashIp(ip);
+  const windowStart = currentHourWindow();
+  const existing = await env.DB.prepare(
+    'SELECT count, window_start FROM community_vote_rate_limits WHERE ip_hash = ?',
+  )
+    .bind(ipHash)
+    .first<{ count: number; window_start: string }>();
+
+  const count = existing?.window_start === windowStart ? existing.count : 0;
+  if (count >= communityVoteRateLimitPerHour) {
+    return false;
+  }
+
+  await env.DB.prepare(
+    `
+    INSERT INTO community_vote_rate_limits (ip_hash, window_start, count)
+    VALUES (?, ?, 1)
+    ON CONFLICT(ip_hash) DO UPDATE SET
+      count = CASE WHEN window_start = excluded.window_start THEN count + 1 ELSE 1 END,
+      window_start = excluded.window_start
+    `,
+  )
+    .bind(ipHash, windowStart)
+    .run();
+  return true;
+}
+
+function groupCommunityCounts(rows: CommunityCountRow[]): Map<number, CommunityTagCount[]> {
+  const map = new Map<number, CommunityTagCount[]>();
+  for (const row of rows) {
+    const list = map.get(row.uid) ?? [];
+    list.push({ count: row.count, tag: row.tag });
+    map.set(row.uid, list);
+  }
+  return map;
+}
+
+async function communityTagCountsAll(env: Env): Promise<Map<number, CommunityTagCount[]>> {
+  if (!env.DB) {
+    return new Map();
+  }
+
+  const { results = [] } = await env.DB.prepare(
+    `
+    SELECT uid, tag, COUNT(*) AS count
+    FROM community_tag_votes
+    GROUP BY uid, tag
+    HAVING COUNT(*) >= ?
+    ORDER BY uid, count DESC
+    `,
+  )
+    .bind(communityTagThreshold)
+    .all<CommunityCountRow>();
+  return groupCommunityCounts(results);
+}
+
+async function communityTagCountsForUids(
+  env: Env,
+  uids: number[],
+): Promise<Map<number, CommunityTagCount[]>> {
+  if (!env.DB || uids.length === 0) {
+    return new Map();
+  }
+
+  const placeholders = uids.map(() => '?').join(', ');
+  const { results = [] } = await env.DB.prepare(
+    `
+    SELECT uid, tag, COUNT(*) AS count
+    FROM community_tag_votes
+    WHERE uid IN (${placeholders})
+    GROUP BY uid, tag
+    HAVING COUNT(*) >= ?
+    ORDER BY uid, count DESC
+    `,
+  )
+    .bind(...uids, communityTagThreshold)
+    .all<CommunityCountRow>();
+  return groupCommunityCounts(results);
+}
+
+function attachCommunityTags(players: unknown[], counts: Map<number, CommunityTagCount[]>): void {
+  for (const player of players) {
+    if (!isRecord(player)) {
+      continue;
+    }
+    const tags = counts.get(officialInt(player.uid));
+    if (tags?.length) {
+      player.communityTags = tags;
+    }
+  }
+}
+
+async function enrichWithCommunityTags(env: Env, players: unknown[]): Promise<void> {
+  const uids = players.flatMap((player) => (isRecord(player) ? [officialInt(player.uid)] : []));
+  const uniqueUids = [...new Set(uids.filter((uid) => uid > 0))];
+  if (uniqueUids.length === 0) {
+    return;
+  }
+  attachCommunityTags(players, await communityTagCountsForUids(env, uniqueUids));
+}
+
+async function listCommunityTags(
+  env: Env,
+  uid: number,
+  voterId: string,
+): Promise<CommunityTagVote[]> {
+  if (!env.DB || uid <= 0) {
+    return communityTags.map((tag) => ({ count: 0, mine: false, tag }));
+  }
+
+  const { results = [] } = await env.DB.prepare(
+    `
+    SELECT tag, COUNT(*) AS count, MAX(CASE WHEN voter_id = ? THEN 1 ELSE 0 END) AS mine
+    FROM community_tag_votes
+    WHERE uid = ?
+    GROUP BY tag
+    `,
+  )
+    .bind(voterId, uid)
+    .all<{ tag: string; count: number; mine: number }>();
+
+  const byTag = new Map(results.map((row) => [row.tag, row]));
+  return communityTags.map((tag) => {
+    const row = byTag.get(tag);
+    return { count: row?.count ?? 0, mine: (row?.mine ?? 0) === 1, tag };
+  });
+}
+
+async function submitCommunityTagVote(
+  env: Env,
+  request: Request,
+  uid: number,
+): Promise<{ tags: CommunityTagVote[] }> {
+  if (!env.DB) {
+    throw new ApiError(503, 'Community tagging is not configured.');
+  }
+  if (uid <= 0) {
+    throw new ApiError(400, 'Invalid player id.');
+  }
+
+  let payload: unknown;
+  try {
+    payload = await request.json();
+  } catch {
+    throw new ApiError(400, 'Invalid JSON body.');
+  }
+  if (!isRecord(payload)) {
+    throw new ApiError(400, 'Invalid JSON body.');
+  }
+
+  const tag = officialString(payload.tag);
+  const voterId = officialString(payload.voterId).trim();
+  const action = officialString(payload.action);
+  if (!communityTagSet.has(tag)) {
+    throw new ApiError(400, 'Unknown community tag.');
+  }
+  if (voterId.length < 8 || voterId.length > 64) {
+    throw new ApiError(400, 'Invalid voter id.');
+  }
+  if (action !== 'add' && action !== 'remove') {
+    throw new ApiError(400, 'Invalid vote action.');
+  }
+
+  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
+  if (!(await withinRateLimit(env, ip))) {
+    throw new ApiError(429, 'Too many votes. Try again later.');
+  }
+
+  if (action === 'add') {
+    await env.DB.prepare(
+      `
+      INSERT INTO community_tag_votes (uid, tag, voter_id, created_at)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(uid, tag, voter_id) DO NOTHING
+      `,
+    )
+      .bind(uid, tag, voterId, isoNow())
+      .run();
+  } else {
+    await env.DB.prepare(
+      'DELETE FROM community_tag_votes WHERE uid = ? AND tag = ? AND voter_id = ?',
+    )
+      .bind(uid, tag, voterId)
+      .run();
+  }
+
+  return { tags: await listCommunityTags(env, uid, voterId) };
+}
+
+function methodNotAllowed(): Response {
+  return jsonResponse({ error: 'Method not allowed' }, { status: 405 });
+}
+
+async function handleApiRequest(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const { pathname } = url;
+
+  if (pathname === '/api/players') {
+    if (request.method !== 'GET') {
+      return methodNotAllowed();
+    }
     return jsonResponse(await listD1Players(env));
   }
 
-  if (url.pathname === '/api/players/search') {
-    return jsonResponse({
-      players: await searchPlayers(env, url.searchParams.get('q') ?? ''),
-    });
+  if (pathname === '/api/players/search') {
+    if (request.method !== 'GET') {
+      return methodNotAllowed();
+    }
+    const players = await searchPlayers(env, url.searchParams.get('q') ?? '');
+    await enrichWithCommunityTags(env, players);
+    return jsonResponse({ players });
   }
 
-  const playerByUid = /^\/api\/players\/(\d+)$/.exec(url.pathname);
+  const tagsRoute = /^\/api\/players\/(\d+)\/tags$/.exec(pathname);
+  if (tagsRoute) {
+    const uid = Number(tagsRoute[1]);
+    if (request.method === 'GET') {
+      return jsonResponse({
+        tags: await listCommunityTags(env, uid, url.searchParams.get('voter') ?? ''),
+      });
+    }
+    if (request.method === 'POST') {
+      return jsonResponse(await submitCommunityTagVote(env, request, uid));
+    }
+    return methodNotAllowed();
+  }
+
+  const playerByUid = /^\/api\/players\/(\d+)$/.exec(pathname);
   if (playerByUid) {
-    return jsonResponse({ player: await refreshPlayerByUid(env, Number(playerByUid[1])) });
+    if (request.method !== 'GET') {
+      return methodNotAllowed();
+    }
+    const player = await refreshPlayerByUid(env, Number(playerByUid[1]));
+    if (player) {
+      await enrichWithCommunityTags(env, [player]);
+    }
+    return jsonResponse({ player });
   }
 
   return jsonResponse({ error: 'Not found' }, { status: 404 });
