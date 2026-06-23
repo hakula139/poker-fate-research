@@ -15,6 +15,9 @@ test('loads generated player stats and filters players', async ({ page }) => {
       },
     });
   });
+  await page.route('**/api/players/*', async (route) => {
+    await route.fulfill({ contentType: 'application/json', json: { player: null } });
+  });
 
   await page.goto('/');
 
