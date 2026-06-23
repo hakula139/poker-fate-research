@@ -78,6 +78,11 @@ export function PlayerDetails({
         <CommunityTagChips tags={player.communityTags} />
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
+        <CommunityTagVoter
+          key={player.uid}
+          uid={player.uid}
+        />
+
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
           <MetricTile
             label={t.table.hands}
@@ -136,11 +141,6 @@ export function PlayerDetails({
             )}
           </div>
         </div>
-
-        <CommunityTagVoter
-          key={player.uid}
-          uid={player.uid}
-        />
       </CardContent>
     </Card>
   );
