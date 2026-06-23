@@ -1,19 +1,20 @@
 # Player Tagging
 
-This page records the player classification model used by the stats site. Treat these tags as heuristic labels, not objective judgments. The thresholds should be calibrated after collecting a larger Poker Fate sample.
+This page records the player classification model used by the stats site. Treat these tags as heuristic labels, not objective judgments. The implementation lives in `web/src/features/player-stats/tagging.ts`.
 
-## Scope
+## Current Model
 
-The tagging model and the public stats website cover Texas Hold'em only. The collector still fetches `/player/gameData` for Omaha (`10020101`) and SNG Hold'em (`10050301`) so the official API contract stays documented in [API Inventory](api-inventory.md), but those modes are not selectable in the UI and are not classified into preflop / postflop tags. See [Other Game Modes](#other-game-modes) for the reasons.
+The tagging model and the public stats website cover Hold'em lobby only. The collector still fetches every confirmed `/player/gameData` profile game type so the official API contract stays documented in [API Inventory](api-inventory.md), but Omaha, SNG Hold'em, and friend-room Hold'em are not selectable in the UI and are not classified. See [Excluded Game Modes](#excluded-game-modes) for the reasons.
 
-## Available Signals
+Each sampled Hold'em player receives one primary preflop tag and one primary postflop tag. If the player has fewer than `500` Hold'em hands, the UI shows only `Sample too low`. Players above the hand threshold can also receive additive overlay chips for narrow signals that do not replace the primary taxonomy.
 
-The official profile-stat API exposes enough public fields for an initial style tag:
+## Signals and Limits
+
+The official profile-stat API exposes enough public fields for a first-pass style model:
 
 | Field                      | Signal                                                     |
 | -------------------------- | ---------------------------------------------------------- |
 | `play_times`               | Sample size.                                               |
-| `profit`                   | Recent 30-day profit for the selected game type.           |
 | `pool_entry_rate`          | VPIP, preflop participation.                               |
 | `add_before_flipping_rate` | PFR, preflop raising.                                      |
 | `three_bet_rate`           | Preflop re-raise frequency.                                |
@@ -21,7 +22,37 @@ The official profile-stat API exposes enough public fields for an initial style 
 | `active_rate`              | AFq, postflop aggression frequency.                        |
 | `c_bete_rate`              | C-Bet frequency after being the previous-street aggressor. |
 
-Rates are returned as integer basis points of percent display, so `2530` displays as `25.30%`.
+Rates are returned as integer basis points of percent display, so `2530` displays as `25.30%`. The UI also displays `profit`, but the classifier does not use profit as a style tag because it is an outcome, not a strategic tendency.
+
+Common HUD references also use signals that are not exposed by the current profile-stat API:
+
+| Read                         | Missing signal                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Blind-steal / blind-defense  | Position-specific opens, steal attempts, fold-to-steal, and blind-defense frequencies.               |
+| 3-Bet exploitability         | Fold-to-3-Bet, 4-Bet, and fold-to-4-Bet frequencies.                                                 |
+| C-Bet exploitability         | Fold-to-C-Bet, raise-C-Bet, delayed-C-Bet, and single-raised-pot versus 3-Bet-pot splits.            |
+| Showdown quality             | Won money at showdown and won when saw flop.                                                         |
+| Barrel profile               | Turn / river C-Bet, probe, check-raise, and river aggression frequencies.                            |
+| Tournament-stage SNG profile | Stack depth, blind level, ante stage, bubble state, push / fold opportunities, ROI, and ITM history. |
+
+## Calibration Notes
+
+External 6-max / cash-game HUD guidance agrees that VPIP and PFR are the main first-pass dimensions, the VPIP / PFR gap is a passive-play signal, low VPIP indicates nitty play, high VPIP with low PFR indicates loose-passive play, and high VPIP with high PFR points toward LAG or maniac profiles. 3-Bet, WTSD, AFq, and C-Bet are useful confirming signals, but they need larger samples and cannot express every exploit without the missing fields above.
+
+The 2026-06-12 Poker Fate Hold'em snapshot is much more passive than common 6-max cash HUD guidance: among players with at least `500` Hold'em hands, median WTSD is `35.55%`, median AFq is `17.86%`, and median C-Bet is `37.63%`. Treating that median as balanced would hide a real population tendency, so the postflop model keeps external 6-max baselines in view.
+
+Fresh low-volume check on 2026-06-23: the official collector discovered `444` leaderboard-visible UIDs and enriched the first `40` UID-sorted players with `--max-players 40`. Of those, `39` had Hold'em hands and `25` had at least `500` Hold'em hands. This is useful as a field-shape check, not population calibration, because the enriched set is UID-sorted after leaderboard discovery.
+
+Observed 2026-06-23 sampled Hold'em ranges for players with at least `500` hands:
+
+| Field | Median   | 75th percentile | 90th percentile |
+| ----- | -------- | --------------- | --------------- |
+| VPIP  | `36.97%` | `41.51%`        | `62.41%`        |
+| PFR   | `13.90%` | `18.07%`        | `26.55%`        |
+| 3-Bet | `7.37%`  | `9.49%`         | `11.85%`        |
+| WTSD  | `35.18%` | `38.54%`        | `43.57%`        |
+| AFq   | `17.25%` | `20.92%`        | `23.24%`        |
+| C-Bet | `42.10%` | `47.76%`        | `51.52%`        |
 
 ## Preflop Tags
 
@@ -47,22 +78,6 @@ Players above the hand threshold should always receive a preflop label. The midd
 
 The website presents separate preflop and postflop chips. The preflop chip uses VPIP, PFR, VPIP / PFR gap, and 3-Bet. The postflop chip uses WTSD, AFq, and C-Bet. This avoids mixing a player who enters too many pots with a player who simply calls down too often after the flop.
 
-Postflop thresholds are calibrated for 6-max cash Hold'em, which is the primary view. They are not calibrated from the Poker Fate sample percentiles alone. The 2026-06-12 Poker Fate Hold'em snapshot is much more passive than common 6-max cash HUD guidance: among players with at least 500 Hold'em hands, median WTSD is `35.55%`, median AFq is `17.86%`, and median C-Bet is `37.63%`. Treating that median as balanced would hide a real population tendency.
-
-External 6-max / cash-game HUD guidance used for the v1 postflop model:
-
-- WTSD: `27-32%` is a good range, with `30%` as a target; `20-30%` is also cited as normal.
-- AFq: AFq is an aggression-frequency percentage; roughly `30%` or lower is passive and around `50%` is usable.
-- C-Bet: 6-max flop C-Bet ideal is cited around `70%`; very low C-Bet is passive for a preflop raiser.
-
-Poker Fate Hold'em observed ranges on 2026-06-12:
-
-| Field | Median   | 75th percentile | 90th percentile |
-| ----- | -------- | --------------- | --------------- |
-| WTSD  | `35.55%` | `38.87%`        | `43.26%`        |
-| AFq   | `17.86%` | `22.32%`        | `25.01%`        |
-| C-Bet | `37.63%` | `44.24%`        | `49.31%`        |
-
 Postflop tags:
 
 | Condition                                 | Tag                  | Rationale                                                  |
@@ -75,23 +90,38 @@ Postflop tags:
 | AFq `< 30%` and C-Bet `< 50%`             | `Postflop passive`   | Below normal aggression without the high-showdown shape.   |
 | Remaining sampled players                 | `Postflop balanced`  | Closest to a normal 6-max cash postflop shape.             |
 
-## Other Game Modes
+## Overlay Tags
 
-Omaha and SNG are intentionally outside the current model and the public website surface.
+Overlay tags add narrow reads without changing the primary preflop / postflop labels or table sorting. They use the same `500`-hand cutoff as the primary tags.
 
-Omaha (Pot Limit Omaha):
+| Condition      | Tag              | Rationale                                                                            |
+| -------------- | ---------------- | ------------------------------------------------------------------------------------ |
+| 3-Bet `>= 10%` | `3-Bet pressure` | Common HUD guidance treats roughly `6-10%` as normal and `10-12%+` as aggressive.    |
+| 3-Bet `< 4%`   | `Low 3-Bet`      | Flags players who have a meaningful sample but rarely re-raise preflop.              |
+| C-Bet `< 35%`  | `Low C-Bet`      | Confirms low continuation pressure after a player was the previous-street aggressor. |
 
-- Four hole cards compress preflop equities, so winning population baselines for VPIP and PFR are noticeably higher than 6-max Hold'em. Public guidance puts a typical solid PLO regular around `25-30%` VPIP, with `20%` already considered tight, against `21-26%` VPIP for 6-max Hold'em. Postflop signals (C-Bet, fold-to-C-Bet, aggression frequency) need separate baselines because PLO boards connect with ranges more often than Hold'em boards.
-- Reusing the Hold'em thresholds on Omaha would systematically over-tag Omaha regulars as `LAG`, `Loose-balanced`, or `Loose-passive` and would label Hold'em-grade tight players as `Nit` even when their PLO ranges are normal.
-- The Poker Fate snapshot on 2026-06-12 has no calibrated Omaha sample; the only Omaha row in the `Hakula` snapshot is `3` hands. Calibrating Omaha tags from this checkout alone would invent thresholds.
+`Showdown caller` already captures the high-WTSD, low-AFq "sticky caller" shape as a primary postflop tag. Profit remains visible in the table and details panel, but it is not a style tag.
 
-SNG (Sit and Go):
+## Excluded Game Modes
 
-- Population averages depend on tournament stage (deep early levels, mid-stage with antes, bubble, in-the-money, push / fold under `~12 BB`). A single cash HUD threshold cannot describe an SNG player who plays `12-15%` VPIP early and pushes from late position under `10 BB`.
-- The profile-stat API exposes tournament summary fields (`tour_round`, `tour_win_round`, `tour_profit`, `champion_points`) and a separate `/player/sngRecord` history list, but not stack-depth-aware aggregates. ROI and ITM are the conventional SNG metrics, and reliable ROI estimation typically needs `1,000+` tournaments per player. The current profile payload does not split outcomes by stage or stack depth, so the most informative SNG signals are not available from this surface.
-- The Poker Fate snapshot on 2026-06-12 has no SNG cash HUD sample for the dedicated guest target; `/player/sngRecord` for UID `10410931` returned an empty `list`. Reusing the Hold'em VPIP / PFR / WTSD / AFq / C-Bet bands on SNG profiles would mostly produce `Sample too low` and, when not, label tournament profiles with cash-game tags that do not describe how SNG decisions are actually made.
+The collector fetches every confirmed profile game type, but the current public model classifies only Hold'em lobby (`10010101`). Other modes have real data in the current sample; they are excluded because they need separate baselines and, for SNG, different outcome metrics.
 
-If a future calibration pass collects enough Poker Fate Omaha hands and SNG histories, both modes can re-enter the model with their own threshold tables and, for SNG, likely a different metric basis (such as ROI, ITM, tour profit per game, and stack-aware shoving stats) instead of cash HUD bands.
+The 2026-06-23 bounded run enriched `40` leaderboard-discovered players:
+
+| Game type           | Players with hands | Players with `>= 500` hands | Max hands |
+| ------------------- | ------------------ | --------------------------- | --------- |
+| Hold'em lobby       | `39`               | `25`                        | `17390`   |
+| Omaha lobby         | `31`               | `11`                        | `5544`    |
+| SNG Hold'em         | `36`               | `13`                        | `7583`    |
+| Friend-room Hold'em | `14`               | `3`                         | `707`     |
+
+Omaha has enough fresh rows to show that the fields are populated, but not enough to set a stable threshold table from this checkout. Four-card equities and board coverage also change the meaning of VPIP, PFR, C-Bet, and aggression, so importing Hold'em lobby thresholds would mislabel the mode.
+
+SNG Hold'em also has populated profile rows and SNG history in the current sample. The same bounded run contained `1048` `/player/sngRecord` rows across the `40` enriched players, and `36` players had nonzero `tour_round`. The SNG HUD fields have a different shape from cash Hold'em: among sampled players with at least `500` SNG Hold'em hands, median VPIP was `67.16%`, median PFR was `44.59%`, median WTSD was `63.58%`, and median C-Bet was `4.32%`. Those values reflect a tournament surface, not a 6-max cash baseline.
+
+Friend-room Hold'em is also excluded from the model. It is a separate play context and the 2026-06-23 bounded sample had only `3` players with at least `500` friend-room hands.
+
+Future Omaha and SNG tags should use their own threshold tables. For SNG, the useful basis is likely tournament outcomes and stage-aware tendencies, such as ROI, ITM, tour profit per game, and stack-depth push / fold behavior, rather than cash-game VPIP / PFR / WTSD / AFq / C-Bet bands alone.
 
 References:
 
@@ -102,10 +132,10 @@ References:
 
 ## External References
 
-External poker references agree that VPIP and PFR are the core first-pass dimensions, the VPIP / PFR gap is a passive-play signal, low VPIP indicates nitty play, high VPIP with low PFR indicates loose-passive play, and high VPIP with high PFR points toward LAG or maniac profiles.
-
 - <https://pokercopilot.com/poker-statistics/vpip-pfr>: Defines VPIP/PFR, explains that a larger VPIP / PFR gap indicates passivity, and gives example VPIP/PFR ranges for nits, rocks, regulars, and loose-passive players.
 - <https://www.blackrain79.com/2017/10/what-are-the-best-poker-hud-stats.html>: Gives 6-max HUD reference points including VPIP `20`, PFR `17`, 3-Bet `7`, and flop C-Bet `70`.
 - <https://upswingpoker.com/poker-hud-stats/>: Gives WTSD guidance around `27-32%`, with `30%` as a useful target, and warns that WTSD needs a large sample.
 - <https://drivehud.com/dwkb/what-are-good-hud-stats/>: Gives WTSD normal range around `20-30%` and explains aggression-factor interpretation.
 - <https://upswingpoker.com/glossary/aggression-frequency-afq/>: Defines AFq as an aggression-frequency percentage based on bets and raises divided by aggressive and non-aggressive actions.
+- <https://riverodds.app/poker-hud-stats/>: Summarizes common VPIP, PFR, VPIP / PFR gap, 3-Bet, WTSD, and C-Bet uses for player profiling.
+- <https://www.hand2note.com/Blog/Features/key-preflop-stats-player-profiling-and-basic-adjustments>: Gives 6-max VPIP bands for nits, tight players, loose players, and fish, and emphasizes combining VPIP with PFR.

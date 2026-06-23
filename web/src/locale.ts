@@ -1,10 +1,10 @@
 import enMessages from './locales/en.json';
 import zhHansMessages from './locales/zh-Hans.json';
-import type { PostflopTag, PreflopTag } from './types';
+import type { OverlayTag, PostflopTag, PreflopTag } from './types';
 
 export type Locale = 'en' | 'zh-Hans';
 
-type PlayerTag = PreflopTag | PostflopTag;
+type PlayerTag = PreflopTag | PostflopTag | OverlayTag;
 
 export type Messages = {
   app: {

@@ -3,9 +3,9 @@ import type { VariantProps } from 'class-variance-authority';
 import { Badge, type badgeVariants } from '@/components/ui/badge';
 import { classifyPlayer } from '@/features/player-stats/tagging';
 import { useI18n } from '@/i18n';
-import type { GameStats, PostflopTag, PreflopTag } from '@/types';
+import type { GameStats, OverlayTag, PostflopTag, PreflopTag } from '@/types';
 
-type PlayerTag = PreflopTag | PostflopTag;
+type PlayerTag = PreflopTag | PostflopTag | OverlayTag;
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 
 const tagVariants: Record<PlayerTag, BadgeVariant> = {
@@ -23,6 +23,9 @@ const tagVariants: Record<PlayerTag, BadgeVariant> = {
   'Postflop passive': 'secondary',
   'Postflop aggressor': 'danger',
   'Postflop balanced': 'success',
+  '3-Bet pressure': 'danger',
+  'Low 3-Bet': 'outline',
+  'Low C-Bet': 'secondary',
 };
 
 function PlayerTagChip({ tag }: { tag: PlayerTag }) {
@@ -40,7 +43,10 @@ function PlayerTagChip({ tag }: { tag: PlayerTag }) {
 
 export function TagGroup({ stats }: { stats: GameStats | undefined }) {
   const tags = classifyPlayer(stats);
-  const values = tags.preflop === 'Sample too low' ? [tags.preflop] : [tags.preflop, tags.postflop];
+  const values =
+    tags.preflop === 'Sample too low'
+      ? [tags.preflop]
+      : [tags.preflop, tags.postflop, ...tags.overlays];
   return (
     <div className="flex flex-wrap gap-1.5">
       {values.map((tag) => (

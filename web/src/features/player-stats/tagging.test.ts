@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest';
 import type { GameStats } from '@/types';
 
 import {
+  classifyOverlays,
   classifyPlayer,
   classifyPostflop,
   classifyPreflop,
+  overlayTagOrder,
   postflopTagOrder,
   preflopTagOrder,
   tagSortValue,
@@ -118,7 +120,23 @@ describe('classifyPlayer', () => {
     expect(classifyPlayer(stats({ vpip: 3400, pfr: 2600, wtsd: 3300, afq: 3500 }))).toEqual({
       preflop: 'LAG',
       postflop: 'Showdown-heavy',
+      overlays: [],
     });
+  });
+});
+
+describe('classifyOverlays', () => {
+  it('requires a meaningful hand sample', () => {
+    expect(classifyOverlays(stats({ hands: 499, threeBet: 1200, cbet: 2000 }))).toEqual([]);
+  });
+
+  it('labels high and low 3-bet pressure', () => {
+    expect(classifyOverlays(stats({ threeBet: 1000 }))).toContain('3-Bet pressure');
+    expect(classifyOverlays(stats({ threeBet: 399 }))).toContain('Low 3-Bet');
+  });
+
+  it('labels low continuation betting', () => {
+    expect(classifyOverlays(stats({ cbet: 3400 }))).toContain('Low C-Bet');
   });
 });
 
@@ -146,6 +164,10 @@ describe('tagSortValue', () => {
       'Showdown-heavy',
       'Showdown caller',
     ]);
+  });
+
+  it('keeps overlay tags in display order', () => {
+    expect(overlayTagOrder).toEqual(['3-Bet pressure', 'Low 3-Bet', 'Low C-Bet']);
   });
 
   it('sorts primarily by preflop style', () => {

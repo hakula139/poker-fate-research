@@ -65,7 +65,10 @@ export type PostflopTag =
   | 'Postflop aggressor'
   | 'Postflop balanced';
 
+export type OverlayTag = '3-Bet pressure' | 'Low 3-Bet' | 'Low C-Bet';
+
 export type PlayerTags = {
   preflop: PreflopTag;
   postflop: PostflopTag;
+  overlays: OverlayTag[];
 };
