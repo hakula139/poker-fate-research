@@ -9,6 +9,7 @@ import { getGameStats, HOLDEM_GAME_TYPE_NUMERIC } from '@/features/player-stats/
 import { useI18n } from '@/i18n';
 import type { LeaderboardEntry, PlayerRecord } from '@/types';
 
+import { CommunityTagChips, CommunityTagVoter } from './community-tag-voter';
 import { MetricTile } from './metric-tile';
 import { StatLabel, type StatLabelId } from './stat-label';
 import { labelClass, statsPanelClass } from './styles';
@@ -74,6 +75,7 @@ export function PlayerDetails({
           {refreshing ? <span className="ml-1 italic">· {t.details.refreshing}</span> : null}
         </p>
         <TagGroup stats={stats} />
+        <CommunityTagChips tags={player.communityTags} />
       </CardHeader>
       <CardContent className="grid gap-4 lg:min-h-0 lg:overflow-auto">
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
@@ -134,6 +136,11 @@ export function PlayerDetails({
             )}
           </div>
         </div>
+
+        <CommunityTagVoter
+          key={player.uid}
+          uid={player.uid}
+        />
       </CardContent>
     </Card>
   );

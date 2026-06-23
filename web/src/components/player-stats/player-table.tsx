@@ -16,6 +16,7 @@ import { useI18n } from '@/i18n';
 import { cn } from '@/lib/utils';
 import type { PlayerRecord } from '@/types';
 
+import { CommunityTagChips } from './community-tag-voter';
 import { StatLabel } from './stat-label';
 import { statsPanelClass } from './styles';
 import { TagGroup } from './tag-group';
@@ -251,6 +252,7 @@ export function PlayerTable({
                   <TableCell>{format.rate(stats?.cbet)}</TableCell>
                   <TableCell className="whitespace-normal">
                     <TagGroup stats={stats} />
+                    <CommunityTagChips tags={player.communityTags} />
                   </TableCell>
                   <TableCell
                     className="text-muted-foreground text-xs"
