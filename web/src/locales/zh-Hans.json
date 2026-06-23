@@ -88,6 +88,9 @@
     "Showdown-heavy": "摊牌偏多",
     "Postflop passive": "翻后被动",
     "Postflop aggressor": "翻后激进",
-    "Postflop balanced": "翻后均衡"
+    "Postflop balanced": "翻后均衡",
+    "3-Bet pressure": "3-Bet 施压",
+    "Low 3-Bet": "低 3-Bet",
+    "Low C-Bet": "低持续下注"
   }
 }

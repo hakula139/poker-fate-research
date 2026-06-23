@@ -1,4 +1,4 @@
-import type { GameStats, PlayerTags, PostflopTag, PreflopTag } from '@/types';
+import type { GameStats, OverlayTag, PlayerTags, PostflopTag, PreflopTag } from '@/types';
 
 const MIN_HANDS = 500;
 
@@ -22,6 +22,8 @@ export const postflopTagOrder: PostflopTag[] = [
   'Showdown-heavy',
   'Showdown caller',
 ];
+
+export const overlayTagOrder: OverlayTag[] = ['3-Bet pressure', 'Low 3-Bet', 'Low C-Bet'];
 
 export function ratePercent(rate: number): number {
   return rate / 100;
@@ -104,10 +106,33 @@ export function classifyPostflop(stats: GameStats | undefined): PostflopTag {
   return 'Postflop balanced';
 }
 
+export function classifyOverlays(stats: GameStats | undefined): OverlayTag[] {
+  if (!stats || stats.hands < MIN_HANDS) {
+    return [];
+  }
+
+  const threeBet = ratePercent(stats.threeBet);
+  const cbet = ratePercent(stats.cbet);
+  const tags: OverlayTag[] = [];
+
+  if (threeBet >= 10) {
+    tags.push('3-Bet pressure');
+  } else if (threeBet < 4) {
+    tags.push('Low 3-Bet');
+  }
+
+  if (cbet < 35) {
+    tags.push('Low C-Bet');
+  }
+
+  return tags;
+}
+
 export function classifyPlayer(stats: GameStats | undefined): PlayerTags {
   return {
     preflop: classifyPreflop(stats),
     postflop: classifyPostflop(stats),
+    overlays: classifyOverlays(stats),
   };
 }
 
