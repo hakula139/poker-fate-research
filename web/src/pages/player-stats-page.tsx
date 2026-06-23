@@ -92,9 +92,12 @@ export function PlayerStatsPage() {
             selectedUid={view.selectedPlayer?.uid ?? null}
             sort={view.sort}
             onSort={view.changeSort}
-            onSelect={view.setSelectedUid}
+            onSelect={view.selectPlayer}
           />
-          <PlayerDetails player={view.selectedPlayer} />
+          <PlayerDetails
+            player={view.selectedPlayer}
+            refreshing={view.selectedPlayer?.uid === view.refreshingUid}
+          />
         </section>
       </div>
     </main>

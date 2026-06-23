@@ -20,26 +20,28 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function isPlayerRecord(value: unknown): value is PlayerRecord {
+  return (
+    isRecord(value) &&
+    typeof value.uid === 'number' &&
+    typeof value.name === 'string' &&
+    isRecord(value.games)
+  );
+}
+
 function assertPlayerRecords(value: unknown): asserts value is PlayerRecord[] {
-  if (!Array.isArray(value)) {
+  if (!Array.isArray(value) || !value.every(isPlayerRecord)) {
     throw new DataLoadError('invalid');
-  }
-  for (const player of value) {
-    if (
-      !isRecord(player) ||
-      typeof player.uid !== 'number' ||
-      typeof player.name !== 'string' ||
-      !isRecord(player.games)
-    ) {
-      throw new DataLoadError('invalid');
-    }
   }
 }
 
 export function mergePlayersByUid(primary: PlayerRecord[], extra: PlayerRecord[]): PlayerRecord[] {
   const byUid = new Map(primary.map((player) => [player.uid, player]));
   for (const player of extra) {
-    byUid.set(player.uid, byUid.get(player.uid) ?? player);
+    const existing = byUid.get(player.uid);
+    if (!existing || player.fetchedAt > existing.fetchedAt) {
+      byUid.set(player.uid, player);
+    }
   }
   return [...byUid.values()];
 }
@@ -76,4 +78,22 @@ export async function searchPlayers(query: string): Promise<PlayerRecord[]> {
   }
   assertPlayerRecords(value.players);
   return value.players;
+}
+
+export async function refreshPlayer(uid: number): Promise<PlayerRecord | null> {
+  const response = await fetch(`/api/players/${String(uid)}`);
+  if (!response.ok) {
+    throw new DataLoadError('unavailable');
+  }
+  const value = await response.json();
+  if (!isRecord(value)) {
+    throw new DataLoadError('invalid');
+  }
+  if (value.player == null) {
+    return null;
+  }
+  if (!isPlayerRecord(value.player)) {
+    throw new DataLoadError('invalid');
+  }
+  return value.player;
 }

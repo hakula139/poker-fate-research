@@ -24,7 +24,13 @@ function PeriodBadge({ entry }: { entry: LeaderboardEntry }) {
   );
 }
 
-export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) {
+export function PlayerDetails({
+  player,
+  refreshing = false,
+}: {
+  player: PlayerRecord | undefined;
+  refreshing?: boolean;
+}) {
   const { format, t } = useI18n();
 
   if (!player) {
@@ -65,6 +71,7 @@ export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) 
           title={format.dateTime(player.fetchedAt)}
         >
           {t.details.updated}: {format.relativeTime(player.fetchedAt)}
+          {refreshing ? <span className="ml-1 italic">· {t.details.refreshing}</span> : null}
         </p>
         <TagGroup stats={stats} />
       </CardHeader>

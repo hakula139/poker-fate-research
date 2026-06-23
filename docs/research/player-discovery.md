@@ -117,9 +117,9 @@ The website reads a single unified `players` table from Cloudflare D1 through Wo
 uv --project python run poker-fate d1-import-sql data/player-snapshots/poker-fate-players-20260618T010203Z.jsonl --output work/d1-import.sql
 ```
 
-The import upserts each player into the `players` table and records the fetch time used for the one-day search cache. Players with no Texas Hold'em (`10010101`) hands are skipped on insert and removed from the table, so the website surface never lists empty profiles.
+The import upserts each player into the `players` table and records the fetch time used for the one-hour freshness cache. Players with no Texas Hold'em (`10010101`) hands are skipped on insert and removed from the table, so the website surface never lists empty profiles.
 
-GitHub Actions runs the daily collector and imports the generated SQL into the `poker-fate-stats` D1 database. A direct player search refreshes an individual player when their stored data is more than one day old. Deploy workflows build and publish the Worker.
+GitHub Actions runs the daily collector and imports the generated SQL into the `poker-fate-stats` D1 database. Searching for or opening a player refreshes that individual player when their stored data is more than one hour old. Deploy workflows build and publish the Worker.
 
 ## Stats Enrichment
 

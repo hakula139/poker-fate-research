@@ -64,6 +64,7 @@ export type Messages = {
     noLeaderboardRows: string;
     noMatchingPlayer: string;
     updated: string;
+    refreshing: string;
     value: string;
   };
   periods: {

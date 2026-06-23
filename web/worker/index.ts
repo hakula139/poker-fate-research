@@ -6,7 +6,7 @@ const loginVerifySalt = 'ba2798edafa12f3ae08822a3203158cb';
 const playerLimit = 1000;
 const searchResultLimit = 20;
 const officialLookupLimit = 5;
-const cacheFreshnessDays = 1;
+const cacheFreshnessMinutes = 60;
 const holdemGameType = '10010101';
 const holdemHandsPath = `$.games."${holdemGameType}".hands`;
 const gameTypes = [
@@ -68,8 +68,8 @@ function isoNow(): string {
   return new Date().toISOString();
 }
 
-function isoDaysAgo(days: number): string {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+function isoMinutesAgo(minutes: number): string {
+  return new Date(Date.now() - minutes * 60 * 1000).toISOString();
 }
 
 function jsonResponse(value: unknown, init?: ResponseInit) {
@@ -418,13 +418,33 @@ async function lookupOfficialPlayers(env: Env, query: string): Promise<unknown[]
   return stored.filter((player) => hasHoldemHands(player));
 }
 
+async function refreshPlayerByUid(env: Env, uid: number): Promise<unknown> {
+  if (!env.DB || uid <= 0) {
+    return null;
+  }
+
+  const cached = await env.DB.prepare('SELECT player_json, fetched_at FROM players WHERE uid = ?')
+    .bind(uid)
+    .first<{ fetched_at: string; player_json: string }>();
+
+  if (cached && isoMinutesAgo(cacheFreshnessMinutes) <= cached.fetched_at) {
+    return parseStoredPlayer(cached.player_json);
+  }
+
+  const names = cached ? aliasesForPlayer(parseStoredPlayer(cached.player_json)) : [];
+  const authorization = await loginGuest(env);
+  const player = await fetchOfficialPlayer(authorization, uid, names);
+  const stored = await cachePlayer(env, player, 'refresh');
+  return hasHoldemHands(stored) ? stored : null;
+}
+
 async function searchPlayers(env: Env, query: string): Promise<unknown[]> {
   const trimmedQuery = query.trim();
   if (trimmedQuery.length < 2) {
     return [];
   }
 
-  const freshnessThreshold = isoDaysAgo(cacheFreshnessDays);
+  const freshnessThreshold = isoMinutesAgo(cacheFreshnessMinutes);
   const cachedRows = await searchD1CachedPlayerRows(env, trimmedQuery);
   const directStaleHit = cachedRows.some(
     (row) => isDirectCacheHit(row, trimmedQuery) && !isCacheFresh(row, freshnessThreshold),
@@ -461,6 +481,11 @@ async function handleApiRequest(request: Request, env: Env): Promise<Response> {
     return jsonResponse({
       players: await searchPlayers(env, url.searchParams.get('q') ?? ''),
     });
+  }
+
+  const playerByUid = /^\/api\/players\/(\d+)$/.exec(url.pathname);
+  if (playerByUid) {
+    return jsonResponse({ player: await refreshPlayerByUid(env, Number(playerByUid[1])) });
   }
 
   return jsonResponse({ error: 'Not found' }, { status: 404 });
