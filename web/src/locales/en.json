@@ -92,5 +92,22 @@
     "3-Bet pressure": "3-Bet pressure",
     "Low 3-Bet": "Low 3-Bet",
     "Low C-Bet": "Low C-Bet"
+  },
+  "community": {
+    "heading": "Community tags",
+    "hint": "Tap to add or remove your read. Tags appear publicly once at least 10 people agree."
+  },
+  "communityTags": {
+    "Bluff-heavy": "Bluff-heavy",
+    "Tilts easily": "Tilts easily",
+    "Hero caller": "Hero caller",
+    "Slow-roller": "Slow-roller",
+    "Limper": "Limper",
+    "Overfolds": "Overfolds",
+    "Overplays": "Overplays",
+    "Min-raiser": "Min-raiser",
+    "Blind stealer": "Blind stealer",
+    "Bumhunter": "Bumhunter",
+    "Donk bettor": "Donk bettor"
   }
 }

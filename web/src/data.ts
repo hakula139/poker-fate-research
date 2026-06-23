@@ -1,4 +1,4 @@
-import type { PlayerDataset, PlayerRecord } from './types';
+import type { CommunityTag, CommunityTagVote, PlayerDataset, PlayerRecord } from './types';
 
 export type DataLoadErrorCode = 'unavailable' | 'invalid' | 'unknown';
 
@@ -78,6 +78,52 @@ export async function searchPlayers(query: string): Promise<PlayerRecord[]> {
   }
   assertPlayerRecords(value.players);
   return value.players;
+}
+
+function assertCommunityTagVotes(value: unknown): asserts value is CommunityTagVote[] {
+  if (!Array.isArray(value)) {
+    throw new DataLoadError('invalid');
+  }
+}
+
+export async function fetchCommunityTags(
+  uid: number,
+  voterId: string,
+): Promise<CommunityTagVote[]> {
+  const response = await fetch(
+    `/api/players/${String(uid)}/tags?voter=${encodeURIComponent(voterId)}`,
+  );
+  if (!response.ok) {
+    throw new DataLoadError('unavailable');
+  }
+  const value = await response.json();
+  if (!isRecord(value)) {
+    throw new DataLoadError('invalid');
+  }
+  assertCommunityTagVotes(value.tags);
+  return value.tags;
+}
+
+export async function voteCommunityTag(
+  uid: number,
+  tag: CommunityTag,
+  voterId: string,
+  action: 'add' | 'remove',
+): Promise<CommunityTagVote[]> {
+  const response = await fetch(`/api/players/${String(uid)}/tags`, {
+    body: JSON.stringify({ action, tag, voterId }),
+    headers: { 'content-type': 'application/json' },
+    method: 'POST',
+  });
+  if (!response.ok) {
+    throw new DataLoadError('unavailable');
+  }
+  const value = await response.json();
+  if (!isRecord(value)) {
+    throw new DataLoadError('invalid');
+  }
+  assertCommunityTagVotes(value.tags);
+  return value.tags;
 }
 
 export async function refreshPlayer(uid: number): Promise<PlayerRecord | null> {

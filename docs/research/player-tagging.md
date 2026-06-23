@@ -1,6 +1,8 @@
 # Player Tagging
 
-This page records the player classification model used by the stats site. Treat these tags as heuristic labels, not objective judgments. The implementation lives in `web/src/features/player-stats/tagging.ts`.
+This page records the player classification model used by the stats site. Treat these tags as heuristic labels, not objective judgments.
+
+The site shows two tag tracks. Algorithmic tags are computed from official profile stats in `web/src/features/player-stats/tagging.ts` and always reflect the latest snapshot. Community tags are crowd-sourced reads that the official stats cannot express; they are voted by visitors, stored in D1, and surfaced only once enough distinct voters agree. The two tracks never share a label, so a computed style is never confused with a community opinion. See [Community Tags](#community-tags) for that track.
 
 ## Current Model
 
@@ -101,6 +103,45 @@ Overlay tags add narrow reads without changing the primary preflop / postflop la
 | C-Bet `< 35%`  | `Low C-Bet`      | Confirms low continuation pressure after a player was the previous-street aggressor. |
 
 `Showdown caller` already captures the high-WTSD, low-AFq "sticky caller" shape as a primary postflop tag. Profit remains visible in the table and details panel, but it is not a style tag.
+
+## Community Tags
+
+The algorithmic tags above cover only what the profile-stat API exposes. Many useful reads, such as bluffing tendency, tilt, table etiquette, and exploit habits, cannot be derived from aggregate VPIP / PFR / WTSD / AFq / C-Bet. Community tags let visitors record those reads by voting on a fixed preset list, with no free text, so the vocabulary stays curated and never duplicates an algorithmic label. The calling-station read is deliberately absent because the `Showdown caller` algorithmic tag (跟注站) already covers it.
+
+A community tag is private until it earns agreement. The table and details panel show it only once at least `10` distinct voters apply it. Below that threshold a tag is visible only to the voter who selected it, inside the details-panel voter, so casual or single-actor labels do not leak into the public surface.
+
+Preset community tags:
+
+| Tag             | 中文         | Read                                                            |
+| --------------- | ------------ | --------------------------------------------------------------- |
+| `Bluff-heavy`   | 喜欢偷鸡     | Bets and raises as bluffs more than the board justifies.        |
+| `Tilts easily`  | 容易上头     | Decisions degrade after losses or bad beats.                    |
+| `Hero caller`   | 喜欢抓诈唬   | Makes thin bluff-catching calls against big bets.               |
+| `Slow-roller`   | 经常慢摊牌   | Stalls before showing the winning hand; poor etiquette.         |
+| `Limper`        | 喜欢平跟     | Enters pots by calling the big blind instead of raising.        |
+| `Overfolds`     | 过度弃牌     | Folds too often to aggression.                                  |
+| `Overplays`     | 高估牌力     | Overvalues one pair or medium-strength hands and rarely folds.  |
+| `Min-raiser`    | 喜欢迷你加注 | Defaults to minimum-size raises.                                |
+| `Blind stealer` | 喜欢偷盲     | Attacks the blinds frequently from late position.               |
+| `Bumhunter`     | 喜欢捕鱼     | Seeks out and table-selects weaker players.                     |
+| `Donk bettor`   | 喜欢领打     | Leads into the previous-street aggressor while out of position. |
+
+### Trust model
+
+Voting is anonymous, with no account. The controls are best-effort deterrents, not a Sybil-proof system:
+
+- One vote per (player, tag, voter). Each browser stores an opaque voter id, and voting again toggles the vote off. Because the id is client-side and clearable, this is a soft de-duplicate.
+- The real cap is server-side rate limiting keyed by a salted hash of the request IP, bounded to `60` writes per hour. The raw IP is never stored.
+- The `10`-distinct-voter display threshold blunts single-actor manipulation before a tag goes public.
+
+### Data
+
+Votes live in D1, independent of the official player snapshot (migration `web/migrations/0003_community_tags.sql`):
+
+- `community_tag_votes(uid, tag, voter_id, created_at)` with a composite primary key on `(uid, tag, voter_id)`, so a distinct-voter count is `COUNT(*)` per `(uid, tag)`.
+- `community_vote_rate_limits(ip_hash, window_start, count)` for the per-hour IP write cap.
+
+The Worker exposes `GET /api/players/:uid/tags` (all presets with current counts and the caller's own votes) and `POST /api/players/:uid/tags` (body `{ tag, voterId, action }`), and attaches threshold-met tags to the player list, search, and refresh responses so the table renders them without extra requests.
 
 ## Excluded Game Modes
 

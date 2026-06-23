@@ -1,6 +1,6 @@
 import enMessages from './locales/en.json';
 import zhHansMessages from './locales/zh-Hans.json';
-import type { OverlayTag, PostflopTag, PreflopTag } from './types';
+import type { CommunityTag, OverlayTag, PostflopTag, PreflopTag } from './types';
 
 export type Locale = 'en' | 'zh-Hans';
 
@@ -74,6 +74,11 @@ export type Messages = {
   };
   leaderboards: Record<string, string>;
   tags: Record<PlayerTag, string>;
+  community: {
+    heading: string;
+    hint: string;
+  };
+  communityTags: Record<CommunityTag, string>;
 };
 
 export const localeOptions: { id: Locale }[] = [{ id: 'en' }, { id: 'zh-Hans' }];
