@@ -2,6 +2,7 @@ import { md5 } from '@noble/hashes/legacy.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 
 import { communityTags, communityTagThreshold } from '../src/features/player-stats/community-tags';
+import { HOLDEM_GAME_TYPE } from '../src/features/player-stats/model';
 
 const baseHost = 'https://ga-foreign.poker-fate.com';
 const loginVerifySalt = 'ba2798edafa12f3ae08822a3203158cb';
@@ -9,8 +10,7 @@ const playerLimit = 1000;
 const searchResultLimit = 20;
 const officialLookupLimit = 5;
 const cacheFreshnessMinutes = 60;
-const holdemGameType = '10010101';
-const holdemHandsPath = `$.games."${holdemGameType}".hands`;
+const holdemHandsPath = `$.games."${HOLDEM_GAME_TYPE}".hands`;
 const gameTypes = [
   ['10010101', "Hold'em lobby"],
   ['10020101', 'Omaha lobby'],
@@ -139,7 +139,7 @@ function officialRecord(value: unknown): Record<string, unknown> {
 
 function holdemHands(player: unknown): number {
   const games = officialRecord(officialRecord(player).games);
-  return officialInt(officialRecord(games[holdemGameType]).hands);
+  return officialInt(officialRecord(games[HOLDEM_GAME_TYPE]).hands);
 }
 
 function hasHoldemHands(player: unknown): boolean {
