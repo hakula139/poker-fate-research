@@ -1,6 +1,8 @@
 import { md5 } from '@noble/hashes/legacy.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 
+import { communityTags, communityTagThreshold } from '../src/features/player-stats/community-tags';
+
 const baseHost = 'https://ga-foreign.poker-fate.com';
 const loginVerifySalt = 'ba2798edafa12f3ae08822a3203158cb';
 const playerLimit = 1000;
@@ -16,22 +18,8 @@ const gameTypes = [
   ['20010103', "Friend-room Hold'em"],
 ] as const;
 
-const communityTagThreshold = 3;
 const communityVoteRateLimitPerHour = 60;
 const communityVoteSalt = 'poker-fate.community-vote';
-const communityTags = [
-  'Bluff-heavy',
-  'Tilts easily',
-  'Hero caller',
-  'Slow-roller',
-  'Limper',
-  'Overfolds',
-  'Overplays',
-  'Min-raiser',
-  'Blind stealer',
-  'Bumhunter',
-  'Donk bettor',
-] as const;
 const communityTagSet = new Set<string>(communityTags);
 
 type Env = {
