@@ -2,7 +2,7 @@ import type { CommunityTag } from '@/types';
 
 /// Public display threshold: a community tag is surfaced once this many distinct
 /// voters agree. Kept in sync with the Worker constant of the same value.
-export const communityTagThreshold = 10;
+export const communityTagThreshold = 3;
 
 export const communityTagOrder: CommunityTag[] = [
   'Bluff-heavy',

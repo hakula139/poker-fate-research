@@ -108,7 +108,7 @@ Overlay tags add narrow reads without changing the primary preflop / postflop la
 
 The algorithmic tags above cover only what the profile-stat API exposes. Many useful reads, such as bluffing tendency, tilt, table etiquette, and exploit habits, cannot be derived from aggregate VPIP / PFR / WTSD / AFq / C-Bet. Community tags let visitors record those reads by voting on a fixed preset list, with no free text, so the vocabulary stays curated and never duplicates an algorithmic label. The calling-station read is deliberately absent because the `Showdown caller` algorithmic tag (跟注站) already covers it.
 
-A community tag is private until it earns agreement. The table and details panel show it only once at least `10` distinct voters apply it. Below that threshold a tag is visible only to the voter who selected it, inside the details-panel voter, so casual or single-actor labels do not leak into the public surface.
+A community tag is private until it earns agreement. The table and details panel show it only once at least `3` distinct voters apply it. Below that threshold a tag is visible only to the voter who selected it, inside the details-panel voter, so casual or single-actor labels do not leak into the public surface.
 
 Preset community tags:
 
@@ -132,7 +132,7 @@ Voting is anonymous, with no account. The controls are best-effort deterrents, n
 
 - One vote per (player, tag, voter). Each browser stores an opaque voter id, and voting again toggles the vote off. Because the id is client-side and clearable, this is a soft de-duplicate.
 - The real cap is server-side rate limiting keyed by a salted hash of the request IP, bounded to `60` writes per hour. The raw IP is never stored.
-- The `10`-distinct-voter display threshold blunts single-actor manipulation before a tag goes public.
+- The `3`-distinct-voter display threshold blunts single-actor manipulation before a tag goes public.
 
 ### Data
 

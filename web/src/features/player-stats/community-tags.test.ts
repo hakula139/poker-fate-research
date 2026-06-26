@@ -21,6 +21,6 @@ describe('community tag presets', () => {
   });
 
   it('uses the public display threshold shared with the worker', () => {
-    expect(communityTagThreshold).toBe(10);
+    expect(communityTagThreshold).toBe(3);
   });
 });

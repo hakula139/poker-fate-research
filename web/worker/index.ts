@@ -16,7 +16,7 @@ const gameTypes = [
   ['20010103', "Friend-room Hold'em"],
 ] as const;
 
-const communityTagThreshold = 10;
+const communityTagThreshold = 3;
 const communityVoteRateLimitPerHour = 60;
 const communityVoteSalt = 'poker-fate.community-vote';
 const communityTags = [
