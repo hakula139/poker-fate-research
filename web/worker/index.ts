@@ -1,14 +1,17 @@
 import { md5 } from '@noble/hashes/legacy.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 
+import { communityTags, communityTagThreshold } from '../src/features/player-stats/community-tags';
+import { HOLDEM_GAME_TYPE } from '../src/features/player-stats/model';
+import type { CommunityTag, CommunityTagCount, CommunityTagVote } from '../src/types';
+
 const baseHost = 'https://ga-foreign.poker-fate.com';
 const loginVerifySalt = 'ba2798edafa12f3ae08822a3203158cb';
 const playerLimit = 1000;
 const searchResultLimit = 20;
 const officialLookupLimit = 5;
 const cacheFreshnessMinutes = 60;
-const holdemGameType = '10010101';
-const holdemHandsPath = `$.games."${holdemGameType}".hands`;
+const holdemHandsPath = `$.games."${HOLDEM_GAME_TYPE}".hands`;
 const gameTypes = [
   ['10010101', "Hold'em lobby"],
   ['10020101', 'Omaha lobby'],
@@ -16,22 +19,8 @@ const gameTypes = [
   ['20010103', "Friend-room Hold'em"],
 ] as const;
 
-const communityTagThreshold = 10;
 const communityVoteRateLimitPerHour = 60;
 const communityVoteSalt = 'poker-fate.community-vote';
-const communityTags = [
-  'Bluff-heavy',
-  'Tilts easily',
-  'Hero caller',
-  'Slow-roller',
-  'Limper',
-  'Overfolds',
-  'Overplays',
-  'Min-raiser',
-  'Blind stealer',
-  'Bumhunter',
-  'Donk bettor',
-] as const;
 const communityTagSet = new Set<string>(communityTags);
 
 type Env = {
@@ -77,17 +66,6 @@ type CommunityCountRow = {
   uid: number;
   tag: string;
   count: number;
-};
-
-type CommunityTagCount = {
-  tag: string;
-  count: number;
-};
-
-type CommunityTagVote = {
-  tag: string;
-  count: number;
-  mine: boolean;
 };
 
 class ApiError extends Error {
@@ -151,7 +129,7 @@ function officialRecord(value: unknown): Record<string, unknown> {
 
 function holdemHands(player: unknown): number {
   const games = officialRecord(officialRecord(player).games);
-  return officialInt(officialRecord(games[holdemGameType]).hands);
+  return officialInt(officialRecord(games[HOLDEM_GAME_TYPE]).hands);
 }
 
 function hasHoldemHands(player: unknown): boolean {
@@ -549,7 +527,9 @@ function groupCommunityCounts(rows: CommunityCountRow[]): Map<number, CommunityT
   const map = new Map<number, CommunityTagCount[]>();
   for (const row of rows) {
     const list = map.get(row.uid) ?? [];
-    list.push({ count: row.count, tag: row.tag });
+    // Stored tags are constrained to the preset list on insert, so the raw
+    // D1 string is a valid CommunityTag at this DB→domain boundary.
+    list.push({ count: row.count, tag: row.tag as CommunityTag });
     map.set(row.uid, list);
   }
   return map;

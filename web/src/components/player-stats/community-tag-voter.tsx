@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { fetchCommunityTags, voteCommunityTag } from '@/data';
-import { communityTagOrder } from '@/features/player-stats/community-tags';
+import { communityTags } from '@/features/player-stats/community-tags';
 import { useI18n } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { getVoterId } from '@/storage';
@@ -82,7 +82,7 @@ export function CommunityTagVoter({ uid }: { uid: number }) {
     <div>
       <p className={`${labelClass} mb-2`}>{t.community.heading}</p>
       <div className="flex flex-wrap gap-1.5">
-        {communityTagOrder.map((tag) => {
+        {communityTags.map((tag) => {
           const vote = byTag.get(tag);
           const mine = vote?.mine ?? false;
           const count = vote?.count ?? 0;

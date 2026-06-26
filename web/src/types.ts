@@ -1,3 +1,5 @@
+import type { CommunityTag } from './features/player-stats/community-tags';
+
 export type GameTypeId = '10010101' | '10020101' | '10050301' | '20010103';
 
 export type LeaderboardEntry = {
@@ -31,18 +33,7 @@ export type GameStats = {
   cbet: number;
 };
 
-export type CommunityTag =
-  | 'Bluff-heavy'
-  | 'Tilts easily'
-  | 'Hero caller'
-  | 'Slow-roller'
-  | 'Limper'
-  | 'Overfolds'
-  | 'Overplays'
-  | 'Min-raiser'
-  | 'Blind stealer'
-  | 'Bumhunter'
-  | 'Donk bettor';
+export type { CommunityTag };
 
 export type CommunityTagCount = {
   tag: CommunityTag;

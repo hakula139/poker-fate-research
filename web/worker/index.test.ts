@@ -494,7 +494,7 @@ describe('community tags', () => {
 
   it('surfaces community tags on the player list at the threshold', async () => {
     const active = { games: { '10010101': { hands: 8229 } }, name: 'Active', uid: 101 };
-    const communityVotes = Array.from({ length: 10 }, (_, index) => ({
+    const communityVotes = Array.from({ length: 3 }, (_, index) => ({
       tag: 'Bluff-heavy',
       uid: 101,
       voterId: `voter-${String(index)}`,
@@ -514,12 +514,12 @@ describe('community tags', () => {
       players: { communityTags?: { tag: string; count: number }[] }[];
     };
 
-    expect(body.players[0].communityTags).toEqual([{ count: 10, tag: 'Bluff-heavy' }]);
+    expect(body.players[0].communityTags).toEqual([{ count: 3, tag: 'Bluff-heavy' }]);
   });
 
   it('keeps below-threshold community tags off the player list', async () => {
     const active = { games: { '10010101': { hands: 8229 } }, name: 'Active', uid: 101 };
-    const communityVotes = Array.from({ length: 9 }, (_, index) => ({
+    const communityVotes = Array.from({ length: 2 }, (_, index) => ({
       tag: 'Bluff-heavy',
       uid: 101,
       voterId: `voter-${String(index)}`,

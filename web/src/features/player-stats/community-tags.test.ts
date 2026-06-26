@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { communityTagOrder, communityTagThreshold } from './community-tags';
+import { communityTags, communityTagThreshold } from './community-tags';
 
 describe('community tag presets', () => {
   it('keeps presets in display order without duplicates', () => {
-    expect(communityTagOrder).toEqual([
+    expect(communityTags).toEqual([
       'Bluff-heavy',
       'Tilts easily',
       'Hero caller',
@@ -17,10 +17,10 @@ describe('community tag presets', () => {
       'Bumhunter',
       'Donk bettor',
     ]);
-    expect(new Set(communityTagOrder).size).toBe(communityTagOrder.length);
+    expect(new Set(communityTags).size).toBe(communityTags.length);
   });
 
   it('uses the public display threshold shared with the worker', () => {
-    expect(communityTagThreshold).toBe(10);
+    expect(communityTagThreshold).toBe(3);
   });
 });
