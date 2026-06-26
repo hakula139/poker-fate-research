@@ -3,6 +3,7 @@ import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 
 import { communityTags, communityTagThreshold } from '../src/features/player-stats/community-tags';
 import { HOLDEM_GAME_TYPE } from '../src/features/player-stats/model';
+import type { CommunityTag, CommunityTagCount, CommunityTagVote } from '../src/types';
 
 const baseHost = 'https://ga-foreign.poker-fate.com';
 const loginVerifySalt = 'ba2798edafa12f3ae08822a3203158cb';
@@ -65,17 +66,6 @@ type CommunityCountRow = {
   uid: number;
   tag: string;
   count: number;
-};
-
-type CommunityTagCount = {
-  tag: string;
-  count: number;
-};
-
-type CommunityTagVote = {
-  tag: string;
-  count: number;
-  mine: boolean;
 };
 
 class ApiError extends Error {
@@ -537,7 +527,9 @@ function groupCommunityCounts(rows: CommunityCountRow[]): Map<number, CommunityT
   const map = new Map<number, CommunityTagCount[]>();
   for (const row of rows) {
     const list = map.get(row.uid) ?? [];
-    list.push({ count: row.count, tag: row.tag });
+    // Stored tags are constrained to the preset list on insert, so the raw
+    // D1 string is a valid CommunityTag at this DB→domain boundary.
+    list.push({ count: row.count, tag: row.tag as CommunityTag });
     map.set(row.uid, list);
   }
   return map;
