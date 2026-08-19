@@ -103,7 +103,7 @@
           PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
         };
 
-        formatter = pkgs.nixfmt;
+        formatter = pkgs.nixfmt-tree;
       }
     );
 }
