@@ -4,7 +4,7 @@ React website for browsing D1-backed Poker Fate player snapshots.
 
 ## Data
 
-The app reads a single unified player table through Worker API routes backed by Cloudflare D1. GitHub Actions refreshes that table daily from the official leaderboards, and searching for or opening a player refreshes that individual player when its data is more than one hour old. Local test fixtures live under `web/tests/fixtures/`.
+The app reads a single unified player table through Worker API routes backed by Cloudflare D1. That table is frozen: the Worker serves stored rows and never calls the official API. Local test fixtures live under `web/tests/fixtures/`.
 
 ## Development
 
@@ -34,17 +34,16 @@ pnpm exec wrangler deploy
 
 Production URL: <https://poker-fate-stats.hakula.xyz/>
 
-GitHub Actions deploys from `main`, uploads pull request previews, and runs daily D1 imports. The workflows require these repository secrets:
+GitHub Actions deploys from `main` and uploads pull request previews. The workflows require these repository secrets:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `POKER_FATE_RESEARCH_DEVICE_TOKEN`
 
-Production and pull request deploys build the Worker artifact. The scheduled data workflow owns daily player collection and D1 import.
+Production and pull request deploys build the Worker artifact.
 
 ## Preview environment
 
-Pull request previews run as a separate `preview` Wrangler environment (`poker-fate-stats-preview`) bound to its own D1 database, so previews never read or write production data. The preview workflow applies the same migrations to the preview database and uploads a per-PR versioned preview URL. The preview Worker has its own `POKER_FATE_RESEARCH_DEVICE_TOKEN` secret so live search works there too.
+Pull request previews run as a separate `preview` Wrangler environment (`poker-fate-stats-preview`) bound to its own D1 database, so previews never read or write production data. The preview workflow applies the same migrations to the preview database and uploads a per-PR versioned preview URL.
 
 The preview database is seeded from `seeds/preview-players.json`. Re-apply the seed after a destructive schema change with:
 

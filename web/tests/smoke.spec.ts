@@ -15,13 +15,14 @@ test('loads generated player stats and filters players', async ({ page }) => {
       },
     });
   });
-  await page.route('**/api/players/*', async (route) => {
-    await route.fulfill({ contentType: 'application/json', json: { player: null } });
+  await page.route('**/api/players/*/tags*', async (route) => {
+    await route.fulfill({ contentType: 'application/json', json: { tags: [] } });
   });
 
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'Player stats' })).toBeVisible();
+  await expect(page.getByText('This site is no longer maintained.')).toBeVisible();
   await expect(page.locator('tbody tr')).not.toHaveCount(0);
 
   const firstUid = await page
@@ -47,5 +48,6 @@ test('loads generated player stats and filters players', async ({ page }) => {
   await page.getByRole('combobox', { name: 'Language' }).click();
   await page.getByRole('option', { name: '简体中文' }).click();
   await expect(page.getByRole('heading', { name: '玩家数据' })).toBeVisible();
+  await expect(page.getByText('本站已停止维护。')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hans');
 });

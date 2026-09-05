@@ -125,21 +125,3 @@ export async function voteCommunityTag(
   assertCommunityTagVotes(value.tags);
   return value.tags;
 }
-
-export async function refreshPlayer(uid: number): Promise<PlayerRecord | null> {
-  const response = await fetch(`/api/players/${String(uid)}`);
-  if (!response.ok) {
-    throw new DataLoadError('unavailable');
-  }
-  const value = await response.json();
-  if (!isRecord(value)) {
-    throw new DataLoadError('invalid');
-  }
-  if (value.player == null) {
-    return null;
-  }
-  if (!isPlayerRecord(value.player)) {
-    throw new DataLoadError('invalid');
-  }
-  return value.player;
-}
