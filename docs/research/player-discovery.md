@@ -90,6 +90,8 @@ The most promising expansion path is the tournament WebSocket API. The decoded p
 
 Use `uv --project python run poker-fate players` from the repository root to create reproducible local JSONL snapshots under ignored `data/player-snapshots/`. The collector requires `POKER_FATE_RESEARCH_DEVICE_TOKEN` from an ignored local environment file and does not write guest authorization, `rdkey`, or raw login responses to output.
 
+Guest logins have been rejected with `-5` since 2026-09-03, preventing live runs from completing today. The endpoint contract below remains unchanged; see [login rejection and recovery](api-inventory.md#login-rejection-and-recovery).
+
 ```bash
 set -a
 source .envrc.local
