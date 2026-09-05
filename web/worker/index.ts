@@ -138,11 +138,19 @@ function hasHoldemHands(player: unknown): boolean {
 
 function assertOfficialSuccess(
   path: string,
-  request: unknown,
   response: unknown,
 ): asserts response is Record<string, unknown> {
-  if (!isRecord(response) || response.code !== 0) {
-    throw new ApiError(502, `${path} failed for ${JSON.stringify(request)}`);
+  if (!isRecord(response) || !Number.isSafeInteger(response.code)) {
+    throw new ApiError(502, `${path} returned an invalid response code`);
+  }
+  if (path === '/login' && response.code === -5) {
+    throw new ApiError(
+      502,
+      '/login failed with code -5: device risk verification failed. Contact Poker Fate support.',
+    );
+  }
+  if (response.code !== 0) {
+    throw new ApiError(502, `${path} failed with code ${String(response.code)}`);
   }
 }
 
@@ -189,7 +197,7 @@ async function loginGuest(env: Env): Promise<string> {
     verify: bytesToHex(md5(utf8ToBytes(osName + deviceToken + loginVerifySalt))),
   };
   const response = await postOfficial('/login', body);
-  assertOfficialSuccess('/login', body, response);
+  assertOfficialSuccess('/login', response);
   const authorization = response.authorization;
   if (typeof authorization !== 'string' || !authorization) {
     throw new ApiError(502, 'Login response did not include authorization.');
@@ -231,14 +239,14 @@ async function fetchOfficialPlayer(
   for (const [gameType, label] of gameTypes) {
     const body = { game_type: Number(gameType), lang: 'en', player_uid: uid };
     const response = await postOfficial('/player/gameData', body, authorization);
-    assertOfficialSuccess('/player/gameData', body, response);
+    assertOfficialSuccess('/player/gameData', response);
     const data = officialRecord(response.data);
     games[gameType] = normalizeGame(gameType, label, data);
   }
 
   const sngBody = { player_uid: uid };
   const sngRecord = await postOfficial('/player/sngRecord', sngBody, authorization);
-  assertOfficialSuccess('/player/sngRecord', sngBody, sngRecord);
+  assertOfficialSuccess('/player/sngRecord', sngRecord);
 
   return {
     fetchedAt: isoNow(),
@@ -408,7 +416,7 @@ async function lookupOfficialPlayers(env: Env, query: string): Promise<unknown[]
   }
 
   const response = await postOfficial('/friend/searchList', body, authorization);
-  assertOfficialSuccess('/friend/searchList', body, response);
+  assertOfficialSuccess('/friend/searchList', response);
 
   const seen = new Set<number>();
   const players: Record<string, unknown>[] = [];

@@ -51,10 +51,8 @@ class PokerFateClient:
             with response:
                 payload = parse_json(response.read().decode())
         except urllib.error.HTTPError as error:
-            details = error.read().decode(errors='replace')[:300]
-            raise RuntimeError(
-                f'{path} failed with HTTP {error.code}: {details}'
-            ) from error
+            error.close()
+            raise RuntimeError(f'{path} failed with HTTP {error.code}') from None
 
         return expect_object(payload, f'{path} returned a non-object JSON response')
 
@@ -73,8 +71,16 @@ class PokerFateClient:
             'mask': 'LoginHttp',
         }
         response = self.post_json('/login', body)
-        if response.get('code') != 0:
-            raise RuntimeError(f'login failed with code {response.get("code")}')
+        code = response.get('code')
+        if type(code) is not int:
+            raise RuntimeError('/login returned an invalid response code')
+        if code == -5:
+            raise RuntimeError(
+                '/login failed with code -5: device risk verification failed. '
+                'Contact Poker Fate support.'
+            )
+        if code != 0:
+            raise RuntimeError(f'/login failed with code {code}')
 
         session = Session(
             uid=json_int(response, 'uid'),
