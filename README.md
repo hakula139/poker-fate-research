@@ -6,13 +6,13 @@ The repo keeps the confirmed API findings, the player collector, D1 schema and i
 
 ## Current Result
 
-Daily collection has failed at guest login since 2026-09-03 with device-risk verification code `-5`. The current official client supplies a native device-risk report that the collector and Worker omit. Existing stored snapshots remain available. See the [login findings](docs/research/api-inventory.md#guest-login) for evidence and recovery constraints.
+This project is no longer maintained. Collection stopped on 2026-09-03, when guest login began returning device-risk verification code `-5`, and the daily collection workflow has been removed. The website serves the stored snapshot as it stands and never contacts the official API. See the [login findings](docs/research/api-inventory.md#guest-login) for the evidence and for why no supported fix was available.
 
 The main output is a D1-backed website for browsing collected Poker Fate player stats. It supports player search, sortable stats, player details, per-player update times, dark mode, and English / Simplified Chinese UI.
 
 The website surface is Texas Hold'em only. Player classification is split into preflop and postflop tags tuned for 6-max Hold'em. The collector still fetches Omaha and SNG profile data from the official API, but those modes are not exposed in the UI; see [`docs/research/player-tagging.md`](docs/research/player-tagging.md) for the reason.
 
-A single unified player table is refreshed daily by GitHub Actions from the official leaderboards. Searching for or opening a player refreshes that player in the same table when its data is more than one hour old, so every player carries a one-hour freshness cache. Players with no Texas Hold'em hands are removed and hidden from search.
+Every player carries the fetch time of its last successful collection. Players with no Texas Hold'em hands stay hidden from the table and from search.
 
 ## Project Layout
 

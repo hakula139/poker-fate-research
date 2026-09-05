@@ -212,8 +212,8 @@ Poker Fate's [official Google Play listing](https://play.google.com/store/apps/d
 
 Recovery is established only after supported login succeeds for the dedicated identity and authenticated leaderboard and profile reads succeed. A subsequent bounded collection and D1 import must also be verified. Static APK analysis and passing local tests do not establish any of those live outcomes.
 
-A replacement device token must be set independently in the GitHub Actions repository secret, the production Worker secret, and the preview Worker secret because deploy workflows do not synchronize these values, and updating one leaves the others using the previous identity.
+The device token is now configured only as a GitHub Actions secret, which the collector reads for local or manual runs. Neither Worker reads it, so any leftover Cloudflare secret can be deleted.
 
-### Request Volume
+### Website Behavior
 
-The website Worker performs a guest login on every uncached lookup and refresh. While its one-hour player cache limits successful repeat reads, it lacks session reuse, a global admission limit, and a rejection cooldown. This is an operational limitation rather than evidence of the cause of `-5`, but any approved authentication integration still requires a defined request budget and renewal policy before public traffic can trigger unbounded logins.
+The website no longer authenticates. Its Worker serves stored D1 rows only, with the official-API client paths removed, so no public request reaches `/login`. Any future integration would need a defined request budget and renewal policy before public traffic could trigger logins again.
