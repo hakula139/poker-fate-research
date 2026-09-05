@@ -17,18 +17,21 @@ This page records the currently useful official client APIs for fetching player 
 
 Guest login creates or resumes an account keyed by the device token.
 
+The current official client also supplies `yidun_risk_check`, including a device-fingerprint SDK token. The Python collector and website Worker do not implement this native SDK flow. Scheduled login began returning `-5` on 2026-09-03. This confirms device-risk verification rejection, but does not establish its backend cause or an account ban. See [current client evidence](android-apk.md#current-login-evidence) for the decoded contract.
+
 Request body:
 
-| Field       | Value                                                             |
-| ----------- | ----------------------------------------------------------------- |
-| `type`      | `1`                                                               |
-| `token`     | Device ID or generated research device token.                     |
-| `imei`      | Same value as `token` for the Android guest path.                 |
-| `os`        | Android platform string. `Android` was accepted in the live test. |
-| `lang`      | UI language, such as `en`.                                        |
-| `verify`    | `md5(os + imei + "ba2798edafa12f3ae08822a3203158cb")`             |
-| `adjust_id` | `null` was accepted in the live test.                             |
-| `mask`      | `LoginHttp`                                                       |
+| Field              | Value                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| `type`             | `1`                                                                                                 |
+| `token`            | Device ID or generated research device token.                                                       |
+| `imei`             | Same value as `token` for the Android guest path.                                                   |
+| `os`               | Android platform string. `Android` was accepted in the live test.                                   |
+| `lang`             | UI language, such as `en`.                                                                          |
+| `verify`           | `md5(os + imei + "ba2798edafa12f3ae08822a3203158cb")`                                               |
+| `adjust_id`        | `null` was accepted in the live test.                                                               |
+| `mask`             | `LoginHttp`                                                                                         |
+| `yidun_risk_check` | Current client risk report from `YiDunHelper:getReportData()`, including the SDK-generated `token`. |
 
 Successful response fields:
 
@@ -162,7 +165,15 @@ Fetched on 2026-06-12 for UID `10410931` with a dedicated guest account:
 
 ## Error Codes
 
-| Code | Client label                 | Meaning                                       |
-| ---- | ---------------------------- | --------------------------------------------- |
-| `0`  | `HTTP_RET_OK`                | Success.                                      |
-| `-2` | `HTTP_AUTHENTICATION_FAILED` | `authorization` missing, invalid, or expired. |
+| Code  | Client label                    | Meaning                                                                           |
+| ----- | ------------------------------- | --------------------------------------------------------------------------------- |
+| `0`   | `HTTP_RET_OK`                   | Success.                                                                          |
+| `-2`  | `HTTP_AUTHENTICATION_FAILED`    | `authorization` missing, invalid, or expired.                                     |
+| `-5`  | `HTTP_THIRD_RISK_VERIFY_FAILED` | Device-risk verification failed. The official client directs the user to Support. |
+| `-52` | `HTTP_IP_BLOCKED`               | IP address blocked.                                                               |
+| `-53` | `HTTP_IMEI_BLOCKED`             | Device blocked.                                                                   |
+| `-54` | `HTTP_ACCOUNT_BLOCKED`          | Account blocked.                                                                  |
+
+The [2026-09-02 scheduled run](https://github.com/hakula139/poker-fate-research/actions/runs/33679466642) resumed guest UID `10629834` and collected `485` players. The [September 3 run](https://github.com/hakula139/poker-fate-research/actions/runs/33802352990) and [September 4 run](https://github.com/hakula139/poker-fate-research/actions/runs/33915202256) failed at `/login` with `-5`, before collection or D1 writes, on the same commit. GitHub reports the device-token secret's last update as 2026-06-18.
+
+Inference: the missing native risk report is a compatibility gap that could explain these rejections. The evidence does not establish when enforcement changed or whether another risk signal caused rejection. Replacing the reusable guest identity does not implement the missing report. Recovery needs verification through the official client using the dedicated research identity and guidance from Poker Fate support on permitted automated access. Do not synthesize risk reports or rotate identities to work around this rejection.
