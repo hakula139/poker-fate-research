@@ -11,6 +11,7 @@ esbuild
 findutils
 Hakula
 HOLDEM
+htprotect
 IL2CPP
 leaderboard
 imei
@@ -28,6 +29,7 @@ nums
 numtide
 overfolds
 PFR
+pfsys
 pkgs
 pkproject
 pkproto
