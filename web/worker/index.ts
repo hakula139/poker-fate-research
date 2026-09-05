@@ -172,7 +172,12 @@ async function postOfficial(
   if (!response.ok) {
     throw new ApiError(502, `${path} returned HTTP ${String(response.status)}`);
   }
-  const payload = await response.json();
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new ApiError(502, `${path} returned invalid JSON`);
+  }
   if (!isRecord(payload)) {
     throw new ApiError(502, `${path} returned an invalid response`);
   }

@@ -249,6 +249,33 @@ function recentIso(): string {
 }
 
 describe('worker API', () => {
+  it.each(['/login', '/player/gameData'])(
+    'does not expose malformed upstream JSON from %s',
+    async (path) => {
+      globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
+        const url = input instanceof Request ? input.url : String(input);
+        return Promise.resolve(
+          url.endsWith(path)
+            ? new Response('private-authorization echoed by upstream')
+            : Response.json({ authorization: 'jwt-token', code: 0 }),
+        );
+      });
+
+      const result = await fetchJson(
+        '/api/players/123',
+        {},
+        undefined,
+        createDb({}),
+        'private-device-token',
+      );
+
+      expect(result).toEqual({
+        body: { error: `${path} returned invalid JSON` },
+        status: 502,
+      });
+    },
+  );
+
   it.each(['/api/players/123', '/api/players/search?q=example'])(
     'reports rejected login without exposing credentials at %s',
     async (path) => {

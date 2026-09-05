@@ -72,3 +72,20 @@ def test_http_error_does_not_expose_response_body_or_reason(
     )
     assert body.closed
     post.assert_called_once()
+
+
+def test_login_does_not_expose_invalid_uid(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = PokerFateClient('https://example.com')
+    device_token = 'private-device-token'
+    monkeypatch.setattr(
+        client,
+        'post_json',
+        Mock(return_value={'code': 0, 'uid': device_token}),
+    )
+
+    with pytest.raises(RuntimeError) as error:
+        client.login_guest(device_token)
+
+    assert str(error.value) == 'uid is not an integer-compatible JSON value'
+    assert device_token not in ''.join(traceback.format_exception(error.value))
+    assert client.authorization is None

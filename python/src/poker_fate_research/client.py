@@ -18,9 +18,20 @@ from poker_fate_research.json_types import (
 from poker_fate_research.models import Session
 
 
-class PostJsonClient(Protocol):
-    """Minimal client surface the collector depends on."""
+def require_success_response(path: str, response: JsonObject) -> None:
+    code = response.get('code')
+    if type(code) is not int:
+        raise RuntimeError(f'{path} returned an invalid response code')
+    if path == '/login' and code == -5:
+        raise RuntimeError(
+            '/login failed with code -5: device risk verification failed. '
+            'Contact Poker Fate support.'
+        )
+    if code != 0:
+        raise RuntimeError(f'{path} failed with code {code}')
 
+
+class PostJsonClient(Protocol):
     def post_json(
         self, path: str, body: JsonObject | None, timeout: float = ...
     ) -> JsonObject: ...
@@ -71,16 +82,7 @@ class PokerFateClient:
             'mask': 'LoginHttp',
         }
         response = self.post_json('/login', body)
-        code = response.get('code')
-        if type(code) is not int:
-            raise RuntimeError('/login returned an invalid response code')
-        if code == -5:
-            raise RuntimeError(
-                '/login failed with code -5: device risk verification failed. '
-                'Contact Poker Fate support.'
-            )
-        if code != 0:
-            raise RuntimeError(f'/login failed with code {code}')
+        require_success_response('/login', response)
 
         session = Session(
             uid=json_int(response, 'uid'),
