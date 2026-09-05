@@ -6,7 +6,11 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TextIO
 
-from poker_fate_research.client import PokerFateClient, PostJsonClient
+from poker_fate_research.client import (
+    PokerFateClient,
+    PostJsonClient,
+    require_success_response,
+)
 from poker_fate_research.constants import GAME_TYPES, LEADERBOARDS
 from poker_fate_research.json_types import JsonObject, json_int
 from poker_fate_research.models import (
@@ -22,17 +26,6 @@ from poker_fate_research.models import (
     SnapshotMetadata,
 )
 from poker_fate_research.time import iso_now
-
-
-def require_success_response(
-    path: str, request: JsonObject, response: JsonObject
-) -> None:
-    code = response.get('code')
-    if code != 0:
-        raise RuntimeError(
-            f'{path} failed with code {code!r} for request '
-            f'{json.dumps(request, ensure_ascii=False, separators=(",", ":"))}'
-        )
 
 
 def require_object_field(path: str, response: JsonObject, key: str) -> None:
@@ -63,9 +56,7 @@ def iter_leaderboard_pages(
                     'immediately': True,
                 }
                 response = client.post_json('/activity/rankingList', request_body)
-                require_success_response(
-                    '/activity/rankingList', request_body, response
-                )
+                require_success_response('/activity/rankingList', response)
                 require_list_or_missing_field('/activity/rankingList', response, 'list')
                 page = LeaderboardPage.from_api(
                     leaderboard_id=leaderboard_id,
@@ -94,7 +85,7 @@ def fetch_player_snapshot(
             'lang': 'en',
         }
         response = client.post_json('/player/gameData', request_body)
-        require_success_response('/player/gameData', request_body, response)
+        require_success_response('/player/gameData', response)
         require_object_field('/player/gameData', response, 'data')
         game_data.append(
             GameDataSnapshot(
@@ -108,7 +99,7 @@ def fetch_player_snapshot(
 
     sng_request: JsonObject = {'player_uid': seed.uid}
     sng_record = client.post_json('/player/sngRecord', sng_request)
-    require_success_response('/player/sngRecord', sng_request, sng_record)
+    require_success_response('/player/sngRecord', sng_record)
     require_list_or_missing_field('/player/sngRecord', sng_record, 'list')
 
     return PlayerSnapshot(

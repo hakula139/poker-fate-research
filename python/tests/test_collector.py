@@ -36,6 +36,22 @@ def test_leaderboard_pages_reject_api_error() -> None:
         next(iter(pages))
 
 
+@pytest.mark.parametrize('code', [{'authorization': 'private-authorization'}, False])
+def test_leaderboard_pages_reject_malformed_code_without_exposing_it(
+    code: object,
+) -> None:
+    pages = iter_leaderboard_pages(
+        client([{'code': code}]),
+        page_size=50,
+        sleep_seconds=0,
+    )
+
+    with pytest.raises(RuntimeError) as error:
+        next(iter(pages))
+
+    assert str(error.value) == '/activity/rankingList returned an invalid response code'
+
+
 def test_leaderboard_pages_reject_invalid_list_shape() -> None:
     pages = iter_leaderboard_pages(
         client([{'code': 0, 'list': {}}]),

@@ -25,7 +25,10 @@ def json_int(data: JsonObject, key: str) -> int:
     value = data[key]
     if isinstance(value, bool) or not isinstance(value, int | str):
         raise RuntimeError(f'{key} is not an integer-compatible JSON value')
-    return int(value)
+    try:
+        return int(value)
+    except ValueError:
+        raise RuntimeError(f'{key} is not an integer-compatible JSON value') from None
 
 
 def json_str(data: JsonObject, key: str) -> str:
