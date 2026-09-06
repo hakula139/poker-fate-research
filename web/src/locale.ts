@@ -10,6 +10,7 @@ export type Messages = {
   app: {
     eyebrow: string;
     title: string;
+    unmaintained: string;
     loading: string;
     dataUnavailable: string;
     dataIssues: {
@@ -64,7 +65,6 @@ export type Messages = {
     noLeaderboardRows: string;
     noMatchingPlayer: string;
     updated: string;
-    refreshing: string;
     value: string;
   };
   periods: {

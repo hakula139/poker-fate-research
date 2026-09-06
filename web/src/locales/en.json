@@ -2,6 +2,7 @@
   "app": {
     "eyebrow": "Poker Fate research",
     "title": "Player stats",
+    "unmaintained": "This site is no longer maintained. Player stats are frozen at the last successful collection and are no longer refreshed.",
     "loading": "Loading player stats",
     "dataUnavailable": "Player data could not be loaded.",
     "dataIssues": {
@@ -59,7 +60,6 @@
     "noLeaderboardRows": "No leaderboard rows",
     "noMatchingPlayer": "No players match this search",
     "updated": "Updated",
-    "refreshing": "Refreshing\u2026",
     "value": "Value"
   },
   "periods": {

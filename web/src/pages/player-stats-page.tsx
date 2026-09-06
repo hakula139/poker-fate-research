@@ -46,6 +46,10 @@ export function PlayerStatsPage() {
           </div>
         </section>
 
+        <p className="border-warning bg-warning/10 text-warning-foreground mt-4 rounded-md border px-3 py-2 text-sm">
+          {t.app.unmaintained}
+        </p>
+
         <section className="mt-4 grid items-end gap-3 lg:grid-cols-[minmax(220px,340px)_1fr]">
           <div className="grid gap-1.5">
             <FieldLabel htmlFor="player-search">{t.controls.search}</FieldLabel>
@@ -94,10 +98,7 @@ export function PlayerStatsPage() {
             onSort={view.changeSort}
             onSelect={view.selectPlayer}
           />
-          <PlayerDetails
-            player={view.selectedPlayer}
-            refreshing={view.selectedPlayer?.uid === view.refreshingUid}
-          />
+          <PlayerDetails player={view.selectedPlayer} />
         </section>
       </div>
     </main>

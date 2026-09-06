@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import gameDataContract from '../tests/fixtures/official-game-data.json';
-
-import worker, { normalizeGame } from './index';
+import worker from './index';
 
 const originalFetch = globalThis.fetch;
 
@@ -29,7 +27,7 @@ type DbFixture = {
   communityVotes?: CommunityVoteFixture[];
 };
 
-function createEnv(assets: AssetMap, db?: WorkerEnv['DB'], deviceToken?: string): WorkerEnv {
+function createEnv(assets: AssetMap, db?: WorkerEnv['DB']): WorkerEnv {
   return {
     ASSETS: {
       connect() {
@@ -45,7 +43,6 @@ function createEnv(assets: AssetMap, db?: WorkerEnv['DB'], deviceToken?: string)
       },
     },
     DB: db,
-    POKER_FATE_RESEARCH_DEVICE_TOKEN: deviceToken,
   };
 }
 
@@ -212,36 +209,14 @@ function createDb(fixture: DbFixture): WorkerEnv['DB'] {
   } as WorkerEnv['DB'];
 }
 
-async function fetchJson(
-  path: string,
-  assets: AssetMap,
-  init?: RequestInit,
-  db?: WorkerEnv['DB'],
-  deviceToken?: string,
-) {
+async function fetchJson(path: string, assets: AssetMap, init?: RequestInit, db?: WorkerEnv['DB']) {
   type WorkerRequest = Parameters<typeof worker.fetch>[0];
   const request = new Request(`https://example.com${path}`, init) as WorkerRequest;
-  const response = await worker.fetch(request, createEnv(assets, db, deviceToken));
+  const response = await worker.fetch(request, createEnv(assets, db));
   return {
     body: await response.json(),
     status: response.status,
   };
-}
-
-function mockOfficialApi(gameData: Record<string, unknown>) {
-  globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
-    const url = input instanceof Request ? input.url : String(input);
-    if (url.endsWith('/login')) {
-      return Promise.resolve(Response.json({ authorization: 'jwt-token', code: 0 }));
-    }
-    if (url.endsWith('/player/gameData')) {
-      return Promise.resolve(Response.json({ code: 0, data: gameData }));
-    }
-    if (url.endsWith('/player/sngRecord')) {
-      return Promise.resolve(Response.json({ code: 0, list: [] }));
-    }
-    return Promise.resolve(new Response(null, { status: 404 }));
-  });
 }
 
 function recentIso(): string {
@@ -249,80 +224,6 @@ function recentIso(): string {
 }
 
 describe('worker API', () => {
-  it.each(['/login', '/player/gameData'])(
-    'does not expose malformed upstream JSON from %s',
-    async (path) => {
-      globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
-        const url = input instanceof Request ? input.url : String(input);
-        return Promise.resolve(
-          url.endsWith(path)
-            ? new Response('private-authorization echoed by upstream')
-            : Response.json({ authorization: 'jwt-token', code: 0 }),
-        );
-      });
-
-      const result = await fetchJson(
-        '/api/players/123',
-        {},
-        undefined,
-        createDb({}),
-        'private-device-token',
-      );
-
-      expect(result).toEqual({
-        body: { error: `${path} returned invalid JSON` },
-        status: 502,
-      });
-    },
-  );
-
-  it.each(['/api/players/123', '/api/players/search?q=example'])(
-    'reports rejected login without exposing credentials at %s',
-    async (path) => {
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve(
-          Response.json({
-            authorization: 'private-authorization',
-            code: -5,
-            message: 'private-device-token',
-          }),
-        ),
-      );
-
-      const result = await fetchJson(path, {}, undefined, createDb({}), 'private-device-token');
-
-      expect(result).toEqual({
-        body: {
-          error:
-            '/login failed with code -5: device risk verification failed. Contact Poker Fate support.',
-        },
-        status: 502,
-      });
-      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    },
-  );
-
-  it.each(['private-device-token', { token: 'private-device-token' }, null, undefined, false])(
-    'does not expose a malformed upstream error code: %j',
-    async (code) => {
-      globalThis.fetch = vi.fn(() => Promise.resolve(Response.json({ code })));
-
-      const result = await fetchJson(
-        '/api/players/123',
-        {},
-        undefined,
-        createDb({}),
-        'private-device-token',
-      );
-
-      expect(result).toEqual({
-        body: { error: '/login returned an invalid response code' },
-        status: 502,
-      });
-      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    },
-  );
-
   it('returns an empty players response when D1 is unavailable', async () => {
     const result = await fetchJson('/api/players', {});
 
@@ -350,7 +251,7 @@ describe('worker API', () => {
     });
   });
 
-  it('returns fresh cached players by alias search', async () => {
+  it('returns cached players by alias search', async () => {
     const player = { games: { '10010101': { hands: 8229 } }, name: 'Hakula', uid: 10410931 };
     const result = await fetchJson(
       '/api/players/search?q=hakula',
@@ -369,6 +270,31 @@ describe('worker API', () => {
     );
 
     expect(result).toEqual({ body: { players: [player] }, status: 200 });
+  });
+
+  it('serves long-stale cached players without contacting the official API', async () => {
+    const player = { games: { '10010101': { hands: 8229 } }, name: 'Hakula', uid: 10410931 };
+    const staleIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    globalThis.fetch = vi.fn(() =>
+      Promise.reject(new Error('The site must not fetch fresh data.')),
+    );
+    const db = createDb({
+      players: [
+        {
+          alias: 'Hakula',
+          fetched_at: staleIso,
+          player_json: JSON.stringify(player),
+          uid: 10410931,
+        },
+      ],
+    });
+
+    const list = await fetchJson('/api/players', {}, undefined, db);
+    const search = await fetchJson('/api/players/search?q=hakula', {}, undefined, db);
+
+    expect(list).toEqual({ body: { players: [player], updatedAt: staleIso }, status: 200 });
+    expect(search).toEqual({ body: { players: [player] }, status: 200 });
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('omits cached players without Hold\u2019em hands from search results', async () => {
@@ -390,91 +316,6 @@ describe('worker API', () => {
     );
 
     expect(result).toEqual({ body: { players: [] }, status: 200 });
-  });
-
-  it('returns a fresh cached player on refresh without calling the official API', async () => {
-    const fetchedAt = recentIso();
-    const player = {
-      fetchedAt,
-      games: { '10010101': { hands: 8229 } },
-      name: 'Hakula',
-      uid: 10410931,
-    };
-    const fetchSpy = vi.fn(() => Promise.reject(new Error('official API must not be called')));
-    globalThis.fetch = fetchSpy;
-
-    const result = await fetchJson(
-      '/api/players/10410931',
-      {},
-      undefined,
-      createDb({
-        players: [{ fetched_at: fetchedAt, player_json: JSON.stringify(player), uid: 10410931 }],
-      }),
-    );
-
-    expect(result).toEqual({ body: { player }, status: 200 });
-    expect(fetchSpy).not.toHaveBeenCalled();
-  });
-
-  it('refreshes a stale player from the official API', async () => {
-    const staleAt = '2026-06-01T00:00:00Z';
-    const cached = {
-      fetchedAt: staleAt,
-      games: { '10010101': { hands: 10 } },
-      leaderboardEntries: [],
-      name: 'Hakula',
-      names: ['Hakula'],
-      uid: 10410931,
-    };
-    mockOfficialApi({ fire_power: 42, play_times: 9999, profit: 100 });
-
-    const result = await fetchJson(
-      '/api/players/10410931',
-      {},
-      undefined,
-      createDb({
-        players: [{ fetched_at: staleAt, player_json: JSON.stringify(cached), uid: 10410931 }],
-      }),
-      'device-token',
-    );
-
-    const body = result.body as {
-      player: { games: Record<string, { hands: number }>; name: string; uid: number };
-    };
-    expect(result.status).toBe(200);
-    expect(body.player.uid).toBe(10410931);
-    expect(body.player.name).toBe('Hakula');
-    expect(body.player.games['10010101'].hands).toBe(9999);
-  });
-
-  it('returns a null player on refresh when the refreshed player has no Hold\u2019em hands', async () => {
-    const staleAt = '2026-06-01T00:00:00Z';
-    const cached = {
-      fetchedAt: staleAt,
-      games: { '10010101': { hands: 10 } },
-      name: 'Empty',
-      names: ['Empty'],
-      uid: 555,
-    };
-    mockOfficialApi({ play_times: 0 });
-
-    const result = await fetchJson(
-      '/api/players/555',
-      {},
-      undefined,
-      createDb({
-        players: [{ fetched_at: staleAt, player_json: JSON.stringify(cached), uid: 555 }],
-      }),
-      'device-token',
-    );
-
-    expect(result).toEqual({ body: { player: null }, status: 200 });
-  });
-
-  it('returns a null player on refresh when D1 is unavailable', async () => {
-    const result = await fetchJson('/api/players/123', {});
-
-    expect(result).toEqual({ body: { player: null }, status: 200 });
   });
 
   it('rejects unsupported methods', async () => {
@@ -632,13 +473,5 @@ describe('community tags', () => {
     );
 
     expect(limited.status).toBe(429);
-  });
-});
-
-describe('normalizeGame', () => {
-  it('matches the shared official-game-data contract', () => {
-    expect(
-      normalizeGame(gameDataContract.gameType, gameDataContract.label, gameDataContract.raw),
-    ).toEqual(gameDataContract.normalized);
   });
 });

@@ -2,6 +2,7 @@
   "app": {
     "eyebrow": "Poker Fate 研究",
     "title": "玩家数据",
+    "unmaintained": "本站已停止维护。玩家数据冻结于最后一次成功采集，不再更新。",
     "loading": "正在加载玩家数据",
     "dataUnavailable": "无法加载玩家数据。",
     "dataIssues": {
@@ -59,7 +60,6 @@
     "noLeaderboardRows": "没有排行榜记录",
     "noMatchingPlayer": "没有匹配当前搜索的玩家",
     "updated": "更新于",
-    "refreshing": "正在刷新\u2026",
     "value": "数值"
   },
   "periods": {

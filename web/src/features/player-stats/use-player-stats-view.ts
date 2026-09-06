@@ -1,22 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { mergePlayersByUid, refreshPlayer, searchPlayers } from '@/data';
+import { mergePlayersByUid, searchPlayers } from '@/data';
 import type { PlayerRecord } from '@/types';
 
 import { filterAndSortPlayers, type SortKey, type SortState } from './model';
-
-const refreshThresholdMs = 60 * 60 * 1000;
-
-function isStale(fetchedAt: string): boolean {
-  const fetchedTime = Date.parse(fetchedAt);
-  return !Number.isFinite(fetchedTime) || Date.now() - fetchedTime >= refreshThresholdMs;
-}
 
 export function usePlayerStatsView(players: PlayerRecord[]) {
   const [query, setQuery] = useState('');
   const [searchedPlayers, setSearchedPlayers] = useState<PlayerRecord[]>([]);
   const [selectedUid, setSelectedUid] = useState<number | null>(null);
-  const [refreshingUid, setRefreshingUid] = useState<number | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'profit', direction: 'desc' });
 
   const loadedPlayers = useMemo(
@@ -62,23 +54,6 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
 
   function selectPlayer(uid: number) {
     setSelectedUid(uid);
-
-    const record = loadedPlayers.find((player) => player.uid === uid);
-    if (!record || !isStale(record.fetchedAt)) {
-      return;
-    }
-
-    setRefreshingUid(uid);
-    void refreshPlayer(uid)
-      .then((player) => {
-        if (player) {
-          setSearchedPlayers((current) => mergePlayersByUid(current, [player]));
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        setRefreshingUid((current) => (current === uid ? null : current));
-      });
   }
 
   function changeSort(key: SortKey) {
@@ -92,7 +67,6 @@ export function usePlayerStatsView(players: PlayerRecord[]) {
     filteredPlayers,
     loadedPlayers,
     query,
-    refreshingUid,
     selectedPlayer,
     selectedUid,
     setQuery,

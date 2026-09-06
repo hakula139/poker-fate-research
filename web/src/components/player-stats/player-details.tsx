@@ -25,13 +25,7 @@ function PeriodBadge({ entry }: { entry: LeaderboardEntry }) {
   );
 }
 
-export function PlayerDetails({
-  player,
-  refreshing = false,
-}: {
-  player: PlayerRecord | undefined;
-  refreshing?: boolean;
-}) {
+export function PlayerDetails({ player }: { player: PlayerRecord | undefined }) {
   const { format, t } = useI18n();
 
   if (!player) {
@@ -72,7 +66,6 @@ export function PlayerDetails({
           title={format.dateTime(player.fetchedAt)}
         >
           {t.details.updated}: {format.relativeTime(player.fetchedAt)}
-          {refreshing ? <span className="ml-1 italic">· {t.details.refreshing}</span> : null}
         </p>
         <TagGroup stats={stats} />
         <CommunityTagChips tags={player.communityTags} />

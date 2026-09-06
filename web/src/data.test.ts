@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { loadPlayers, mergePlayersByUid, refreshPlayer, searchPlayers } from './data';
+import { loadPlayers, mergePlayersByUid, searchPlayers } from './data';
 import type { PlayerRecord } from './types';
 
 const originalFetch = globalThis.fetch;
@@ -82,29 +82,6 @@ describe('searchPlayers', () => {
     await expect(searchPlayers('Hakula')).resolves.toEqual([
       { games: {}, name: 'Hakula', uid: 10410931 },
     ]);
-  });
-});
-
-describe('refreshPlayer', () => {
-  it('returns the refreshed player from the Worker API', async () => {
-    globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
-      expect(requestUrl(input)).toBe('/api/players/10410931');
-      return Promise.resolve(
-        Response.json({ player: { games: {}, name: 'Hakula', uid: 10410931 } }),
-      );
-    });
-
-    await expect(refreshPlayer(10410931)).resolves.toEqual({
-      games: {},
-      name: 'Hakula',
-      uid: 10410931,
-    });
-  });
-
-  it('returns null when the player cannot be refreshed', async () => {
-    globalThis.fetch = vi.fn(() => Promise.resolve(Response.json({ player: null })));
-
-    await expect(refreshPlayer(999)).resolves.toBeNull();
   });
 });
 
